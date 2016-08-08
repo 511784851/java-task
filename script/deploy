@@ -1,0 +1,34 @@
+#!/bin/sh
+ 
+OUTPUT1=$(curl -H "Authorization: token 9a1037e276da50f04d4594946c1b161657b26df8" https://api.github.com/repos/blemobi/java-gamification/releases/latest --silent | grep "blemobi/java-gamification/releases/assets" | head -n 1 | cut -d '"' -f 4)
+
+curl -H  "Authorization: token b7c2d2c2209a7bfc3cf192da7fad0153adb546df" -H "Accept:application/octet-stream" -i $OUTPUT1 |  grep "location:" | head -n 1 | cut -c11- > desturl.txt
+
+	rm -f tmpfile
+	echo -n "\"" >> tmpfile
+	head -c -1  desturl.txt >> tmpfile
+	
+	echo -n "\"" >> tmpfile
+
+	url=$(<tmpfile)
+
+	rm -f desturl.txt
+	rm -f output1.zip
+	rm -f rscript
+
+	echo -n 'curl ' >> rscript
+	head -c -2 tmpfile >> rscript
+	echo -n "\"" >> rscript
+	echo -n ' -H "Accept:application/octet-stream" ' >> rscript
+
+	echo -n " -i -o output1.zip" >> rscript
+
+	rm -f tmpfile
+	rm -f blemobi-gamification-app.jar
+
+	chmod +x rscript
+	./rscript
+
+	unzip -q output1.zip
+	rm -f output1.zip
+	rm -f rscript
