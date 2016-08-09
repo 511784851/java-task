@@ -25,8 +25,7 @@ public class TaskProcess {
 	@POST
 	@Path("notify")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage notify(@CookieParam("uuid") String uuid, @CookieParam("token") String token,
-			@FormParam("taskKey") String taskKey) {
+	public PMessage notify(@FormParam("uuid") String uuid, @FormParam("taskKey") String taskKey) {
 
 		if (PTaskKey.PUBLISH.toString().equals(taskKey)) {// 发帖
 
