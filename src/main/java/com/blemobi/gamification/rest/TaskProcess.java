@@ -14,18 +14,20 @@ import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
 
 @Path("/task")
 public class TaskProcess {
-
+	private String GAME_USER_TASK = "chat:game:task:";
+	
+	
 	/**
 	 * 任务通知
 	 * 
-	 * @param type
+	 * @param taskKey
 	 *            任务ID
 	 * @return PMessage 返回PMessage对象数据
 	 */
 	@POST
-	@Path("notify")
+	@Path("serNotify")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage notify(@FormParam("uuid") String uuid, @FormParam("taskKey") String taskKey) {
+	public PMessage serNotify(@FormParam("uuid") String uuid, @FormParam("taskKey") String taskKey) {
 
 		if (PTaskKey.PUBLISH.toString().equals(taskKey)) {// 发帖
 
@@ -49,15 +51,11 @@ public class TaskProcess {
 
 		} else if (PTaskKey.PROFILE.toString().equals(taskKey)) { // 资料完善
 
-		} else if (PTaskKey.OPENCONTACT.toString().equals(taskKey)) { // 开启手机通讯录访问权限
-
 		} else if (PTaskKey.ADDCONTACT.toString().equals(taskKey)) {// 加手机通讯录好友
 
 		} else if (PTaskKey.FEEDBACK.toString().equals(taskKey)) { // 意见反馈
 
 		} else if (PTaskKey.BINDACCOUNT.toString().equals(taskKey)) {// 绑定第三方账号
-
-		} else if (PTaskKey.DOWNLOADAPP.toString().equals(taskKey)) {// 下载机器人助手
 
 		} else if (PTaskKey.ADDOTHERFRIEND.toString().equals(taskKey)) {// 加第三方方平台好友
 
@@ -69,7 +67,23 @@ public class TaskProcess {
 
 		return ReslutUtil.createErrorMessage(0, "ok");
 	}
+	
+	@POST
+	@Path("notify")
+	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
+	public PMessage notify(@CookieParam("uuid") String uuid, @FormParam("taskKey") String taskKey) {
 
+		if (PTaskKey.OPENCONTACT.toString().equals(taskKey)) { // 开启手机通讯录访问权限
+
+		} else if (PTaskKey.DOWNLOADAPP.toString().equals(taskKey)) {// 下载机器人助手
+
+		} else {
+			return ReslutUtil.createErrorMessage(1901012, "taskKey error");
+		}
+
+		return ReslutUtil.createErrorMessage(0, "ok");
+	}
+	
 	/**
 	 * 任务通知
 	 * 
