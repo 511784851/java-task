@@ -62,6 +62,8 @@ public class TaskProcess {
 
 		} else if (PTaskKey.ADDOTHERFRIEND.toString().equals(taskKey)) {// 加第三方方平台好友
 
+		} else if (PTaskKey.REGISTER.toString().equals(taskKey)) {// 注册
+
 		} else {
 			return ReslutUtil.createErrorMessage(1901012, "taskKey error");
 		}
@@ -115,6 +117,8 @@ public class TaskProcess {
 		} else if (PTaskKey.DOWNLOADAPP.toString().equals(taskKey)) {// 下载机器人助手
 
 		} else if (PTaskKey.ADDOTHERFRIEND.toString().equals(taskKey)) {// 加第三方方平台好友
+
+		} else if (PTaskKey.REGISTER.toString().equals(taskKey)) {// 注册
 
 		} else {
 			return ReslutUtil.createErrorMessage(1901012, "taskKey error");
