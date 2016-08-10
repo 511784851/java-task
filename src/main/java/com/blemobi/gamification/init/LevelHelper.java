@@ -3,7 +3,7 @@ package com.blemobi.gamification.init;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LevelManager {
+public class LevelHelper {
 
 	private static List<LevelExperience> levelList = new ArrayList<LevelExperience>();
 
@@ -18,7 +18,7 @@ public class LevelManager {
 		levelList.add(new LevelExperience(6, "等级6", 7200, 8199));
 	}
 
-	public static LevelExperience getLevel(int experience) {
+	public static LevelExperience getLevel(long experience) {
 		for (LevelExperience le : levelList) {
 			if (experience >= le.getMinExperience() && experience <= le.getMaxExperience()) {
 				return le;
@@ -26,34 +26,13 @@ public class LevelManager {
 		}
 		return levelList.get(levelList.size());
 	}
-}
 
-class LevelExperience {
-	private int id;
-	private String name;
-	private int minExperience;
-	private int maxExperience;
-
-	public LevelExperience(int id, String name, int minExperience, int maxExperience) {
-		this.id = id;
-		this.name = name;
-		this.minExperience = minExperience;
-		this.maxExperience = maxExperience;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public int getMinExperience() {
-		return minExperience;
-	}
-
-	public int getMaxExperience() {
-		return maxExperience;
+	public static long getNextLevelExperience(int level) {
+		for (LevelExperience le : levelList) {
+			if (le.getLevel() == level) {
+				return le.getMinExperience();
+			}
+		}
+		return 0;
 	}
 }

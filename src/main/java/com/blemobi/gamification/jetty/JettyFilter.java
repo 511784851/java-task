@@ -40,14 +40,12 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 public class JettyFilter implements Filter {
 
-	private BaseHttpClient clientUtil;
-
 	/**
 	 * 初始化
 	 * 
 	 */
 	public void init(FilterConfig filterConfig) throws ServletException {
-		clientUtil = new AccountHttpClient();
+
 	}
 
 	/**
@@ -104,7 +102,8 @@ public class JettyFilter implements Filter {
 		boolean bool = false;
 
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-		PMessage message = clientUtil.getMethod(PathGlobal.GetUser, null, cookies);
+		BaseHttpClient clientUtil = new AccountHttpClient(PathGlobal.GetUser, null, cookies);
+		PMessage message = clientUtil.getMethod();
 
 		log.info("从账户系统校验用户uuid["+uuid+"]返回message： " + message);	
 		String type = message.getType();
