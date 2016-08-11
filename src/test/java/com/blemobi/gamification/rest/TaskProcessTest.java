@@ -26,7 +26,7 @@ public class TaskProcessTest {
 		GamificationManager.main(arg);
 	}
 
-	//@Test
+	@Test
 	public void testAccept() throws Exception {
 		String uuid = "0efe519d-cddf-412c-a5e0-2e8f14f80edb";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";

@@ -1,6 +1,6 @@
 package com.blemobi.gamification.task;
 
-import com.blemobi.gamification.init.TaskHelper;
+import com.blemobi.gamification.helper.TaskHelper;
 import com.blemobi.library.exception.BaseException;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.CommonUtil;

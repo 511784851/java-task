@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.blemobi.gamification.init.BadgeHelper;
-import com.blemobi.gamification.init.LevelHelper;
-import com.blemobi.gamification.init.TaskHelper;
+import com.blemobi.gamification.helper.BadgeHelper;
+import com.blemobi.gamification.helper.LevelHelper;
+import com.blemobi.gamification.helper.TaskHelper;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.CommonUtil;
 import com.blemobi.library.util.ReslutUtil;

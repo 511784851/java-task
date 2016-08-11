@@ -1,4 +1,4 @@
-package com.blemobi.gamification.init;
+package com.blemobi.gamification.helper;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -8,12 +8,44 @@ import java.util.Set;
 import com.blemobi.sep.probuf.GamificationProtos.PBadgeDetail;
 import com.blemobi.sep.probuf.GamificationProtos.PTaskKey;
 
+import lombok.extern.log4j.Log4j;
+
+/*
+ * 徽章访问类
+ */
 public class BadgeHelper {
+	// 获取单条徽章的信息
+	public static PBadgeDetail getBadgeDetail(String key) {
+		BadgeSingleton badgeSingleton = BadgeSingleton.getInstance();
+		Map<String, PBadgeDetail> badgeMap = badgeSingleton.getBadgeMap();
+		return badgeMap.get(key);
+	}
 
-	private static Map<String, PBadgeDetail> badgeMap = new LinkedHashMap<String, PBadgeDetail>();
+	// 获取全部的徽章信息
+	public static Collection<PBadgeDetail> getBadgeList() {
+		BadgeSingleton badgeSingleton = BadgeSingleton.getInstance();
+		Map<String, PBadgeDetail> badgeMap = badgeSingleton.getBadgeMap();
+		return badgeMap.values();
+	}
 
-	// 初始化徽章内容
-	public void init() {	
+	// 获取全部徽章的key
+	public static Set<String> getBadgeKeys() {
+		BadgeSingleton badgeSingleton = BadgeSingleton.getInstance();
+		Map<String, PBadgeDetail> badgeMap = badgeSingleton.getBadgeMap();
+		return badgeMap.keySet();
+	}
+}
+
+/*
+ * 徽章初始化单利类
+ */
+@Log4j
+class BadgeSingleton {
+	private Map<String, PBadgeDetail> badgeMap = new LinkedHashMap<String, PBadgeDetail>();
+
+	// 私有构造方法
+	public BadgeSingleton() {
+		log.info("开始初始化徽章内容...");
 		badgeMap.put(PTaskKey.PUBLISH.toString(), initPBadgeDetail("发帖达人", "", "发帖200篇", 200));
 		badgeMap.put(PTaskKey.FOLLOW.toString(), initPBadgeDetail("关注达人", "", "关注1000个", 1000));
 		badgeMap.put(PTaskKey.VOTE.toString(), initPBadgeDetail("点赞达人", "", "点赞1500个", 1500));
@@ -31,23 +63,22 @@ public class BadgeHelper {
 	}
 
 	private PBadgeDetail initPBadgeDetail(String name, String icon, String description, int target) {
-		return PBadgeDetail.newBuilder()
-				.setName(name)
-				.setIcon(icon)
-				.setDescription(description)
-				.setTarget(target)
+		return PBadgeDetail.newBuilder().setName(name).setIcon(icon).setDescription(description).setTarget(target)
 				.build();
 	}
 
-	public static PBadgeDetail getBadgeDetail(String key) {
-		return badgeMap.get(key);
+	/* 使用一个内部类来维护单例 */
+	private static class SingletonFactory {
+		private static BadgeSingleton instance = new BadgeSingleton();
 	}
 
-	public static Collection<PBadgeDetail> getBadgeList() {
-		return badgeMap.values();
+	// 外部获取本类对象
+	public static BadgeSingleton getInstance() {
+		return SingletonFactory.instance;
 	}
 
-	public static Set<String> getBadgeKeys() {
-		return badgeMap.keySet();
+	// 获取徽章信息
+	public Map<String, PBadgeDetail> getBadgeMap() {
+		return badgeMap;
 	}
 }

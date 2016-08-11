@@ -1,8 +1,5 @@
 package com.blemobi.gamification.core;
 
-import com.blemobi.gamification.init.BadgeHelper;
-import com.blemobi.gamification.init.LevelHelper;
-import com.blemobi.gamification.init.TaskHelper;
 import com.blemobi.gamification.jetty.JettyServer;
 import com.blemobi.library.consul.ConsulManager;
 import com.blemobi.library.global.Constant;
@@ -25,14 +22,6 @@ public class GamificationManager {
 
 		// 注册监听器，如果Consul服务器获取有配置信息变更，则通知Constant
 		ConsulManager.addConsulChangeListener(Constant.getAdapter());
-
-		// 初始化任务内容
-		TaskHelper taskHelper = new TaskHelper();
-		taskHelper.init();
-		BadgeHelper badgeHelper = new BadgeHelper();
-		badgeHelper.init();
-		LevelHelper levelHelper = new LevelHelper();
-		levelHelper.init();
 
 		log.info("Starting Gamification Server ...");
 

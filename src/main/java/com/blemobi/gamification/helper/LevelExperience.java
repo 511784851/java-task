@@ -1,4 +1,4 @@
-package com.blemobi.gamification.init;
+package com.blemobi.gamification.helper;
 
 public class LevelExperience {
 	private int level;

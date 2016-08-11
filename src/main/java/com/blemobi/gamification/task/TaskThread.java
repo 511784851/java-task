@@ -1,8 +1,8 @@
 package com.blemobi.gamification.task;
 
-import com.blemobi.gamification.init.BadgeHelper;
-import com.blemobi.gamification.init.LevelExperience;
-import com.blemobi.gamification.init.LevelHelper;
+import com.blemobi.gamification.helper.BadgeHelper;
+import com.blemobi.gamification.helper.LevelExperience;
+import com.blemobi.gamification.helper.LevelHelper;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.sep.probuf.GamificationProtos.PBadgeDetail;
 import com.blemobi.sep.probuf.GamificationProtos.PTaskDetail;
