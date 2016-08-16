@@ -19,9 +19,11 @@ import com.blemobi.sep.probuf.GamificationProtos.PTaskKey;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 
 public class TaskProcessTest {
+	private int port;
 
 	@Before
 	public void setup() throws Exception {
+		port = 9018;
 		String[] arg = new String[] { "-env", "local" };
 		GamificationManager.main(arg);
 	}
@@ -37,7 +39,7 @@ public class TaskProcessTest {
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		String basePath = "/gamification/task/accept";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, params, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient(basePath, params, cookies, port);
 		PMessage message = clientUtil.postMethod();
 
 		System.out.println(message);
@@ -53,12 +55,12 @@ public class TaskProcessTest {
 
 		String basePath = "/gamification/task/serNotify";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, params, null);
+		BaseHttpClient clientUtil = new LocalHttpClient(basePath, params, null, port);
 		PMessage message = clientUtil.postMethod();
 
 		System.out.println(message);
 	}
-	
+
 	@After
 	public void tearDown() {
 		System.exit(0);

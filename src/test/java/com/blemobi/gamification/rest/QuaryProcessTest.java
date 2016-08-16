@@ -14,9 +14,11 @@ import com.blemobi.sep.probuf.GamificationProtos.PGamification;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 
 public class QuaryProcessTest {
+	private int port;
 
 	@Before
 	public void setup() throws Exception {
+		port = 9018;
 		String[] arg = new String[] { "-env", "local" };
 		GamificationManager.main(arg);
 	}
@@ -29,7 +31,7 @@ public class QuaryProcessTest {
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		String basePath = "/gamification/user/task";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, null, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient(basePath, null, cookies, port);
 		PMessage message = clientUtil.getMethod();
 
 		PGamification gamification = PGamification.parseFrom(message.getData());
@@ -44,7 +46,7 @@ public class QuaryProcessTest {
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		String basePath = "/gamification/user/achievement";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, null, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient(basePath, null, cookies, port);
 		PMessage message = clientUtil.getMethod();
 
 		System.out.println(message);
