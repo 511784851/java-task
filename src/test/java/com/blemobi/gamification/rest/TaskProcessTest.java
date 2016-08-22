@@ -39,7 +39,7 @@ public class TaskProcessTest {
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		String basePath = "/gamification/task/accept";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, params, cookies, port);
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
 		PMessage message = clientUtil.postMethod();
 
 		System.out.println(message);
@@ -55,7 +55,7 @@ public class TaskProcessTest {
 
 		String basePath = "/gamification/task/serNotify";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, params, null, port);
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, null);
 		PMessage message = clientUtil.postMethod();
 
 		System.out.println(message);

@@ -1,7 +1,10 @@
 package com.blemobi.gamification.rest;
 
+import java.util.List;
+
 import javax.servlet.http.Cookie;
 
+import org.apache.http.NameValuePair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +34,7 @@ public class QuaryProcessTest {
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		String basePath = "/gamification/user/task";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, null, cookies, port);
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
 		PMessage message = clientUtil.getMethod();
 
 		PGamification gamification = PGamification.parseFrom(message.getData());
@@ -46,7 +49,7 @@ public class QuaryProcessTest {
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		String basePath = "/gamification/user/achievement";
 
-		BaseHttpClient clientUtil = new LocalHttpClient(basePath, null, cookies, port);
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
 		PMessage message = clientUtil.getMethod();
 
 		System.out.println(message);
