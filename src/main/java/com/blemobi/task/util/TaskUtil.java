@@ -114,7 +114,7 @@ public class TaskUtil {
 			int state = 0; // 任务状态（0-未接受，1-进行中，2-可领奖，3-已完成）
 			if (target >= 0 && target < num) {// 进行中
 				state = 1;
-			} else if (target == num) {// 可领奖
+			} else if (target >= num) {// 可领奖
 				state = 2;
 			} else {// 已完成
 				competeTasks.add(taskId);
