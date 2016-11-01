@@ -11,11 +11,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.blemobi.gamification.core.GamificationManager;
 import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.library.client.LocalHttpClient;
 import com.blemobi.library.util.CommonUtil;
-import com.blemobi.sep.probuf.GamificationProtos.PTaskKey;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 
 public class TaskProcessTest {
@@ -25,40 +23,35 @@ public class TaskProcessTest {
 	public void setup() throws Exception {
 		port = 9018;
 		String[] arg = new String[] { "-env", "local" };
-		GamificationManager.main(arg);
+		// GamificationManager.main(arg);
 	}
 
-	@Test
-	public void testAccept() throws Exception {
-		String uuid = "0efe519d-cddf-412c-a5e0-2e8f14f80edb";
+	 @Test
+	public void testList() throws Exception {
+		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
 
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("taskKey", PTaskKey.PUBLISH.toString()));
-
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-		String basePath = "/gamification/task/accept";
+		String basePath = "/task/user/list";
 
 		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
-		PMessage message = clientUtil.postMethod();
-
-		System.out.println(message);
+		PMessage message = clientUtil.getMethod();
 	}
 
-	@Test
-	public void testSerNotify() throws Exception {
-		String uuid = "0efe519d-cddf-412c-a5e0-2e8f14f80edb";
+	 // @Test
+	public void testReward() throws Exception {
+		String uuid = "123456789";
+		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
+
+		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("uuid", uuid));
-		params.add(new BasicNameValuePair("taskKey", PTaskKey.PUBLISH.toString()));
+		params.add(new BasicNameValuePair("taskId", "2"));
 
-		String basePath = "/gamification/task/serNotify";
+		String basePath = "/task/reward";
 
-		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, null);
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, cookies);
 		PMessage message = clientUtil.postMethod();
-
-		System.out.println(message);
 	}
 
 	@After
