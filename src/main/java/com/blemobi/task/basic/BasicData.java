@@ -17,44 +17,66 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.google.common.base.Strings;
 
+import lombok.extern.log4j.Log4j;
+
 /**
  * 读取CSV中的数据
  */
-public class CsvFileUtil {
+@Log4j
+public class BasicData {
 	private InputStream inp;
 	private Workbook wb;
+	private String fileUrl;
 
 	// 全部任务类型（消息订阅）
-	private Map<Integer, TaskTypeInfo> taskTypeMap = new LinkedHashMap<Integer, TaskTypeInfo>();
+	public static Map<Integer, TaskTypeInfo> taskTypeMap = new LinkedHashMap<Integer, TaskTypeInfo>();
 	// 全部主线任务
-	private Map<Integer, TaskInfo> mainTaskMap = new LinkedHashMap<Integer, TaskInfo>();
+	public static Map<Integer, TaskInfo> mainTaskMap = new LinkedHashMap<Integer, TaskInfo>();
 	// 全部日常任务
-	private Map<Integer, TaskInfo> dailyTaskMap = new LinkedHashMap<Integer, TaskInfo>();
+	public static Map<Integer, TaskInfo> dailyTaskMap = new LinkedHashMap<Integer, TaskInfo>();
 	// 任务ID对应的任务Tag（主线还是日常）
-	private Map<Integer, TaskTag> taskIdtoTag = new LinkedHashMap<Integer, TaskTag>();
+	public static Map<Integer, TaskTag> taskIdtoTag = new LinkedHashMap<Integer, TaskTag>();
+	// 全部等级
+	public static Map<Integer, LevelInfo> levelMap = new LinkedHashMap<Integer, LevelInfo>();
 
 	/*
 	 * 构造方法
 	 */
-	public CsvFileUtil(String fileUrl, Map<Integer, TaskTypeInfo> taskTypeMap, Map<Integer, TaskInfo> mainTaskMap,
-			Map<Integer, TaskTag> taskIdtoTag, Map<Integer, TaskInfo> dailyTaskMap)
-			throws EncryptedDocumentException, InvalidFormatException, IOException {
-		this.taskTypeMap = taskTypeMap;
-		this.mainTaskMap = mainTaskMap;
-		this.dailyTaskMap = dailyTaskMap;
-		this.taskIdtoTag = taskIdtoTag;
+	public BasicData(String fileUrl) {
+		this.fileUrl = fileUrl;
+	}
 
-		// 创建要读入的文件的输入流
-		inp = new FileInputStream(fileUrl);
-		// 根据上述创建的输入流 创建工作簿对象
-		wb = WorkbookFactory.create(inp);
+	/*
+	 * 初始化数据
+	 */
+	public void init() throws EncryptedDocumentException, InvalidFormatException, IOException {
+		try {
+			// 创建要读入的文件的输入流
+			this.inp = new FileInputStream(this.fileUrl);
+			// 根据上述创建的输入流 创建工作簿对象
+			this.wb = WorkbookFactory.create(inp);
+
+			this.readTaskType(0);
+			this.readMainTask(1);
+			this.readDailyTask(2);
+			this.readLevel(3);
+
+			log.debug("任务配置数据读取完成！");
+		} catch (Exception e) {
+			log.error("任务配置数据读取异常：" + e.getMessage());
+			e.printStackTrace();
+			System.exit(0);
+		} finally {
+			this.close();
+			this.out();
+		}
 	}
 
 	/*
 	 * 读取任务类型信息
 	 */
-	public void readTaskType(int sheetId) {
-		Sheet sheet = wb.getSheetAt(sheetId);
+	private void readTaskType(int sheetId) {
+		Sheet sheet = this.wb.getSheetAt(sheetId);
 		Map<String, Integer> keyMap = new HashMap<String, Integer>();
 		for (Row row : sheet) {
 			if (row.getRowNum() == 1) {
@@ -93,8 +115,8 @@ public class CsvFileUtil {
 	/*
 	 * 读取主线任务信息
 	 */
-	public void readMainTask(int sheetId) {
-		Sheet sheet = wb.getSheetAt(sheetId);
+	private void readMainTask(int sheetId) {
+		Sheet sheet = this.wb.getSheetAt(sheetId);
 		Map<String, Integer> keyMap = new HashMap<String, Integer>();
 		for (Row row : sheet) {
 			if (row.getRowNum() == 1) {
@@ -149,8 +171,8 @@ public class CsvFileUtil {
 	/*
 	 * 读取日常任务信息
 	 */
-	public void readDailyTask(int sheetId) {
-		Sheet sheet = wb.getSheetAt(sheetId);
+	private void readDailyTask(int sheetId) {
+		Sheet sheet = this.wb.getSheetAt(sheetId);
 
 		Map<String, Integer> keyMap = new HashMap<String, Integer>();
 
@@ -191,6 +213,53 @@ public class CsvFileUtil {
 	}
 
 	/*
+	 * 读取等级信息
+	 */
+	private void readLevel(int sheetId) {
+		Sheet sheet = this.wb.getSheetAt(sheetId);
+
+		Map<String, Integer> keyMap = new HashMap<String, Integer>();
+
+		// 利用foreach循环 遍历sheet中的所有行
+		for (Row row : sheet) {
+			if (row.getRowNum() == 1) {
+				for (Cell cell : row) {
+					if ("level".equals(cell.toString())) {
+						keyMap.put("level", cell.getColumnIndex());
+					} else if ("exp-min".equals(cell.toString())) {
+						keyMap.put("exp-min", cell.getColumnIndex());
+					} else if ("exp-max".equals(cell.toString())) {
+						keyMap.put("exp-max", cell.getColumnIndex());
+					} else if ("max".equals(cell.toString())) {
+						keyMap.put("max", cell.getColumnIndex());
+					} else if ("title-sc".equals(cell.toString())) {
+						keyMap.put("title-sc", cell.getColumnIndex());
+					} else if ("title-tc".equals(cell.toString())) {
+						keyMap.put("title-tc", cell.getColumnIndex());
+					} else if ("title-kr".equals(cell.toString())) {
+						keyMap.put("title-kr", cell.getColumnIndex());
+					} else if ("title-en".equals(cell.toString())) {
+						keyMap.put("title-en", cell.getColumnIndex());
+					}
+				}
+			} else if (row.getRowNum() > 1) {
+				LevelInfo levelInfo = new LevelInfo();
+				int level = (int) row.getCell(keyMap.get("level")).getNumericCellValue();
+				levelInfo.setLevel(level);
+				levelInfo.setExp_min((int) row.getCell(keyMap.get("exp-min")).getNumericCellValue());
+				levelInfo.setExp_max((int) row.getCell(keyMap.get("exp-max")).getNumericCellValue());
+				levelInfo.setMax((int) row.getCell(keyMap.get("max")).getNumericCellValue());
+				levelInfo.setTitle_en(row.getCell(keyMap.get("title-en")).toString());
+				levelInfo.setTitle_kr(row.getCell(keyMap.get("title-kr")).toString());
+				levelInfo.setTitle_sc(row.getCell(keyMap.get("title-sc")).toString());
+				levelInfo.setTitle_tc(row.getCell(keyMap.get("title-tc")).toString());
+
+				levelMap.put(level, levelInfo);
+			}
+		}
+	}
+
+	/*
 	 * 任务依赖处理
 	 */
 	private static void getDepend(TaskInfo taskInfo, String value, char logic) {
@@ -206,15 +275,15 @@ public class CsvFileUtil {
 	/*
 	 * 关闭输入流
 	 */
-	public void close() throws IOException {
-		wb.close();
-		inp.close();
+	private void close() throws IOException {
+		this.wb.close();
+		this.inp.close();
 	}
 
 	/*
 	 * 查看数据
 	 */
-	public void out() {
+	private void out() {
 		System.out.println("------------主线任务信息[mainTaskMap]开始-------------");
 		for (TaskInfo taskInfo : mainTaskMap.values()) {
 			System.out.print("[" + taskInfo.getTaskid() + "] ");
@@ -270,5 +339,19 @@ public class CsvFileUtil {
 			System.out.println();
 		}
 		System.out.println("------------任务Tag信息[taskIdtoTag]结束-------------");
+
+		System.out.println("------------等级信息[levelMap]开始-------------");
+		for (LevelInfo levelInfo : levelMap.values()) {
+			System.out.print("[" + levelInfo.getLevel() + "] ");
+			System.out.print("[" + levelInfo.getExp_min() + "] ");
+			System.out.print("[" + levelInfo.getExp_max() + "] ");
+			System.out.print("[" + levelInfo.getMax() + "] ");
+			System.out.print("[" + levelInfo.getTitle_en() + "] ");
+			System.out.print("[" + levelInfo.getTitle_kr() + "] ");
+			System.out.print("[" + levelInfo.getTitle_sc() + "] ");
+			System.out.print("[" + levelInfo.getTitle_tc() + "] ");
+			System.out.println();
+		}
+		System.out.println("------------等级信息[levelMap]结束-------------");
 	}
 }

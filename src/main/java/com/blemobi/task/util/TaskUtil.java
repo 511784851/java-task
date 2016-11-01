@@ -3,14 +3,18 @@ package com.blemobi.task.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.TaskProtos.PTaskInfo;
+import com.blemobi.sep.probuf.TaskProtos.PTaskLevel;
+import com.blemobi.sep.probuf.TaskProtos.PTaskLevelList;
 import com.blemobi.sep.probuf.TaskProtos.PTaskList;
 import com.blemobi.sep.probuf.TaskProtos.PTaskUserBasic;
 import com.blemobi.task.basic.LevelHelper;
+import com.blemobi.task.basic.LevelInfo;
 import com.blemobi.task.basic.TaskHelper;
 import com.blemobi.task.basic.TaskInfo;
 import com.blemobi.task.basic.TaskTag;
@@ -23,6 +27,9 @@ public class TaskUtil {
 	private final long defaultEXP = 0;
 
 	private String uuid;
+	private String nickname;
+	private String headimg;
+
 	private int taskId;
 	private String language;
 	private String userInfoKey;
@@ -33,7 +40,7 @@ public class TaskUtil {
 	private Jedis jedis;
 
 	// 构造方法
-	public TaskUtil(String uuid) {
+	private TaskUtil(String uuid) {
 		this.uuid = uuid;
 		this.userInfoKey = Constant.GAME_USER_INFO + uuid;
 		this.userMainTaskKey = Constant.GAME_TASK_MAIN + uuid;
@@ -42,7 +49,13 @@ public class TaskUtil {
 		this.jedis = RedisManager.getRedis();
 	}
 
-	// 构造方法
+	public TaskUtil(String uuid, String language, String nickname, String headimg) {
+		this(uuid);
+		this.language = language;
+		this.nickname = nickname;
+		this.headimg = headimg;
+	}
+
 	public TaskUtil(String uuid, int taskId) {
 		this(uuid);
 		this.taskId = taskId;
@@ -95,11 +108,11 @@ public class TaskUtil {
 		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
 		int level = Integer.parseInt(userInfo.get("level"));
 		long exp = Long.parseLong(userInfo.get("exp"));
-		int nextLevel = LevelHelper.getNextLevelByLevel(level);
-		long nextLevelExp = LevelHelper.getMinExpByLevel(nextLevel);
+		LevelInfo levelInfo = LevelHelper.getNextLevelByLevel(level);
 
-		PTaskUserBasic userBasic = PTaskUserBasic.newBuilder().setLevel(level).setExp(exp).setNextLevel(nextLevel)
-				.setNextLevelExp(nextLevelExp).build();
+		PTaskUserBasic userBasic = PTaskUserBasic.newBuilder().setLevel(level).setExp(exp)
+				.setNextLevel(levelInfo.getLevel()).setNextLevelExp(levelInfo.getExp_min()).setNickname(nickname)
+				.setHeadimg(headimg).build();
 		PTaskList.Builder taskListBuilder = PTaskList.newBuilder().setUserBasic(userBasic);
 
 		// 主线任务
@@ -130,43 +143,56 @@ public class TaskUtil {
 		}
 
 		// 日常任务
-		/*
-		 * int max = LevelHelper.getMaxCountByLevel(level);// 用户当前等级可接最大日常任务数
-		 * Map<String, String> userDailyTask =
-		 * jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务 Set<String> tasks =
-		 * userDailyTask.keySet(); competeTasks.removeAll(tasks); int syMax =
-		 * max - userDailyTask.size();// 还可接多少日常任务 if (syMax > 0) {
-		 * List<TaskInfo> list =
-		 * TaskHelper.getActiveDailyTaskList(competeTasks); int size = list ==
-		 * null ? 0 : list.size(); if (size <= syMax) {// 全部初始化 for (TaskInfo
-		 * taskInfo : list) { long rtn = jedis.hsetnx(userDailyTaskKey,
-		 * taskInfo.getTaskId() + "", "-1"); if (rtn == 1) {
-		 * SubscribeThread.addQueue(uuid, taskInfo.getType(), dailyTime); } }
-		 * userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务 }
-		 * else {// 只能初始化syMax个日常任务 for (int i = 0; i < syMax; i++) { TaskInfo
-		 * taskInfo = list.get(i); long rtn = jedis.hsetnx(userDailyTaskKey,
-		 * taskInfo.getTaskId() + "", "-1"); if (rtn == 1) {
-		 * SubscribeThread.addQueue(uuid, taskInfo.getType(), dailyTime); } }
-		 * userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务 } }
-		 * for (String key : userDailyTask.keySet()) { int taskId =
-		 * Integer.parseInt(key);// 任务ID String targetStr =
-		 * userMainTask.get(taskId); int target = Integer.parseInt(targetStr);//
-		 * 任务进度 TaskInfo taskInfo = TaskHelper.getMainTask(taskId);// 任务信息 int
-		 * num = taskInfo.getNum();// 任务要求次数 int state = 0; //
-		 * 任务状态（0-未接受，1-进行中，2-可领奖，3-已完成） if (target >= 0 && target < num) {//
-		 * 进行中 state = 1; } else if (target == num) {// 可领奖 state = 2; } else if
-		 * (target < -1) {// 已完成 state = 3; }
-		 * 
-		 * String des = TaskHelper.getTaskDes(taskInfo.getType(), language,
-		 * num);
-		 * 
-		 * PTaskInfo ptaskInfo =
-		 * PTaskInfo.newBuilder().setTaskId(taskId).setExp(taskInfo.getExp())
-		 * .setType(taskInfo.getType()).setState(state).setComplete(target).
-		 * setNum(num).setDes(des).build();
-		 * 
-		 * taskListBuilder.addDailyTask(ptaskInfo); }
-		 */
+		int max = LevelHelper.getMaxCountByLevel(level);// 用户当前等级可接最大日常任务数
+		Map<String, String> userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务
+		Set<String> tasks = userDailyTask.keySet();
+		competeTasks.removeAll(tasks);
+		int syMax = max - userDailyTask.size();// 还可接多少日常任务
+		if (syMax > 0) {
+			List<TaskInfo> list = TaskHelper.getActiveDailyTaskList(competeTasks);
+			int size = list == null ? 0 : list.size();
+			if (size <= syMax) {// 全部初始化
+				for (TaskInfo taskInfo : list) {
+					long rtn = jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+					if (rtn == 1) {
+						SubscribeThread.addQueue(uuid, taskInfo.getType(), dailyTime);
+					}
+				}
+				userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务
+			} else {// 只能初始化syMax个日常任务
+				for (int i = 0; i < syMax; i++) {
+					TaskInfo taskInfo = list.get(i);
+					long rtn = jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+					if (rtn == 1) {
+						SubscribeThread.addQueue(uuid, taskInfo.getType(), dailyTime);
+					}
+				}
+				userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务
+			}
+		}
+		for (String key : userDailyTask.keySet()) {
+			int taskId = Integer.parseInt(key);// 任务ID
+			String targetStr = userMainTask.get(taskId);
+			int target = Integer.parseInt(targetStr);// 任务进度
+			TaskInfo taskInfo = TaskHelper.getMainTask(taskId);// 任务信息
+			int num = taskInfo.getNum();// 任务要求次数
+			int state = 0; // 任务状态（0-未接受，1-进行中，2-可领奖，3-已完成）
+			if (target >= 0 && target < num) {// 进行中
+				state = 1;
+			} else if (target == num) {// 可领奖
+				state = 2;
+			} else if (target < -1) {// 已完成
+				state = 3;
+			}
+
+			String des = TaskHelper.getTaskDes(taskInfo.getType(), language, num);
+
+			PTaskInfo ptaskInfo = PTaskInfo.newBuilder().setTaskid(taskId).setExp(taskInfo.getExp())
+					.setType(taskInfo.getType()).setState(state).setComplete(target).setNum(num).setDesc(des).build();
+
+			taskListBuilder.addDailyTask(ptaskInfo);
+		}
+
 		RedisManager.returnResource(jedis);
 		return ReslutUtil.createReslutMessage(taskListBuilder.build());
 	}
@@ -204,5 +230,29 @@ public class TaskUtil {
 			RedisManager.returnResource(jedis);
 			return ReslutUtil.createErrorMessage(210000, "任务不存在");
 		}
+	}
+
+	// 获取等级列表
+	public PMessage level() {
+		// 基础信息
+		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
+		int level = Integer.parseInt(userInfo.get("level"));
+		long exp = Long.parseLong(userInfo.get("exp"));
+		LevelInfo levelInfo = LevelHelper.getNextLevelByLevel(level);
+
+		PTaskUserBasic userBasic = PTaskUserBasic.newBuilder().setLevel(level).setExp(exp)
+				.setNextLevel(levelInfo.getLevel()).setNextLevelExp(levelInfo.getExp_min()).setNickname(nickname)
+				.setHeadimg(headimg).build();
+		PTaskLevelList.Builder taskLevelList = PTaskLevelList.newBuilder().setUserBasic(userBasic);
+
+		// 等级信息
+		for (LevelInfo li : LevelHelper.getAllLevelList()) {
+			PTaskLevel taskLevel = PTaskLevel.newBuilder().setId(li.getLevel()).setName(li.getTitle_sc())
+					.setMinExp(li.getExp_min()).setMaxExp(li.getExp_max()).build();
+			taskLevelList.addTaskLevel(taskLevel);
+		}
+
+		RedisManager.returnResource(jedis);
+		return ReslutUtil.createReslutMessage(taskLevelList.build());
 	}
 }

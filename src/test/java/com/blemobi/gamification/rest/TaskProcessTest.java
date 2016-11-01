@@ -26,19 +26,35 @@ public class TaskProcessTest {
 		// GamificationManager.main(arg);
 	}
 
-	 @Test
+	//@Test
 	public void testList() throws Exception {
 		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
+		String basePath = "/task/user/list";
 
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-		String basePath = "/task/user/list";
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("language", "zh_cn"));
 
 		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
 		PMessage message = clientUtil.getMethod();
 	}
 
-	 // @Test
+	@Test
+	public void testLevel() throws Exception {
+		String uuid = "123456789";
+		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
+		String basePath = "/task/user/level";
+
+		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("language", "zh_cn"));
+
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
+		PMessage message = clientUtil.getMethod();
+	}
+	
+	// @Test
 	public void testReward() throws Exception {
 		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";

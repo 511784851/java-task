@@ -9,7 +9,7 @@ import com.blemobi.library.health.HealthManager;
 import com.blemobi.library.jetty.JettyServer;
 import com.blemobi.library.jetty.ServerFilter;
 import com.blemobi.library.log.LoggerManager;
-import com.blemobi.task.basic.TaskHelper;
+import com.blemobi.task.basic.BasicData;
 
 import lombok.extern.log4j.Log4j;
 
@@ -24,7 +24,11 @@ public class TaskManager {
 		long consulIntervalTime = Constant.getConsulIntervaltime();// 获取连接Consul服务器的间隔时间
 		ConsulManager.startService(selfName, args, consulIntervalTime); // 启动连接Consul服务
 
-		TaskHelper.init();
+		// 读取配置文件中的数据
+		String task_config_url = BaseService.getProperty("task_config_url");
+		log.debug("task_config_url: " + task_config_url);
+		BasicData basicData = new BasicData(task_config_url);
+		basicData.init();
 
 		log.info("Starting Task Server ...");
 

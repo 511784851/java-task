@@ -24,12 +24,25 @@ public class UserRelation {
 	/*
 	 * 获取用户昵称，语言
 	 */
+	public static PMessage getUserInfo(String uuid) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("from", "chat"));
+		params.add(new BasicNameValuePair("uuid", uuid));
+
+		String url = "/account/user/profile";
+		BaseHttpClient httpClient = new AccountHttpClient(url, params, null);
+		return httpClient.postBodyMethod(uuid.getBytes());
+	}
+
+	/*
+	 * 获取用户昵称，语言
+	 */
 	public static PNotifyBaseInfo getBaseInfo(String uuid) throws IOException {
 		PNotifyBaseInfo notifyBaseInfo = null;
-		String url = "/v1/account/user/notifybases?from=chat";
+		String url = "/account/user/profile?from=task";
 		BaseHttpClient httpClient = new AccountHttpClient(url, null, null);
 		PMessage message = httpClient.postBodyMethod(uuid.getBytes());
-		if ("PNotifyBaseInfoList".equals(message.getType())) {
+		if ("PUser".equals(message.getType())) {
 			PNotifyBaseInfoList motifyBaseInfoList = PNotifyBaseInfoList.parseFrom(message.getData());
 			Map<String, PNotifyBaseInfo> map = motifyBaseInfoList.getMap();
 			if (map != null) {

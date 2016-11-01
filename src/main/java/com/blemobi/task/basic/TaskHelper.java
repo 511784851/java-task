@@ -5,53 +5,18 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import com.blemobi.task.util.Constant;
-
-import lombok.extern.log4j.Log4j;
-
 /*
  * 用户游戏等级管理类
  */
-@Log4j
 public class TaskHelper {
-	// 全部任务类型（消息订阅）
-	private static Map<Integer, TaskTypeInfo> taskTypeMap = new LinkedHashMap<Integer, TaskTypeInfo>();
-	// 全部主线任务
-	private static Map<Integer, TaskInfo> mainTaskMap = new LinkedHashMap<Integer, TaskInfo>();
-	// 全部日常任务
-	private static Map<Integer, TaskInfo> dailyTaskMap = new LinkedHashMap<Integer, TaskInfo>();
-	// 任务ID对应的任务Tag（主线还是日常）
-	private static Map<Integer, TaskTag> taskIdtoTag = new LinkedHashMap<Integer, TaskTag>();
-
-	static {
-		try {
-			CsvFileUtil csvFileUtil = new CsvFileUtil(Constant.BASIC_TASK_DATA_CONFIG, taskTypeMap, mainTaskMap,
-					taskIdtoTag, dailyTaskMap);
-			csvFileUtil.readTaskType(0);
-			csvFileUtil.readMainTask(1);
-			csvFileUtil.readDailyTask(2);
-			csvFileUtil.close();
-			csvFileUtil.out();
-			log.debug("任务配置数据读取完成！");
-		} catch (Exception e) {
-			log.error("任务配置数据读取异常：" + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
-	public static void init() {
-
-	}
-
 	// 根据日常任务ID获取日常任务详情
 	public static TaskInfo getDailyTask(int taskId) {
-		return dailyTaskMap.get(taskId);
+		return BasicData.dailyTaskMap.get(taskId);
 	}
 
 	// 根据日常任务ID获取日常任务详情
@@ -65,7 +30,7 @@ public class TaskHelper {
 
 	// 根据主线任务ID获取主线任务详情
 	public static TaskInfo getMainTask(int taskId) {
-		return mainTaskMap.get(taskId);
+		return BasicData.mainTaskMap.get(taskId);
 	}
 
 	// 根据主线任务ID获取主线任务详情
@@ -81,17 +46,27 @@ public class TaskHelper {
 
 	// 根据任务ID获取任务Tag（主线还是日常）
 	public static TaskTag getTaskTag(int taskId) {
-		return taskIdtoTag.get(taskId);
+		return BasicData.taskIdtoTag.get(taskId);
 	}
 
 	// 获取msgid对应的逻辑服务器名称
 	public static String getServerByMsgid(int msgid) {
-		return taskTypeMap.get(msgid).getServer();
+		return BasicData.taskTypeMap.get(msgid).getServer();
 	}
 
 	// 获取任务类型的任务描述
 	public static String getTaskDes(int type, String language, int... params) {
-		return taskTypeMap.get(type).getDesc_sc().replace("%d", params[0] + "");
+		String desc = "";
+		if ("zh_tw".equals(language)) {// 中文繁体
+			desc = BasicData.taskTypeMap.get(type).getDesc_tc();
+		} else if ("en_us".equals(language)) {// 英文
+			desc = BasicData.taskTypeMap.get(type).getDesc_en();
+		} else if ("ko_kr".equals(language)) {// 韩文
+			desc = BasicData.taskTypeMap.get(type).getDesc_kr();
+		} else {// 中文简体
+			desc = BasicData.taskTypeMap.get(type).getDesc_sc();
+		}
+		return desc.replace("%d", params[0] + "");
 	}
 
 	// 获取已激活的日常任务列表
@@ -103,7 +78,7 @@ public class TaskHelper {
 			types.add(getMainTask(taskId).getType());
 		}
 
-		Collection<TaskInfo> coll = dailyTaskMap.values();
+		Collection<TaskInfo> coll = BasicData.dailyTaskMap.values();
 		for (TaskInfo taskInfo : coll) {
 			if (types.contains(taskInfo.getType())) {
 				taskList.add(taskInfo);
@@ -117,7 +92,7 @@ public class TaskHelper {
 	 */
 	public static List<TaskInfo> getDependMainTaskByLevel(int level) {
 		List<TaskInfo> taskList = new ArrayList<TaskInfo>();
-		for (TaskInfo taskInfo : mainTaskMap.values()) {
+		for (TaskInfo taskInfo : BasicData.mainTaskMap.values()) {
 			if (level >= taskInfo.getLevel()) {// 等级符合
 				int[] depends = taskInfo.getDepend();
 				if (depends != null && depends.length > 0) {// 有依赖
@@ -133,7 +108,7 @@ public class TaskHelper {
 	 */
 	public static List<TaskInfo> getNoDependMainTaskByLevel(int level) {
 		List<TaskInfo> taskList = new ArrayList<TaskInfo>();
-		for (TaskInfo taskInfo : mainTaskMap.values()) {
+		for (TaskInfo taskInfo : BasicData.mainTaskMap.values()) {
 			if (level >= taskInfo.getLevel()) {// 等级符合
 				int[] depends = taskInfo.getDepend();
 				if (depends == null || depends.length == 0) {// 无依赖
@@ -146,7 +121,7 @@ public class TaskHelper {
 
 	// 获取msgid对应的任务列表
 	public static Map<Integer, TaskTag> getTaskListByMsgid(int msgid) {
-		TaskTypeInfo taskTypeInfo = taskTypeMap.get(msgid);
+		TaskTypeInfo taskTypeInfo = BasicData.taskTypeMap.get(msgid);
 		return taskTypeInfo.getTaskidMap();
 	}
 

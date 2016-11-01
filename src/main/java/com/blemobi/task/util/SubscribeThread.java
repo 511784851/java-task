@@ -30,7 +30,7 @@ public class SubscribeThread extends Thread {
 
 	public static void addQueue(String uuid, int msgid, long time) {
 		queue.add(PSubscribe.newBuilder().setUuid(uuid).setMsgid(msgid).setTime(time).build());
-		SubscribeThread.interrupted();
+		Thread.currentThread();
 	}
 
 	static {
@@ -46,19 +46,21 @@ public class SubscribeThread extends Thread {
 				RedisManager.returnResource(jedis);
 				log.debug("没有消息订阅");
 				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					log.debug("消息订阅线程被唤醒了");
+					Thread.sleep(1000);
+				} catch (Exception e) {
+
 				}
 				jedis = RedisManager.getRedis();
 			} else {
 				String uuid = subscribe.getUuid();
 				int msgid = subscribe.getMsgid();
 				long time = subscribe.getTime();
+
+				String logStr = "uuid=[" + uuid + "],msgid=[" + msgid + "],time=[" + time + "]";
+
 				try {
 					String oldTimeStr = jedis.hget(Constant.GAME_MSGID + uuid, msgid + "");
-					String logStr = "uuid=[" + uuid + "],msgid=[" + msgid + "],time=[" + time + "],oldTime=["
-							+ oldTimeStr + "]";
+					logStr += ",oldTime=[" + oldTimeStr + "]";
 					log.error("有消息订阅 -> " + logStr);
 					// 检查是否需要重新订阅
 					boolean bool = isSubscribe(time, oldTimeStr);
@@ -80,7 +82,6 @@ public class SubscribeThread extends Thread {
 					e.printStackTrace();
 				}
 			}
-
 		}
 	}
 
@@ -107,7 +108,7 @@ public class SubscribeThread extends Thread {
 		PSubscribeArray subscribeArray = PSubscribeArray.newBuilder().addSubscribe(subscribe).build();
 
 		String server = TaskHelper.getServerByMsgid(subscribe.getMsgid());
-		String basePath = "/v1/" + server + "/inside/task/msg/subscribe?from=gamification";
+		String basePath = "/v1/" + server + "/inside/task/msg/subscribe?from=task";
 		BaseHttpClient httpClient = new CommonHttpClient(server, basePath, null, null);
 		PMessage message = httpClient.postBodyMethod(subscribeArray.toByteArray());
 		PResult result = PResult.parseFrom(message.getData());
