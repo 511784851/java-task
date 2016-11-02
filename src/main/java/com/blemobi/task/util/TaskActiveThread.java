@@ -60,7 +60,7 @@ public class TaskActiveThread extends Thread {
 						boolean bool = jedis.hexists(userMainTaskKey, taskInfo.getTaskid() + "");
 						if (!bool) {// 还未接取
 							char logic = taskInfo.getLogic();
-							int[] depends = taskInfo.getDepend();
+							List<Integer> depends = taskInfo.getDepend();
 							if (logic == '|') {// 验证是否有其中一个完成了
 								for (int depend : depends) {
 									if (isFinish(depend, userMainTaskKey, jedis)) {
@@ -83,11 +83,10 @@ public class TaskActiveThread extends Thread {
 									SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);
 								}
 							} else {
-								if (isFinish(depends[0], userMainTaskKey, jedis)) {
+								if (isFinish(depends.get(0), userMainTaskKey, jedis)) {
 									// 有一个完成，可以默认接取了
 									jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
 									SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);
-
 								}
 							}
 						}

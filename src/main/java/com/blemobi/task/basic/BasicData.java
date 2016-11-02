@@ -147,21 +147,25 @@ public class BasicData {
 				taskInfo.setLevel((int) row.getCell(keyMap.get("level")).getNumericCellValue());
 				taskInfo.setExp((int) row.getCell(keyMap.get("exp")).getNumericCellValue());
 				taskInfo.setDesc(row.getCell(keyMap.get("desc")).toString());
+
 				String value = row.getCell(keyMap.get("depend")).toString();
-				if (value.indexOf("&") >= 0) {
-					getDepend(taskInfo, value, '&');
-				} else if (value.indexOf("|") >= 0) {
-					getDepend(taskInfo, value, '|');
-				} else if (!Strings.isNullOrEmpty(value)) {
-					taskInfo.setLogic('Y');
-					taskInfo.setDepend(new int[] { Integer.parseInt(value.substring(0, value.indexOf(".0"))) });
-				} else {
+				if (Strings.isNullOrEmpty(value)) {// 无依赖
 					taskInfo.setLogic('N');
+				} else {// 有依赖
+					if (value.indexOf("&") >= 0) {// 依赖多个任务，必须全部完成
+						getDepend(taskInfo, value, '&');
+					} else if (value.indexOf("|") >= 0) {// 依赖多个任务，只需完成其中一个
+						getDepend(taskInfo, value, '|');
+					} else {// 只依赖一个任务
+						taskInfo.setLogic('Y');
+						taskInfo.addDepend(Integer.parseInt(value.substring(0, value.indexOf(".0"))));
+					}
 				}
+
 				mainTaskMap.put(taskid, taskInfo);
 
 				TaskTypeInfo taskTypeInfo = taskTypeMap.get(type);
-				taskTypeInfo.addTaskidMap(taskid, TaskTag.MAIN);
+				taskTypeInfo.addTaskidList(taskid);
 				taskTypeMap.put(type, taskTypeInfo);
 				taskIdtoTag.put(taskid, TaskTag.MAIN);
 			}
@@ -173,10 +177,7 @@ public class BasicData {
 	 */
 	private void readDailyTask(int sheetId) {
 		Sheet sheet = this.wb.getSheetAt(sheetId);
-
 		Map<String, Integer> keyMap = new HashMap<String, Integer>();
-
-		// 利用foreach循环 遍历sheet中的所有行
 		for (Row row : sheet) {
 			if (row.getRowNum() == 1) {
 				for (Cell cell : row) {
@@ -205,7 +206,7 @@ public class BasicData {
 				dailyTaskMap.put(taskid, taskInfo);
 
 				TaskTypeInfo taskTypeInfo = taskTypeMap.get(type);
-				taskTypeInfo.addTaskidMap(taskInfo.getTaskid(), TaskTag.DAILY);
+				taskTypeInfo.addTaskidList(taskInfo.getTaskid());
 				taskTypeMap.put(type, taskTypeInfo);
 				taskIdtoTag.put(taskid, TaskTag.DAILY);
 			}
@@ -217,10 +218,7 @@ public class BasicData {
 	 */
 	private void readLevel(int sheetId) {
 		Sheet sheet = this.wb.getSheetAt(sheetId);
-
 		Map<String, Integer> keyMap = new HashMap<String, Integer>();
-
-		// 利用foreach循环 遍历sheet中的所有行
 		for (Row row : sheet) {
 			if (row.getRowNum() == 1) {
 				for (Cell cell : row) {
@@ -264,12 +262,10 @@ public class BasicData {
 	 */
 	private static void getDepend(TaskInfo taskInfo, String value, char logic) {
 		String[] array = value.split("\\" + logic);
-		int[] depend = new int[array.length];
-		for (int n = 0; n < array.length; n++) {
-			depend[n] = Integer.parseInt(array[n]);
-		}
 		taskInfo.setLogic(logic);
-		taskInfo.setDepend(depend);
+		for (int n = 0; n < array.length; n++) {
+			taskInfo.addDepend(Integer.parseInt(array[n]));
+		}
 	}
 
 	/*
@@ -292,17 +288,7 @@ public class BasicData {
 			System.out.print("[" + taskInfo.getLevel() + "] ");
 			System.out.print("[" + taskInfo.getExp() + "] ");
 			System.out.print("[" + taskInfo.getLogic() + "] ");
-			int[] depend = taskInfo.getDepend();
-			String depends = "";
-			if (depend != null) {
-				for (int d : depend) {
-					if (depends.length() > 0) {
-						depends += ", ";
-					}
-					depends += d;
-				}
-			}
-			System.out.print("[" + depends + "] ");
+			System.out.print("[" + taskInfo.getDepend() + "] ");
 			System.out.print("[" + taskInfo.getDesc() + "] ");
 			System.out.println();
 		}
@@ -327,7 +313,7 @@ public class BasicData {
 			System.out.print("[" + taskTypeInfo.getDesc_tc() + "] ");
 			System.out.print("[" + taskTypeInfo.getDesc_en() + "] ");
 			System.out.print("[" + taskTypeInfo.getDesc_kr() + "] ");
-			System.out.print("[" + taskTypeInfo.getTaskidMap().keySet() + "] ");
+			System.out.print("[" + taskTypeInfo.getTaskidList() + "] ");
 			System.out.println();
 		}
 		System.out.println("------------任务类型信息[taskTypeInfo]结束-------------");

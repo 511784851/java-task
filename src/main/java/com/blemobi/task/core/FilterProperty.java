@@ -19,12 +19,13 @@ public class FilterProperty {
 
 	public FilterProperty() {
 		tokenPathArray = new ArrayList<String>();
-		// tokenPathArray.add("/gamification/task/receive");
-		// tokenPathArray.add("/gamification/user/task");
-		// tokenPathArray.add("/gamification/user/achievement");
+		tokenPathArray.add("/task/user/list");
+		tokenPathArray.add("/task/user/level");
+		tokenPathArray.add("/task/user/receive");
+		tokenPathArray.add("/task/user/reward");
 
 		fromPathArray = new ArrayList<String>();
-		// fromPathArray.add("/gamification/task/notify");
+		fromPathArray.add("/task/callback/msgid");
 	}
 
 	public List<ServerFilter> getFilterList() {

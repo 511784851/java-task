@@ -14,6 +14,7 @@ import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.library.client.NewsHttpClient;
 import com.blemobi.sep.probuf.AccountApiProtos.PNotifyBaseInfo;
 import com.blemobi.sep.probuf.AccountApiProtos.PNotifyBaseInfoList;
+import com.blemobi.sep.probuf.AccountProtos.ELevelType;
 import com.blemobi.sep.probuf.AccountProtos.PUserList;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
@@ -21,17 +22,22 @@ import com.blemobi.sep.probuf.ResultProtos.PStringList;
 import com.google.protobuf.ProtocolStringList;
 
 public class UserRelation {
+	public static List<Integer> levelList;
+
+	static {
+		levelList = new ArrayList<Integer>();
+		levelList.add(ELevelType.User_VALUE);
+		levelList.add(ELevelType.Vip_VALUE);
+		levelList.add(ELevelType.Vipp_VALUE);
+	}
+
 	/*
 	 * 获取用户昵称，语言
 	 */
 	public static PMessage getUserInfo(String uuid) throws IOException {
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("from", "chat"));
-		params.add(new BasicNameValuePair("uuid", uuid));
-
-		String url = "/account/user/profile";
-		BaseHttpClient httpClient = new AccountHttpClient(url, params, null);
-		return httpClient.postBodyMethod(uuid.getBytes());
+		String url = "/account/user/profile?from=task&uuid=" + uuid;
+		BaseHttpClient httpClient = new AccountHttpClient(url, null, null);
+		return httpClient.getMethod();
 	}
 
 	/*

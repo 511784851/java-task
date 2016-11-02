@@ -85,4 +85,14 @@ public class LevelInfo {
 		this.title_kr = title_kr;
 	}
 
+	public String getTitle(String language) {
+		if ("zh_tw".equals(language))
+			return title_tc;// 中文繁体
+		else if ("en_us".equals(language))
+			return title_en;// 英文
+		else if ("ko_kr".equals(language))
+			return title_kr;// 韩文
+		else
+			return title_sc;// 中文简体（默认）
+	}
 }

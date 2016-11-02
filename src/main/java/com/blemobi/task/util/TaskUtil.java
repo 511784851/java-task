@@ -108,12 +108,18 @@ public class TaskUtil {
 		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
 		int level = Integer.parseInt(userInfo.get("level"));
 		long exp = Long.parseLong(userInfo.get("exp"));
-		LevelInfo levelInfo = LevelHelper.getNextLevelByLevel(level);
+		LevelInfo levelInfo = LevelHelper.getLevelInfoByLevel(level);
+		LevelInfo nextLevelInfo = LevelHelper.getNextLevelInfoByLevel(level);
 
 		PTaskUserBasic userBasic = PTaskUserBasic.newBuilder().setLevel(level).setExp(exp)
-				.setNextLevel(levelInfo.getLevel()).setNextLevelExp(levelInfo.getExp_min()).setNickname(nickname)
-				.setHeadimg(headimg).build();
+				.setLevelName(levelInfo.getTitle(language)).setNextLevel(nextLevelInfo.getLevel())
+				.setNextLevelExp(nextLevelInfo.getExp_min()).setNextLevelName(nextLevelInfo.getTitle(language))
+				.setNickname(nickname).setHeadimg(headimg).build();
 		PTaskList.Builder taskListBuilder = PTaskList.newBuilder().setUserBasic(userBasic);
+
+		int taskTotal = 0; // 任务总数（包括日常和主线）
+		int dailyTaskTotal = 0; // 日常任务总数
+		int dailyTaskCompleteTotal = 0; // 已完成日常任务数
 
 		// 主线任务
 		List<Integer> competeTasks = new ArrayList<Integer>();// 已完成任务
@@ -140,6 +146,7 @@ public class TaskUtil {
 					.setType(taskInfo.getType()).setState(state).setComplete(target).setNum(num).setDesc(des).build();
 
 			taskListBuilder.addMainTask(ptaskInfo);
+			taskTotal++;
 		}
 
 		// 日常任务
@@ -183,6 +190,7 @@ public class TaskUtil {
 				state = 2;
 			} else if (target < -1) {// 已完成
 				state = 3;
+				dailyTaskCompleteTotal++;
 			}
 
 			String des = TaskHelper.getTaskDes(taskInfo.getType(), language, num);
@@ -191,7 +199,13 @@ public class TaskUtil {
 					.setType(taskInfo.getType()).setState(state).setComplete(target).setNum(num).setDesc(des).build();
 
 			taskListBuilder.addDailyTask(ptaskInfo);
+			taskTotal++;
+			dailyTaskTotal++;
 		}
+
+		taskListBuilder.setTaskTotal(taskTotal);
+		taskListBuilder.setDailyTaskTotal(dailyTaskTotal);
+		taskListBuilder.setDailyTaskCompleteTotal(dailyTaskCompleteTotal);
 
 		RedisManager.returnResource(jedis);
 		return ReslutUtil.createReslutMessage(taskListBuilder.build());
@@ -238,11 +252,14 @@ public class TaskUtil {
 		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
 		int level = Integer.parseInt(userInfo.get("level"));
 		long exp = Long.parseLong(userInfo.get("exp"));
-		LevelInfo levelInfo = LevelHelper.getNextLevelByLevel(level);
+		LevelInfo levelInfo = LevelHelper.getLevelInfoByLevel(level);
+		LevelInfo nextLevelInfo = LevelHelper.getNextLevelInfoByLevel(level);
 
 		PTaskUserBasic userBasic = PTaskUserBasic.newBuilder().setLevel(level).setExp(exp)
-				.setNextLevel(levelInfo.getLevel()).setNextLevelExp(levelInfo.getExp_min()).setNickname(nickname)
-				.setHeadimg(headimg).build();
+				.setLevelName(levelInfo.getTitle(language)).setNextLevel(nextLevelInfo.getLevel())
+				.setNextLevelExp(nextLevelInfo.getExp_min()).setNextLevelName(nextLevelInfo.getTitle(language))
+				.setNickname(nickname).setHeadimg(headimg).build();
+
 		PTaskLevelList.Builder taskLevelList = PTaskLevelList.newBuilder().setUserBasic(userBasic);
 
 		// 等级信息

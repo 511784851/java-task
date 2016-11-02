@@ -26,7 +26,7 @@ public class TaskProcessTest {
 		// GamificationManager.main(arg);
 	}
 
-	//@Test
+	 @Test
 	public void testList() throws Exception {
 		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
@@ -36,11 +36,11 @@ public class TaskProcessTest {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("language", "zh_cn"));
 
-		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, cookies);
 		PMessage message = clientUtil.getMethod();
 	}
 
-	@Test
+	//@Test
 	public void testLevel() throws Exception {
 		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
@@ -50,10 +50,10 @@ public class TaskProcessTest {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("language", "zh_cn"));
 
-		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, cookies);
 		PMessage message = clientUtil.getMethod();
 	}
-	
+
 	// @Test
 	public void testReward() throws Exception {
 		String uuid = "123456789";

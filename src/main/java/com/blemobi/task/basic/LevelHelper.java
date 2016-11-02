@@ -19,15 +19,22 @@ public class LevelHelper {
 	}
 
 	/*
+	 * 获取经验等级信息
+	 */
+	public static LevelInfo getLevelInfoByLevel(int level) {
+		return BasicData.levelMap.get(level);
+	}
+
+	/*
 	 * 获取等级的下一个经验等级信息
 	 */
-	public static LevelInfo getNextLevelByLevel(int level) {
+	public static LevelInfo getNextLevelInfoByLevel(int level) {
 		int nextLevel = level + 1;
 		LevelInfo levelInfo = BasicData.levelMap.get(nextLevel);
 		if (levelInfo != null) {
 			return levelInfo;
 		} else {
-			return BasicData.levelMap.get(level);
+			return getLevelInfoByLevel(level);
 		}
 	}
 

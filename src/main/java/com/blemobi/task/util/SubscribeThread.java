@@ -44,7 +44,7 @@ public class SubscribeThread extends Thread {
 			PSubscribe subscribe = queue.poll();
 			if (subscribe == null) {
 				RedisManager.returnResource(jedis);
-				log.debug("没有消息订阅");
+				// log.debug("没有消息订阅");
 				try {
 					Thread.sleep(1000);
 				} catch (Exception e) {

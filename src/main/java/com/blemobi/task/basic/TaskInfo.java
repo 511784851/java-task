@@ -1,5 +1,8 @@
 package com.blemobi.task.basic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
  * 任务信息
  */
@@ -17,7 +20,7 @@ public class TaskInfo {
 	// 任务接取依赖条件（"|"或"&"）
 	private char logic;
 	// 任务接取依赖别的任务
-	private int[] depend;
+	private List<Integer> depend = new ArrayList<Integer>();
 	// 任务描述
 	private String desc;
 
@@ -69,12 +72,12 @@ public class TaskInfo {
 		this.logic = logic;
 	}
 
-	public int[] getDepend() {
+	public List<Integer> getDepend() {
 		return depend;
 	}
 
-	public void setDepend(int[] depend) {
-		this.depend = depend;
+	public void addDepend(int depend) {
+		this.depend.add(depend);
 	}
 
 	public String getDesc() {

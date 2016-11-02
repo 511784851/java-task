@@ -1,6 +1,6 @@
 package com.blemobi.task.util;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import com.blemobi.library.redis.RedisManager;
@@ -45,13 +45,12 @@ public class CallbackManager {
 			log.error("有消息回调 -> " + logStr);
 			long rtntime = -1;// 要更新的uuid-msgid状态
 			// 消息ID对应的任务
-			Map<Integer, TaskTag> taskIdMap = TaskHelper.getTaskListByMsgid(msgid);
-			Set<Integer> taskIds = taskIdMap.keySet();
-			log.error("消息id[" + msgid + "]关联的任务有： " + taskIds);
+			List<Integer> taskIdList = TaskHelper.getTaskListByMsgid(msgid);
+			log.error("消息id[" + msgid + "]关联的任务有： " + taskIdList);
 			boolean mainBool = true;// 是否有主线任务未完成
 			boolean dailyBool = true;// 是否有日常任务未完成
-			for (int taskId : taskIds) {
-				TaskTag tag = taskIdMap.get(taskId);// 任务类型
+			for (int taskId : taskIdList) {
+				TaskTag tag = TaskHelper.getTaskTag(taskId);// 任务类型
 				String userTaskKey = "";// 用户任务KEY
 				int num = 0;// 任务要求次数
 				if (TaskTag.MAIN == tag) {// 主线任务

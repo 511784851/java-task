@@ -1,7 +1,7 @@
 package com.blemobi.task.basic;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * 任务类型
@@ -20,7 +20,7 @@ public class TaskTypeInfo {
 	// 韩文
 	private String desc_kr;
 	// 关联的任务ID
-	private Map<Integer, TaskTag> taskidMap = new HashMap<Integer, TaskTag>();
+	private List<Integer> taskidList = new ArrayList<Integer>();
 
 	public int getType() {
 		return type;
@@ -70,12 +70,22 @@ public class TaskTypeInfo {
 		this.desc_kr = desc_kr;
 	}
 
-	public Map<Integer, TaskTag> getTaskidMap() {
-		return taskidMap;
+	public List<Integer> getTaskidList() {
+		return taskidList;
 	}
 
-	public void addTaskidMap(int taskid, TaskTag tag) {
-		this.taskidMap.put(taskid, tag);
+	public void addTaskidList(int taskid) {
+		this.taskidList.add(taskid);
 	}
 
+	public String getDesc(String language, int... params) {
+		if ("zh_tw".equals(language))
+			return desc_tc.replace("%d", params[0] + "");// 中文繁体
+		else if ("en_us".equals(language))
+			return desc_en.replace("%d", params[0] + "");// 英文
+		else if ("ko_kr".equals(language))
+			return desc_kr.replace("%d", params[0] + "");// 韩文
+		else
+			return desc_sc.replace("%d", params[0] + "");// 中文简体（默认）
+	}
 }
