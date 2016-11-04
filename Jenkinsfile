@@ -30,12 +30,6 @@ stage ('build deploy') {
 	}
 
 
-       git branch: '${BUILD_BRANCH}', credentialsId: 'jenkins-github-key', url: 'https://github.com/blemobi/${JOB_NAME}.git'
-       def mvnHome = tool 'M3'
-       sh """
-       ${mvnHome}/bin/mvn -B -f pom.xml clean install -Dmaven.test.skip
-       """
-
 	withCredentials([[$class: 'StringBinding', credentialsId: 'jenkins-github-admin-key', variable: 'TOKEN']]) {
        sh """
        if [[ ${release} == "true"  &&   -v releaseVersion ]]
