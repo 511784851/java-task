@@ -30,9 +30,9 @@ public class TaskManager {
 		int check_port = Integer.parseInt(health_check_port);
 		HealthManager.startService(check_port, selfName);
 
-		//Thread.sleep(10000);
+		// Thread.sleep(10000);
 		// 读取配置文件中的数据
-		String task_config_url = "http://sz1-test-sep-persistence.oss-cn-shenzhen.aliyuncs.com/config/task.xls?OSSAccessKeyId=9onpvIAMCEA8bWI7&Expires=1479118577&Signature=fw%2B5bMtiWKMXMELTOs3W6z4SRhA%3D";//BasicData.getTaskConfig();
+		String task_config_url = BaseService.getProperty("task_config_url");// BasicData.getTaskConfig();
 		log.debug("task_config_url: " + task_config_url);
 		if (Strings.isNullOrEmpty(task_config_url)) {
 			System.exit(0);
