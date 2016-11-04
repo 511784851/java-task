@@ -22,7 +22,6 @@ import com.blemobi.sep.probuf.TaskProtos.PTaskUserBasic;
 import com.blemobi.sep.probuf.TaskProtos.PTaskUserPk;
 import com.blemobi.task.basic.LevelHelper;
 import com.blemobi.task.basic.LevelInfo;
-import com.blemobi.task.notify.NotifyManager;
 import com.blemobi.task.notify.UserRelation;
 import com.blemobi.task.util.Constant;
 import com.blemobi.task.util.RankingUtil;
@@ -75,9 +74,6 @@ public class TaskProcess {
 	@Path("level")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
 	public PMessage level(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws Exception {
-		NotifyManager notifyManager = new NotifyManager(uuid, 1);
-		notifyManager.notifyMsg();
-
 		TaskUtil taskUtil = new TaskUtil(uuid, language, "", "");
 		taskUtil.init();
 
