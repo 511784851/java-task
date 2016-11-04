@@ -86,7 +86,7 @@ public class NotifyManager {
 			param.put("info", infoString);
 
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("receiverUUIDs", "1471175703665920835"));
+			params.add(new BasicNameValuePair("receiverUUIDs", uuid));
 			params.add(new BasicNameValuePair("title", "BB"));
 			params.add(new BasicNameValuePair("msgid", "10"));
 			params.add(new BasicNameValuePair("description", "d"));
