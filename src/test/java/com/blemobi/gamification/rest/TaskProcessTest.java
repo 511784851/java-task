@@ -26,10 +26,10 @@ public class TaskProcessTest {
 		// GamificationManager.main(arg);
 	}
 
-	 @Test
+	// @Test
 	public void testList() throws Exception {
-		String uuid = "123456789";
-		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
+		String uuid = "1472020016134289985";
+		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
 		String basePath = "/task/user/list";
 
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
@@ -40,7 +40,7 @@ public class TaskProcessTest {
 		PMessage message = clientUtil.getMethod();
 	}
 
-	//@Test
+	@Test
 	public void testLevel() throws Exception {
 		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
@@ -55,6 +55,22 @@ public class TaskProcessTest {
 	}
 
 	// @Test
+	public void testReceive() throws Exception {
+		String uuid = "123456789";
+		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
+
+		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
+
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("taskId", "1002"));
+
+		String basePath = "/task/user/receive";
+
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, cookies);
+		PMessage message = clientUtil.postMethod();
+	}
+
+	// @Test
 	public void testReward() throws Exception {
 		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
@@ -64,10 +80,40 @@ public class TaskProcessTest {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("taskId", "2"));
 
-		String basePath = "/task/reward";
+		String basePath = "/task/user/reward";
 
 		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, cookies);
 		PMessage message = clientUtil.postMethod();
+	}
+
+	// @Test
+	public void testRanking() throws Exception {
+		String uuid = "1472020016134289985";
+		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
+		String basePath = "/task/user/rank";
+
+		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("language", "zh_cn"));
+		params.add(new BasicNameValuePair("scope", "follower"));
+
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, cookies);
+		PMessage message = clientUtil.getMethod();
+	}
+
+	// @Test
+	public void testPK() throws Exception {
+		String uuid = "1472020016134289985";
+		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
+		String basePath = "/task/user/pk";
+
+		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("language", "zh_cn"));
+		params.add(new BasicNameValuePair("pk_uuid", "1472020016134289985"));
+
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, cookies);
+		PMessage message = clientUtil.getMethod();
 	}
 
 	@After

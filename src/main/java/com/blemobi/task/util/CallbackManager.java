@@ -1,7 +1,6 @@
 package com.blemobi.task.util;
 
 import java.util.List;
-import java.util.Set;
 
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
@@ -36,17 +35,18 @@ public class CallbackManager {
 	public PMessage callback() {
 		PInt64List.Builder rtnInt64List = PInt64List.newBuilder();
 		Jedis jedis = RedisManager.getRedis();
+		log.debug("接受到消息回调 数量-> " + callbackArray.getCallbackCount());
 		for (PCallback callback : callbackArray.getCallbackList()) {
 			String uuid = callback.getUuid();
 			int msgid = callback.getMsgid();
 			long time = callback.getTime();
 
 			String logStr = "uuid=[" + uuid + "],msgid=[" + msgid + "],time=[" + time + "]";
-			log.error("有消息回调 -> " + logStr);
+			log.debug("有消息回调 -> " + logStr);
 			long rtntime = -1;// 要更新的uuid-msgid状态
 			// 消息ID对应的任务
 			List<Integer> taskIdList = TaskHelper.getTaskListByMsgid(msgid);
-			log.error("消息id[" + msgid + "]关联的任务有： " + taskIdList);
+			log.debug("消息id[" + msgid + "]关联的任务有： " + taskIdList);
 			boolean mainBool = true;// 是否有主线任务未完成
 			boolean dailyBool = true;// 是否有日常任务未完成
 			for (int taskId : taskIdList) {
@@ -61,17 +61,15 @@ public class CallbackManager {
 					num = TaskHelper.getDailyTask(taskId).getNum();
 				}
 				String targetStr = jedis.hget(userTaskKey, taskId + "");
-				if (!Strings.isNullOrEmpty(targetStr)) {// 任务已接取
+				if (!Strings.isNullOrEmpty(targetStr)) {// 任务已初始化
 					int target = Integer.parseInt(targetStr);
 					if (target >= 0) {// 任务未完成
 						// 累加一次任务进度
 						long rtn = jedis.hincrBy(userTaskKey, taskId + "", 1);
 						if (rtn < num) {// 任务未完成
 							if (TaskTag.MAIN == tag) {// 主线任务未完成
-								log.debug("主线任务可领取奖励了[taskId=" + taskId + "] -> " + logStr);
 								mainBool = false;
 							} else if (TaskTag.DAILY == tag) {// 日常任务未完成
-								log.debug("日常任务可领取奖励了[taskId=" + taskId + "] -> " + logStr);
 								dailyBool = false;
 							}
 						}
@@ -86,7 +84,7 @@ public class CallbackManager {
 				rtntime = 0;
 			}
 
-			log.error("消息回调更新 -> " + logStr + " rtntime:" + rtntime);
+			log.debug("消息回调更新 -> " + logStr + " rtntime:" + rtntime);
 			if (rtntime == 0) {
 				jedis.hdel(Constant.GAME_MSGID + uuid, msgid + "");
 			} else {

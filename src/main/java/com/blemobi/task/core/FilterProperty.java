@@ -25,7 +25,7 @@ public class FilterProperty {
 		tokenPathArray.add("/task/user/reward");
 
 		fromPathArray = new ArrayList<String>();
-		fromPathArray.add("/task/callback/msgid");
+		//fromPathArray.add("/task/callback/msgid");
 	}
 
 	public List<ServerFilter> getFilterList() {

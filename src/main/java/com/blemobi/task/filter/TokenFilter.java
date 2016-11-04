@@ -33,7 +33,7 @@ public class TokenFilter implements Filter {
 		String token = CommonUtil.getCookieParam(httpServletRequest, "token");
 
 		if (Strings.isNullOrEmpty(uuid) || Strings.isNullOrEmpty(token)) {
-			ReslutUtil.createResponse(response, 1901001, "uuid or token is null");
+			ReslutUtil.createResponse(response, 1001006, "uuid or token is null");
 		}
 
 		// 继续执行

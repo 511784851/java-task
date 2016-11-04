@@ -79,11 +79,11 @@ public class TaskTypeInfo {
 	}
 
 	public String getDesc(String language, int... params) {
-		if ("zh_tw".equals(language))
+		if ("zh-tw".equals(language))
 			return desc_tc.replace("%d", params[0] + "");// 中文繁体
-		else if ("en_us".equals(language))
+		else if ("en-us".equals(language))
 			return desc_en.replace("%d", params[0] + "");// 英文
-		else if ("ko_kr".equals(language))
+		else if ("ko-kr".equals(language))
 			return desc_kr.replace("%d", params[0] + "");// 韩文
 		else
 			return desc_sc.replace("%d", params[0] + "");// 中文简体（默认）

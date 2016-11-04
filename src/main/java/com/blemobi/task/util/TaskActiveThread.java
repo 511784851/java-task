@@ -33,40 +33,46 @@ public class TaskActiveThread extends Thread {
 	}
 
 	public void run() {
-		Jedis jedis = RedisManager.getRedis();
+		Jedis jedis = null;
 		while (true) {
-			try {
-				// 队列中取出一个成员
-				String uuid = queue.poll();
-				if (Strings.isNullOrEmpty(uuid)) {
+			// 队列中取出一个成员
+			String uuid = queue.poll();
+			if (Strings.isNullOrEmpty(uuid)) {
+				if (jedis != null) {
 					RedisManager.returnResource(jedis);
-					log.debug("没有用户任务后续处理");
-					try {
-						Thread.sleep(10000);
-					} catch (InterruptedException e) {
-						log.debug("用户任务后续处理被唤醒了");
-					}
-					jedis = RedisManager.getRedis();
-				} else {
+				}
+				log.debug("没有任务触发");
+				try {
+					Thread.sleep(1000);
+				} catch (Exception e) {
+
+				}
+			} else {
+				try {
 					String userInfoKey = Constant.GAME_USER_INFO + uuid;
 					String userMainTaskKey = Constant.GAME_TASK_MAIN + uuid;
 
+					if (jedis == null) {
+						jedis = RedisManager.getRedis();
+					}
 					String levelStr = jedis.hget(userInfoKey, "level");// 经验等级
 					int level = Integer.parseInt(levelStr);
-
+					String logStr = "uuid=[" + uuid + "],level=[" + level + "]";
+					log.debug("有任务触发 -： " + logStr);
 					// 获取符合等级有依赖的主线任务
-					List<TaskInfo> taskList = TaskHelper.getDependMainTaskByLevel(level);
+					List<TaskInfo> taskList = TaskHelper.getMainTaskByLevel(level);
 					for (TaskInfo taskInfo : taskList) {
 						boolean bool = jedis.hexists(userMainTaskKey, taskInfo.getTaskid() + "");
 						if (!bool) {// 还未接取
+							boolean isReceive = false;// 是否达成接取条件
 							char logic = taskInfo.getLogic();
 							List<Integer> depends = taskInfo.getDepend();
-							if (logic == '|') {// 验证是否有其中一个完成了
+							if (logic == 'N') {// 没有依赖
+								isReceive = true;
+							} else if (logic == '|') {// 验证是否有其中一个完成了
 								for (int depend : depends) {
 									if (isFinish(depend, userMainTaskKey, jedis)) {
-										// 有一个完成，可以默认接取了
-										jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
-										SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);
+										isReceive = true;// 有一个完成，可以默认接取了
 										break;
 									}
 								}
@@ -78,33 +84,44 @@ public class TaskActiveThread extends Thread {
 										break;
 									}
 								}
-								if (allbool) {// 全部完成，可接取了
-									jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
-									SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);
-								}
-							} else {
+								isReceive = allbool;
+							} else if (logic == 'Y') {// 只依赖一个任务
 								if (isFinish(depends.get(0), userMainTaskKey, jedis)) {
-									// 有一个完成，可以默认接取了
-									jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
-									SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);
+									isReceive = true;
 								}
+							}
+							if (isReceive) {
+								log.debug("任务触发>>接取了一个主线任务[" + taskInfo.getTaskid() + "] -> " + logStr);
+								jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
+								SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);
+							} else {
+								log.debug("任务触发>>不符合条件接取主线任务[" + taskInfo.getTaskid() + "] -> " + logStr);
 							}
 						}
 					}
+				} catch (Exception e) {
+					log.error("任务触发异常: " + e.getMessage());
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				log.error("消息订阅异常: " + e.getMessage());
 			}
+
 		}
 	}
 
+	/*
+	 * 判定用户主线任务是否完成
+	 */
 	private boolean isFinish(int taskId, String userMainTaskKey, Jedis jedis) {
 		String targetStr = jedis.hget(userMainTaskKey, taskId + "");
+		if (Strings.isNullOrEmpty(targetStr)) {// 还未接取
+			return false;
+		}
+
 		int target = Integer.parseInt(targetStr);
-		if (target < -1) {
-			return true;// 任务完成
-		} else {
-			return false;// 任务未完成
+		if (target < -1) {// 任务完成
+			return true;
+		} else {// 任务未完成
+			return false;
 		}
 	}
 }

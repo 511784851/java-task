@@ -5,22 +5,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.message.BasicNameValuePair;
 
 import com.blemobi.library.client.AccountHttpClient;
 import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.library.client.NewsHttpClient;
+import com.blemobi.library.client.SocialHttpClient;
 import com.blemobi.sep.probuf.AccountApiProtos.PNotifyBaseInfo;
 import com.blemobi.sep.probuf.AccountApiProtos.PNotifyBaseInfoList;
 import com.blemobi.sep.probuf.AccountProtos.ELevelType;
+import com.blemobi.sep.probuf.AccountProtos.PUser;
+import com.blemobi.sep.probuf.AccountProtos.PUserBase;
+import com.blemobi.sep.probuf.AccountProtos.PUserBaseList;
 import com.blemobi.sep.probuf.AccountProtos.PUserList;
+import com.blemobi.sep.probuf.NewsProtos.PFollowOrFansList;
+import com.blemobi.sep.probuf.NewsProtos.PRecommendUser;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.blemobi.sep.probuf.ResultProtos.PStringList;
 import com.google.protobuf.ProtocolStringList;
 
+import lombok.extern.log4j.Log4j;
+
+@Log4j
 public class UserRelation {
 	public static List<Integer> levelList;
 
@@ -38,6 +45,87 @@ public class UserRelation {
 		String url = "/account/user/profile?from=task&uuid=" + uuid;
 		BaseHttpClient httpClient = new AccountHttpClient(url, null, null);
 		return httpClient.getMethod();
+	}
+
+	// 批量获取用户基础信息
+	public static List<PUserBase> getUserListInfo(String uuids) throws ClientProtocolException, IOException {
+		List<PUserBase> userLIst = new ArrayList<PUserBase>();
+
+		String url = "/v1/account/users/baseinfo?from=task&uuids=" + uuids.toString();
+		BaseHttpClient httpClient = new AccountHttpClient(url, null, null);
+		PMessage message = httpClient.getMethod();
+
+		String type = message.getType();
+		if ("PUserBaseList".equals(type)) {
+			PUserBaseList userList = PUserBaseList.parseFrom(message.getData());
+			userLIst = userList.getListList();
+		} else {
+			PResult result = PResult.parseFrom(message.getData());
+			log.debug("批量获取用户信息失败:" + result.getErrorCode());
+		}
+		return userLIst;
+	}
+
+	// 获取用户好友列表
+	public static List<PUser> getFirendList(String uuid) throws ClientProtocolException, IOException {
+		List<PUser> userList = new ArrayList<PUser>();
+
+		String url = "/social/listfriends?from=task&start=0&count=10000&uuid=" + uuid;
+		BaseHttpClient httpClient = new SocialHttpClient(url, null, null);
+		PMessage message = httpClient.getMethod();
+		String type = message.getType();
+		if ("PUserList".equals(type)) {
+			PUserList puserList = PUserList.parseFrom(message.getData());
+			userList = puserList.getListList();
+		} else {
+			PResult result = PResult.parseFrom(message.getData());
+			log.debug("获取用户好友列表失败:" + result.getErrorCode());
+		}
+
+		return userList;
+	}
+
+	// 获取用户关注列表
+	public static List<PRecommendUser> getFollowList(String uuid) throws ClientProtocolException, IOException {
+		List<PRecommendUser> userList = new ArrayList<PRecommendUser>();
+
+		int count = 100;
+		int offset = 0;// 分页起始值
+
+		String url = "/v1/inside/news/follow?from=task&offset=" + offset + "&count=" + count + "&uuidb=" + uuid;
+		BaseHttpClient httpClient = new NewsHttpClient(url, null, null);
+		PMessage message = httpClient.getMethod();
+		String type = message.getType();
+		if ("PFollowOrFansList".equals(type)) {
+			PFollowOrFansList stringList = PFollowOrFansList.parseFrom(message.getData());
+			List<PRecommendUser> list = stringList.getListList();
+			userList.addAll(list);
+		} else {
+			PResult result = PResult.parseFrom(message.getData());
+			log.debug("获取用户关注列表失败:" + result.getErrorCode());
+		}
+
+		return userList;
+	}
+
+	// 获取用户粉丝列表
+	public static ProtocolStringList getFansList(String uuid) throws ClientProtocolException, IOException {
+		int count = 100;
+		int offset = 0;// 分页起始值
+
+		String url = "/v1/news/inside/fans?from=task&offset=" + offset + "&count=" + count + "&uuid=" + uuid;
+		BaseHttpClient httpClient = new NewsHttpClient(url, null, null);
+		PMessage message = httpClient.getMethod();
+		String type = message.getType();
+		if ("PStringList".equals(type)) {
+			PStringList stringList = PStringList.parseFrom(message.getData());
+			return stringList.getListList();
+		} else {
+			PResult result = PResult.parseFrom(message.getData());
+			log.debug("获取用户粉丝列表失败:" + result.getErrorCode());
+		}
+
+		return null;
 	}
 
 	/*
@@ -58,56 +146,5 @@ public class UserRelation {
 			PResult result = PResult.parseFrom(message.getData());
 		}
 		return notifyBaseInfo;
-	}
-
-	// 获取用户好友列表
-	public static PUserList getFirendList(String uuid) throws ClientProtocolException, IOException {
-		PUserList userList = null;
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("from", "chat"));
-		params.add(new BasicNameValuePair("uuid", uuid));
-		params.add(new BasicNameValuePair("count", "10000"));
-
-		BaseHttpClient httpClient = new NewsHttpClient("/social/listfriends", params, null);
-		PMessage message = httpClient.getMethod();
-		String type = message.getType();
-		if ("PUserList".equals(type)) {
-			userList = PUserList.parseFrom(message.getData());
-		} else {
-			PResult result = PResult.parseFrom(message.getData());
-		}
-
-		return userList;
-	}
-
-	// 获取用户粉丝列表
-	public static List<String> getFansList(String uuid) throws ClientProtocolException, IOException {
-		List<String> uuidList = new ArrayList<String>();
-
-		int count = 100;
-		int offset = 0;// 分页起始值
-		do {
-			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("uuid", uuid));
-			params.add(new BasicNameValuePair("count", count + ""));
-			params.add(new BasicNameValuePair("offset", offset + ""));
-
-			BaseHttpClient httpClient = new NewsHttpClient("/v1/news/inside/fans", params, null);
-			PMessage message = httpClient.getMethod();
-			String type = message.getType();
-			if ("PStringList".equals(type)) {
-				PStringList stringList = PStringList.parseFrom(message.getData());
-				ProtocolStringList list = stringList.getListList();
-				uuidList.addAll(list);
-				if (list != null && list.size() == count) {
-					// 还有下一页数据，继续获取
-					offset += count;
-				}
-			} else {
-				PResult result = PResult.parseFrom(message.getData());
-			}
-		} while (offset > 0);
-
-		return uuidList;
 	}
 }

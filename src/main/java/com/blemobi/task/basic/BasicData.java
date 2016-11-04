@@ -3,6 +3,9 @@ package com.blemobi.task.basic;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,6 +18,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import com.blemobi.library.client.BaseHttpClient;
+import com.blemobi.library.client.OssHttpClient;
+import com.blemobi.sep.probuf.OssProtos.PDownload;
+import com.blemobi.sep.probuf.ResultProtos.PMessage;
+import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;
@@ -52,7 +60,7 @@ public class BasicData {
 	public void init() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		try {
 			// 创建要读入的文件的输入流
-			this.inp = new FileInputStream(this.fileUrl);
+			this.inp = getFileNameFromUrl(fileUrl);// new  FileInputStream(this.fileUrl);
 			// 根据上述创建的输入流 创建工作簿对象
 			this.wb = WorkbookFactory.create(inp);
 
@@ -98,16 +106,20 @@ public class BasicData {
 					}
 				}
 			} else if (row.getRowNum() > 1) {
-				int type = (int) row.getCell(keyMap.get("id")).getNumericCellValue();
-				TaskTypeInfo taskTypeInfo = new TaskTypeInfo();
-				taskTypeInfo.setType(type);
-				taskTypeInfo.setServer(row.getCell(keyMap.get("server")).toString());
-				taskTypeInfo.setDesc_sc(row.getCell(keyMap.get("desc-sc")).toString());
-				taskTypeInfo.setDesc_tc(row.getCell(keyMap.get("desc-tc")).toString());
-				taskTypeInfo.setDesc_kr(row.getCell(keyMap.get("desc-kr")).toString());
-				taskTypeInfo.setDesc_en(row.getCell(keyMap.get("desc-en")).toString());
+				try {
+					int type = (int) row.getCell(keyMap.get("id")).getNumericCellValue();
+					TaskTypeInfo taskTypeInfo = new TaskTypeInfo();
+					taskTypeInfo.setType(type);
+					taskTypeInfo.setServer(row.getCell(keyMap.get("server")).toString());
+					taskTypeInfo.setDesc_sc(row.getCell(keyMap.get("desc-sc")).toString());
+					taskTypeInfo.setDesc_tc(row.getCell(keyMap.get("desc-tc")).toString());
+					taskTypeInfo.setDesc_kr(row.getCell(keyMap.get("desc-kr")).toString());
+					taskTypeInfo.setDesc_en(row.getCell(keyMap.get("desc-en")).toString());
 
-				taskTypeMap.put(type, taskTypeInfo);
+					taskTypeMap.put(type, taskTypeInfo);
+				} catch (Exception e) {
+
+				}
 			}
 		}
 	}
@@ -138,36 +150,40 @@ public class BasicData {
 					}
 				}
 			} else if (row.getRowNum() > 1) {
-				TaskInfo taskInfo = new TaskInfo();
-				int taskid = (int) row.getCell(keyMap.get("taskid")).getNumericCellValue();
-				int type = (int) row.getCell(keyMap.get("type")).getNumericCellValue();
-				taskInfo.setTaskid(taskid);
-				taskInfo.setType(type);
-				taskInfo.setNum((int) row.getCell(keyMap.get("num")).getNumericCellValue());
-				taskInfo.setLevel((int) row.getCell(keyMap.get("level")).getNumericCellValue());
-				taskInfo.setExp((int) row.getCell(keyMap.get("exp")).getNumericCellValue());
-				taskInfo.setDesc(row.getCell(keyMap.get("desc")).toString());
+				try {
+					TaskInfo taskInfo = new TaskInfo();
+					int taskid = (int) row.getCell(keyMap.get("taskid")).getNumericCellValue();
+					int type = (int) row.getCell(keyMap.get("type")).getNumericCellValue();
+					taskInfo.setTaskid(taskid);
+					taskInfo.setType(type);
+					taskInfo.setNum((int) row.getCell(keyMap.get("num")).getNumericCellValue());
+					taskInfo.setLevel((int) row.getCell(keyMap.get("level")).getNumericCellValue());
+					taskInfo.setExp((int) row.getCell(keyMap.get("exp")).getNumericCellValue());
+					taskInfo.setDesc(row.getCell(keyMap.get("desc")).toString());
 
-				String value = row.getCell(keyMap.get("depend")).toString();
-				if (Strings.isNullOrEmpty(value)) {// 无依赖
-					taskInfo.setLogic('N');
-				} else {// 有依赖
-					if (value.indexOf("&") >= 0) {// 依赖多个任务，必须全部完成
-						getDepend(taskInfo, value, '&');
-					} else if (value.indexOf("|") >= 0) {// 依赖多个任务，只需完成其中一个
-						getDepend(taskInfo, value, '|');
-					} else {// 只依赖一个任务
-						taskInfo.setLogic('Y');
-						taskInfo.addDepend(Integer.parseInt(value.substring(0, value.indexOf(".0"))));
+					String value = row.getCell(keyMap.get("depend")).toString();
+					if (Strings.isNullOrEmpty(value)) {// 无依赖
+						taskInfo.setLogic('N');
+					} else {// 有依赖
+						if (value.indexOf("&") >= 0) {// 依赖多个任务，必须全部完成
+							getDepend(taskInfo, value, '&');
+						} else if (value.indexOf("|") >= 0) {// 依赖多个任务，只需完成其中一个
+							getDepend(taskInfo, value, '|');
+						} else {// 只依赖一个任务
+							taskInfo.setLogic('Y');
+							taskInfo.addDepend(Integer.parseInt(value.substring(0, value.indexOf(".0"))));
+						}
 					}
+
+					mainTaskMap.put(taskid, taskInfo);
+
+					TaskTypeInfo taskTypeInfo = taskTypeMap.get(type);
+					taskTypeInfo.addTaskidList(taskid);
+					taskTypeMap.put(type, taskTypeInfo);
+					taskIdtoTag.put(taskid, TaskTag.MAIN);
+				} catch (Exception e) {
+
 				}
-
-				mainTaskMap.put(taskid, taskInfo);
-
-				TaskTypeInfo taskTypeInfo = taskTypeMap.get(type);
-				taskTypeInfo.addTaskidList(taskid);
-				taskTypeMap.put(type, taskTypeInfo);
-				taskIdtoTag.put(taskid, TaskTag.MAIN);
 			}
 		}
 	}
@@ -194,21 +210,25 @@ public class BasicData {
 					}
 				}
 			} else if (row.getRowNum() > 1) {
-				TaskInfo taskInfo = new TaskInfo();
-				int taskid = (int) row.getCell(keyMap.get("taskid")).getNumericCellValue();
-				int type = (int) row.getCell(keyMap.get("type")).getNumericCellValue();
-				taskInfo.setTaskid(taskid);
-				taskInfo.setType(type);
-				taskInfo.setNum((int) row.getCell(keyMap.get("num")).getNumericCellValue());
-				taskInfo.setExp((int) row.getCell(keyMap.get("exp")).getNumericCellValue());
-				taskInfo.setDesc(row.getCell(keyMap.get("desc")).toString());
+				try {
+					TaskInfo taskInfo = new TaskInfo();
+					int taskid = (int) row.getCell(keyMap.get("taskid")).getNumericCellValue();
+					int type = (int) row.getCell(keyMap.get("type")).getNumericCellValue();
+					taskInfo.setTaskid(taskid);
+					taskInfo.setType(type);
+					taskInfo.setNum((int) row.getCell(keyMap.get("num")).getNumericCellValue());
+					taskInfo.setExp((int) row.getCell(keyMap.get("exp")).getNumericCellValue());
+					taskInfo.setDesc(row.getCell(keyMap.get("desc")).toString());
 
-				dailyTaskMap.put(taskid, taskInfo);
+					dailyTaskMap.put(taskid, taskInfo);
 
-				TaskTypeInfo taskTypeInfo = taskTypeMap.get(type);
-				taskTypeInfo.addTaskidList(taskInfo.getTaskid());
-				taskTypeMap.put(type, taskTypeInfo);
-				taskIdtoTag.put(taskid, TaskTag.DAILY);
+					TaskTypeInfo taskTypeInfo = taskTypeMap.get(type);
+					taskTypeInfo.addTaskidList(taskInfo.getTaskid());
+					taskTypeMap.put(type, taskTypeInfo);
+					taskIdtoTag.put(taskid, TaskTag.DAILY);
+				} catch (Exception e) {
+
+				}
 			}
 		}
 	}
@@ -228,8 +248,8 @@ public class BasicData {
 						keyMap.put("exp-min", cell.getColumnIndex());
 					} else if ("exp-max".equals(cell.toString())) {
 						keyMap.put("exp-max", cell.getColumnIndex());
-					} else if ("max".equals(cell.toString())) {
-						keyMap.put("max", cell.getColumnIndex());
+					} else if ("max-daily".equals(cell.toString())) {
+						keyMap.put("max-daily", cell.getColumnIndex());
 					} else if ("title-sc".equals(cell.toString())) {
 						keyMap.put("title-sc", cell.getColumnIndex());
 					} else if ("title-tc".equals(cell.toString())) {
@@ -246,7 +266,7 @@ public class BasicData {
 				levelInfo.setLevel(level);
 				levelInfo.setExp_min((int) row.getCell(keyMap.get("exp-min")).getNumericCellValue());
 				levelInfo.setExp_max((int) row.getCell(keyMap.get("exp-max")).getNumericCellValue());
-				levelInfo.setMax((int) row.getCell(keyMap.get("max")).getNumericCellValue());
+				levelInfo.setMax((int) row.getCell(keyMap.get("max-daily")).getNumericCellValue());
 				levelInfo.setTitle_en(row.getCell(keyMap.get("title-en")).toString());
 				levelInfo.setTitle_kr(row.getCell(keyMap.get("title-kr")).toString());
 				levelInfo.setTitle_sc(row.getCell(keyMap.get("title-sc")).toString());
@@ -274,6 +294,37 @@ public class BasicData {
 	private void close() throws IOException {
 		this.wb.close();
 		this.inp.close();
+	}
+
+	/*
+	 * 获取任务配置文件url
+	 */
+	public static String getTaskConfig() throws IOException {
+		String url = "/oss/downloadurl?from=task&bucket=1&objectkey=config/task.xls";
+		BaseHttpClient httpClient = new OssHttpClient(url, null, null);
+		PMessage message = httpClient.getMethod();
+		String type = message.getType();
+		if ("PDownload".equals(type)) {
+			PDownload download = PDownload.parseFrom(message.getData());
+			return download.getUrl();
+		} else {
+			PResult result = PResult.parseFrom(message.getData());
+			log.debug("获取任务配置文件url失败:" + result.getErrorCode());
+		}
+		return null;
+	}
+
+	public InputStream getFileNameFromUrl(String urlStr) throws IOException {
+		URL url = new URL(urlStr);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		// 设置超时间为3秒
+		conn.setConnectTimeout(30 * 1000);
+		// 防止屏蔽程序抓取而返回403错误
+		conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+
+		// 得到输入流
+		InputStream inputStream = conn.getInputStream();
+		return inputStream;
 	}
 
 	/*

@@ -10,6 +10,7 @@ import com.blemobi.library.jetty.JettyServer;
 import com.blemobi.library.jetty.ServerFilter;
 import com.blemobi.library.log.LoggerManager;
 import com.blemobi.task.basic.BasicData;
+import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;
 
@@ -24,9 +25,18 @@ public class TaskManager {
 		long consulIntervalTime = Constant.getConsulIntervaltime();// 获取连接Consul服务器的间隔时间
 		ConsulManager.startService(selfName, args, consulIntervalTime); // 启动连接Consul服务
 
+		// 发布Consul的健康发现
+		String health_check_port = BaseService.getProperty("health_check_port");
+		int check_port = Integer.parseInt(health_check_port);
+		HealthManager.startService(check_port, selfName);
+
+		//Thread.sleep(10000);
 		// 读取配置文件中的数据
-		String task_config_url = BaseService.getProperty("task_config_url");
+		String task_config_url = "http://sz1-test-sep-persistence.oss-cn-shenzhen.aliyuncs.com/config/task.xls?OSSAccessKeyId=9onpvIAMCEA8bWI7&Expires=1479118577&Signature=fw%2B5bMtiWKMXMELTOs3W6z4SRhA%3D";//BasicData.getTaskConfig();
 		log.debug("task_config_url: " + task_config_url);
+		if (Strings.isNullOrEmpty(task_config_url)) {
+			System.exit(0);
+		}
 		BasicData basicData = new BasicData(task_config_url);
 		basicData.init();
 
@@ -41,11 +51,6 @@ public class TaskManager {
 		log.info("Task Server Running Port:" + jetty_port);
 		JettyServer jettyServer = new JettyServer(selfName, packages, port, serverFilterList);
 		jettyServer.start();
-
-		// 发布Consul的健康发现
-		String health_check_port = BaseService.getProperty("health_check_port");
-		int check_port = Integer.parseInt(health_check_port);
-		HealthManager.startService(check_port, selfName);
 
 		// 初始化Consul日志管理
 		LoggerManager.startService();

@@ -6,7 +6,7 @@ public class Constant {
 	public static String GAME_TASK_MAIN = "task:main:";// 用户主线任务
 	public static String GAME_TASK_DAILY = "task:daily:";// 用户每日任务
 	public static String GAME_MSGID = "task:msgid:";// 用户任务消息订阅
-
+	public static String GAME_USER_LOCK = "task:lock:";// 用户操作并发锁
 	// 数据配置
 	public static String BASIC_LEVEL_DATA_CONFIG = "/data.xml";
 }

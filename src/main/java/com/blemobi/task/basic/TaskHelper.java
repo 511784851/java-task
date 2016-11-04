@@ -2,7 +2,6 @@ package com.blemobi.task.basic;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -74,20 +73,15 @@ public class TaskHelper {
 	}
 
 	/*
-	 * 获取已激活的日常任务列表（根据已完成的主线任务ID）
+	 * 获取已激活的日常任务列表
+	 * 
+	 * @return taskTypes 已完成主线任务类型
 	 */
-	public static List<TaskInfo> getActiveDailyTaskList(List<Integer> taskIds) {
+	public static List<TaskInfo> getActiveDailyTaskList(List<Integer> taskTypes) {
 		List<TaskInfo> taskList = new ArrayList<TaskInfo>();
-
-		// 找出主线任务ID对应的任务类型type
-		List<Integer> types = new ArrayList<Integer>();
-		for (int taskId : taskIds) {
-			types.add(getMainTask(taskId).getType());
-		}
-
 		// 找出日常任务任务类型依赖types的日常任务
 		for (TaskInfo taskInfo : BasicData.dailyTaskMap.values()) {
-			if (types.contains(taskInfo.getType())) {
+			if (taskTypes.contains(taskInfo.getType())) {
 				taskList.add(taskInfo);
 			}
 		}
@@ -95,16 +89,13 @@ public class TaskHelper {
 	}
 
 	/*
-	 * 获取符合等级有依赖的主线任务
+	 * 获取符合等级的主线任务
 	 */
-	public static List<TaskInfo> getDependMainTaskByLevel(int level) {
+	public static List<TaskInfo> getMainTaskByLevel(int level) {
 		List<TaskInfo> taskList = new ArrayList<TaskInfo>();
 		for (TaskInfo taskInfo : BasicData.mainTaskMap.values()) {
 			if (level >= taskInfo.getLevel()) {// 等级符合
-				char logic = taskInfo.getLogic();
-				if (logic != 'N') {// 有依赖
-					taskList.add(taskInfo);
-				}
+				taskList.add(taskInfo);
 			}
 		}
 		return taskList;
