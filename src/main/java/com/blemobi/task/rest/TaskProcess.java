@@ -57,7 +57,6 @@ public class TaskProcess {
 		}
 
 		TaskUtil taskUtil = new TaskUtil(uuid, language, user.getNickname(), user.getHeadImgURL());
-		// TaskUtil taskUtil = new TaskUtil(uuid, language, "", "");
 		taskUtil.init();
 		return taskUtil.list();
 	}
@@ -199,7 +198,6 @@ public class TaskProcess {
 		if (userInfo != null) {
 			int level = Integer.parseInt(userInfo.get("level"));
 			long exp = Long.parseLong(userInfo.get("exp"));
-			int num = Integer.parseInt(userInfo.get("num"));
 
 			PMessage message = UserRelation.getUserInfo(uuid);
 			PUser user = PUser.parseFrom(message.getData());

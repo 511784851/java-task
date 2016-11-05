@@ -229,10 +229,17 @@ public class TaskUtil {
 			jedis.hset(userInfoKey, "level", level + "");// 更新经验等级
 			NotifyManager notifyManager = new NotifyManager(uuid, level);
 			notifyManager.notifyMsg();
+			// 等级成就
+			AchievementMsg achievementMsg = new AchievementMsg(uuid, 1, level);
+			achievementMsg.notifyMsg();
 		}
 
 		RedisManager.returnResource(jedis);
 		LockManager.releaseLock(lock);
+
+		// 任务达成成就
+		AchievementMsg achievementMsg = new AchievementMsg(uuid, 4, 1);
+		achievementMsg.notifyMsg();
 
 		// 任务完成后续处理
 		TaskActiveThread.addQueue(uuid);

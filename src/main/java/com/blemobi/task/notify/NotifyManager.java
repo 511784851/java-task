@@ -57,7 +57,7 @@ public class NotifyManager {
 			send(pushMsgBuilder.build());
 			push();
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 	}
 
