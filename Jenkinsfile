@@ -44,6 +44,10 @@ stage ('build deploy') {
 		 --name "${JOB_NAME} ${releaseVersion}" \
     		 --description "${JOB_NAME} ${releaseVersion}" 
 
+	 github-release upload --user blemobi --repo ${JOB_NAME} \
+     	         --tag ${releaseVersion} --name blemobi-${JOB_NAME}.zip \
+                 --file blemobi-${JOB_NAME}.zip
+
        fi 	 
        """       
        }
