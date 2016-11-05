@@ -1,7 +1,7 @@
 package com.blemobi.task.util;
 
+import com.blemobi.library.client.AchievementHttpClient;
 import com.blemobi.library.client.BaseHttpClient;
-import com.blemobi.library.client.NotificationHttpClient;
 import com.blemobi.sep.probuf.AchievementProtos.PAchievementAction;
 import com.blemobi.sep.probuf.AchievementProtos.PAchievementActions;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
@@ -40,9 +40,12 @@ public class AchievementMsg {
 	// 添加通知
 	public void send(PAchievementActions achievementActions) {
 		try {
-			BaseHttpClient httpClient = new NotificationHttpClient("/v1/achievement/inside/action?from=task", null,
+			PMessage messageaa = PMessage.newBuilder().setType("PAchievementActions")
+					.setData(achievementActions.toByteString()).build();
+			BaseHttpClient httpClient = new AchievementHttpClient("/v1/achievement/inside/action?from=task", null,
 					null);
-			PMessage message = httpClient.postBodyMethod(achievementActions.toByteArray());
+			PMessage message = httpClient.postBodyMethod(messageaa.toByteArray(), "application/x-protobuf");
+			log.debug("用户[" + uuid + "]达成了成就-> msgid:" + msgid + "; value:" + value + " - message：" + message);
 			if ("PResult".equals(message.getType())) {
 				PResult result = PResult.parseFrom(message.getData());
 				log.debug("用户[" + uuid + "]达成了成就-> msgid:" + msgid + "; value:" + value + " - code："
