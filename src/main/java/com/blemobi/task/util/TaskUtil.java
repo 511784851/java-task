@@ -3,6 +3,7 @@ package com.blemobi.task.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.blemobi.library.consul.BaseService;
 import com.blemobi.library.redis.LockManager;
@@ -167,16 +168,23 @@ public class TaskUtil {
 						syActiveList.add(taskInfo);
 					}
 				}
+
 				// 今日剩余可初始化日常任务的数量
-				int initDaily = syActiveList.size() < syMax ? syActiveList.size() : syMax;
-				if (initDaily > 0) {
+				int size = syActiveList.size();
+				if (size <= syMax) {
 					// 可以继续初始化日常任务
-					for (int i = 0; i < initDaily; i++) {
+					for (int i = 0; i < size; i++) {
 						TaskInfo taskInfo = syActiveList.get(i);
 						jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
 					}
 					// 重新获取用户今日已初始化的日常任务
 					userDailyTask = jedis.hgetAll(userDailyTaskKey);
+				} else if (size > syMax) {
+					Set<Integer> set = TaskHelper.getRandomSet(size, syMax);
+					for (int i : set) {
+						TaskInfo taskInfo = syActiveList.get(i);
+						jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+					}
 				}
 			}
 			for (String key : userDailyTask.keySet()) {
