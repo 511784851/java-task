@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.blemobi.library.consul.BaseService;
 import com.blemobi.library.redis.LockManager;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
@@ -147,42 +148,44 @@ public class TaskUtil {
 		}
 
 		// 日常任务
-		int max = LevelHelper.getMaxCountByLevel(userBasic.getLevel());// 用户当前等级可接最大日常任务数
-		Map<String, String> userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务
-		List<Integer> taskids = new ArrayList<Integer>();// 用户今日已初始化日常任务ID
-		for (String s : userDailyTask.keySet()) {
-			taskids.add(Integer.parseInt(s));
-		}
-		int syMax = max - taskids.size();// 预计还可初始化多少日常任务
-		if (syMax > 0) {
-			// 剩余可初始化的日常任务
-			List<TaskInfo> syActiveList = new ArrayList<TaskInfo>();
-			// 已激活的日常任务列表
-			List<TaskInfo> activeList = TaskHelper.getActiveDailyTaskList(taskTypes);
-			// 排除今日已初始化的任务
-			for (TaskInfo taskInfo : activeList) {
-				if (!taskids.contains(taskInfo.getTaskid())) {
-					syActiveList.add(taskInfo);
+		if (getIsDaily()) {
+			int max = LevelHelper.getMaxCountByLevel(userBasic.getLevel());// 用户当前等级可接最大日常任务数
+			Map<String, String> userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务
+			List<Integer> taskids = new ArrayList<Integer>();// 用户今日已初始化日常任务ID
+			for (String s : userDailyTask.keySet()) {
+				taskids.add(Integer.parseInt(s));
+			}
+			int syMax = max - taskids.size();// 预计还可初始化多少日常任务
+			if (syMax > 0) {
+				// 剩余可初始化的日常任务
+				List<TaskInfo> syActiveList = new ArrayList<TaskInfo>();
+				// 已激活的日常任务列表
+				List<TaskInfo> activeList = TaskHelper.getActiveDailyTaskList(taskTypes);
+				// 排除今日已初始化的任务
+				for (TaskInfo taskInfo : activeList) {
+					if (!taskids.contains(taskInfo.getTaskid())) {
+						syActiveList.add(taskInfo);
+					}
+				}
+				// 今日剩余可初始化日常任务的数量
+				int initDaily = syActiveList.size() < syMax ? syActiveList.size() : syMax;
+				if (initDaily > 0) {
+					// 可以继续初始化日常任务
+					for (int i = 0; i < initDaily; i++) {
+						TaskInfo taskInfo = syActiveList.get(i);
+						jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+					}
+					// 重新获取用户今日已初始化的日常任务
+					userDailyTask = jedis.hgetAll(userDailyTaskKey);
 				}
 			}
-			// 今日剩余可初始化日常任务的数量
-			int initDaily = syActiveList.size() < syMax ? syActiveList.size() : syMax;
-			if (initDaily > 0) {
-				// 可以继续初始化日常任务
-				for (int i = 0; i < initDaily; i++) {
-					TaskInfo taskInfo = syActiveList.get(i);
-					jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+			for (String key : userDailyTask.keySet()) {
+				PTaskInfo taskInfo = getTaskInfo(key, userDailyTask.get(key));
+				if (taskInfo.getState() == 3) {
+					continue;
 				}
-				// 重新获取用户今日已初始化的日常任务
-				userDailyTask = jedis.hgetAll(userDailyTaskKey);
+				taskListBuilder.addDailyTask(taskInfo);
 			}
-		}
-		for (String key : userDailyTask.keySet()) {
-			PTaskInfo taskInfo = getTaskInfo(key, userDailyTask.get(key));
-			if (taskInfo.getState() == 3) {
-				continue;
-			}
-			taskListBuilder.addDailyTask(taskInfo);
 		}
 
 		RedisManager.returnResource(jedis);
@@ -321,5 +324,20 @@ public class TaskUtil {
 
 		return PTaskInfo.newBuilder().setTaskid(taskId).setExp(taskInfo.getExp()).setType(taskInfo.getType())
 				.setState(state).setComplete(complete).setNum(num).setDesc(des).build();
+	}
+
+	private boolean getIsDaily() {
+		String daily_max_man_str = BaseService.getProperty("daily_max_man");
+		int daily_max_man = Integer.parseInt(daily_max_man_str);
+		int totol = 0;
+		Map<String, String> map = jedis.hgetAll(userMainTaskKey);
+		if (map != null) {
+			for (String s : map.values()) {
+				if (Integer.parseInt(s) < -1) {// 已完成
+					totol++;
+				}
+			}
+		}
+		return totol >= daily_max_man ? true : false;
 	}
 }
