@@ -92,7 +92,7 @@ public class UserRelation {
 		int count = 100;
 		int offset = 0;// 分页起始值
 
-		String url = "/v1/inside/news/follow?from=task&offset=" + offset + "&count=" + count + "&uuidb=" + uuid;
+		String url = "/v1/news/inside/follow?from=task&offset=" + offset + "&count=" + count + "&uuidb=" + uuid;
 		BaseHttpClient httpClient = new NewsHttpClient(url, null, null);
 		PMessage message = httpClient.getMethod();
 		String type = message.getType();
