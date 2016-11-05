@@ -233,7 +233,7 @@ public class TaskUtil {
 			NotifyManager notifyManager = new NotifyManager(uuid, level);
 			notifyManager.notifyMsg();
 			// 等级成就
-			AchievementMsg achievementMsg = new AchievementMsg(uuid, 1, level);
+			AchievementMsg achievementMsg = new AchievementMsg(uuid, 100, level);
 			achievementMsg.notifyMsg();
 		}
 
@@ -241,8 +241,14 @@ public class TaskUtil {
 		LockManager.releaseLock(lock);
 
 		// 任务达成成就
-		AchievementMsg achievementMsg = new AchievementMsg(uuid, 4, 1);
-		achievementMsg.notifyMsg();
+		TaskTag tag = TaskHelper.getTaskTag(taskId);
+		if (tag == TaskTag.MAIN) {
+			AchievementMsg achievementMsg = new AchievementMsg(uuid, 400, 1);
+			achievementMsg.notifyMsg();
+		} else if (tag == TaskTag.DAILY) {
+			AchievementMsg achievementMsg = new AchievementMsg(uuid, 401, 1);
+			achievementMsg.notifyMsg();
+		}
 
 		// 任务完成后续处理
 		TaskActiveThread.addQueue(uuid);
