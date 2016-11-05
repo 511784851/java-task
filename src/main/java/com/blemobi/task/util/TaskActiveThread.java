@@ -33,14 +33,11 @@ public class TaskActiveThread extends Thread {
 	}
 
 	public void run() {
-		Jedis jedis = null;
+		Jedis jedis = RedisManager.getRedis();
 		while (true) {
 			// 队列中取出一个成员
 			String uuid = queue.poll();
 			if (Strings.isNullOrEmpty(uuid)) {
-				if (jedis != null) {
-					RedisManager.returnResource(jedis);
-				}
 				log.debug("没有任务触发");
 				try {
 					Thread.sleep(1000);
@@ -52,9 +49,6 @@ public class TaskActiveThread extends Thread {
 					String userInfoKey = Constant.GAME_USER_INFO + uuid;
 					String userMainTaskKey = Constant.GAME_TASK_MAIN + uuid;
 
-					if (jedis == null) {
-						jedis = RedisManager.getRedis();
-					}
 					String levelStr = jedis.hget(userInfoKey, "level");// 经验等级
 					int level = Integer.parseInt(levelStr);
 					String logStr = "uuid=[" + uuid + "],level=[" + level + "]";
