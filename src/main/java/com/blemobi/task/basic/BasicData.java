@@ -60,7 +60,8 @@ public class BasicData {
 	public void init() throws EncryptedDocumentException, InvalidFormatException, IOException {
 		try {
 			// 创建要读入的文件的输入流
-			this.inp = getFileNameFromUrl(fileUrl);// new  FileInputStream(this.fileUrl);
+			this.inp = getFileNameFromUrl(fileUrl);// new
+													// FileInputStream(this.fileUrl);
 			// 根据上述创建的输入流 创建工作簿对象
 			this.wb = WorkbookFactory.create(inp);
 
@@ -300,7 +301,7 @@ public class BasicData {
 	 * 获取任务配置文件url
 	 */
 	public static String getTaskConfig() throws IOException {
-		String url = "/oss/downloadurl?from=task&bucket=1&objectkey=config/task.xls";
+		String url = "/oss/downloadurl?from=task&bucket=1&internal=1&objectkey=config/task.xls";
 		BaseHttpClient httpClient = new OssHttpClient(url, null, null);
 		PMessage message = httpClient.getMethod();
 		String type = message.getType();
