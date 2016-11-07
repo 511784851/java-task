@@ -52,7 +52,7 @@ public class RankingUtil {
 	}
 
 	public PMessage rankingAll() throws ClientProtocolException, IOException {
-		if (System.currentTimeMillis() - cacheTime > 10 * 60 * 1000) {
+		if (System.currentTimeMillis() - cacheTime > 1 * 60 * 1000) {
 			// 重新排行
 			Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
 			long[] expArray = new long[set.size()];

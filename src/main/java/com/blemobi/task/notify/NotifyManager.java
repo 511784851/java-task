@@ -41,17 +41,23 @@ public class NotifyManager {
 			PPushMsg.Builder pushMsgBuilder = PPushMsg.newBuilder().setFromUuid(uuid).setType("achievement_task")
 					.setTime(System.currentTimeMillis()).setData(gameMsgMeta.toByteString());
 
-			// 好友列表
-			List<PUser> firends = UserRelation.getFirendList(uuid);
-			log.debug("用户[" + uuid + "]经验等级升级了 -> " + level + " 好友数量：" + firends.size());
-			for (PUser user : firends) {
-				pushMsgBuilder.addToUuids(user.getUuid());
-			}
+			pushMsgBuilder.addToUuids(uuid);
+
 			// 粉丝列表
 			ProtocolStringList stringList = UserRelation.getFansList(uuid);
 			log.debug("用户[" + uuid + "]经验等级升级了 -> " + level + " 粉丝数量：" + stringList.size());
 			for (String uuid : stringList) {
 				pushMsgBuilder.addToUuids(uuid);
+			}
+
+			// 好友列表
+			List<PUser> firends = UserRelation.getFirendList(uuid);
+			log.debug("用户[" + uuid + "]经验等级升级了 -> " + level + " 好友数量：" + firends.size());
+			for (PUser user : firends) {
+				String ouuid = user.getUuid();
+				if (!stringList.contains(ouuid)) {
+					pushMsgBuilder.addToUuids(ouuid);
+				}
 			}
 
 			send(pushMsgBuilder.build());
