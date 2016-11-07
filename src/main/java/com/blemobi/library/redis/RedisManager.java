@@ -13,6 +13,12 @@ public class RedisManager {
 	 * 获得Redis连接
 	 */
 	public static Jedis getRedis() {
+		Jedis jedis = getLongRedis();
+		AutoReturnRedis.putJedis(jedis);
+		return jedis;
+	}
+
+	public static Jedis getLongRedis() {
 		JedisPool jedisPool = getJedisPool();
 		log.debug("Redis Pool Info -> NumActive=[" + jedisPool.getNumActive() + "],NumIdle=[" + jedisPool.getNumIdle()
 				+ "]");

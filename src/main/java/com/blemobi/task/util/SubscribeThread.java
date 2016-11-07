@@ -38,7 +38,7 @@ public class SubscribeThread extends Thread {
 	}
 
 	public void run() {
-		Jedis jedis = RedisManager.getRedis();
+		Jedis jedis = RedisManager.getLongRedis();
 		while (true) {
 			// 队列中取出一个成员
 			PSubscribe subscribe = queue.poll();

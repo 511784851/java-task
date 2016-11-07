@@ -33,12 +33,12 @@ public class TaskActiveThread extends Thread {
 	}
 
 	public void run() {
-		Jedis jedis = RedisManager.getRedis();
+		Jedis jedis = RedisManager.getLongRedis();
 		while (true) {
 			// 队列中取出一个成员
 			String uuid = queue.poll();
 			if (Strings.isNullOrEmpty(uuid)) {
-				log.debug("没有任务触发");
+				// log.debug("没有任务触发");
 				try {
 					Thread.sleep(1000);
 				} catch (Exception e) {
