@@ -30,13 +30,15 @@ public class TaskManager {
 		int check_port = Integer.parseInt(health_check_port);
 		HealthManager.startService(check_port, selfName);
 
-		// Thread.sleep(10000);
 		// 读取配置文件中的数据
-		String task_config_url = BaseService.getProperty("task_config_url");// BasicData.getTaskConfig();
+		String task_config_url = BasicData.getTaskConfig();// BaseService.getProperty("task_config_url");
 		log.debug("task_config_url: " + task_config_url);
-		if (Strings.isNullOrEmpty(task_config_url)) {
-			System.exit(0);
+		while (Strings.isNullOrEmpty(task_config_url)) {
+			Thread.sleep(1000);
+			task_config_url = BasicData.getTaskConfig();
+			log.debug("task_config_url: " + task_config_url);
 		}
+
 		BasicData basicData = new BasicData(task_config_url);
 		basicData.init();
 

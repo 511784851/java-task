@@ -53,6 +53,20 @@ public class LevelHelper {
 	}
 
 	/*
+	 * 获取最大经验等级
+	 */
+	public static int getMaxLevel() {
+		return BasicData.levelMap.size();
+	}
+
+	/*
+	 * 获取最大经验值
+	 */
+	public static long getMaxExp() {
+		return BasicData.levelMap.get(getMaxLevel()).getExp_min();
+	}
+
+	/*
 	 * 获取全部等级数据
 	 */
 	public static Collection<LevelInfo> getAllLevelList() {

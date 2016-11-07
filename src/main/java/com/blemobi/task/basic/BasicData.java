@@ -1,10 +1,8 @@
 package com.blemobi.task.basic;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -301,7 +299,7 @@ public class BasicData {
 	 * 获取任务配置文件url
 	 */
 	public static String getTaskConfig() throws IOException {
-		String url = "/oss/downloadurl?from=task&bucket=1&internal=1&objectkey=config/task.xls";
+		String url = "/oss/downloadurl?from=task&bucket=1&objectkey=config/task.xls";
 		BaseHttpClient httpClient = new OssHttpClient(url, null, null);
 		PMessage message = httpClient.getMethod();
 		String type = message.getType();

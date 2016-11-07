@@ -117,7 +117,7 @@ public class TaskUtil {
 		if (!"-1".equals(target)) {
 			RedisManager.returnResource(jedis);
 			LockManager.releaseLock(lock);
-			return ReslutUtil.createErrorMessage(2201001, "任务不可接取");
+			return ReslutUtil.createErrorMessage(2901001, "任务不可接取");
 		}
 
 		jedis.hset(userDailyTaskKey, taskId + "", "0");
@@ -217,7 +217,7 @@ public class TaskUtil {
 		if (Strings.isNullOrEmpty(targetStr)) {
 			RedisManager.returnResource(jedis);
 			LockManager.releaseLock(lock);
-			return ReslutUtil.createErrorMessage(2201002, "任务不可领奖励");
+			return ReslutUtil.createErrorMessage(2901002, "任务不可领奖励");
 		}
 
 		int target = Integer.parseInt(targetStr);
@@ -225,7 +225,7 @@ public class TaskUtil {
 		if (target < taskInfo.getNum()) {
 			RedisManager.returnResource(jedis);
 			LockManager.releaseLock(lock);
-			return ReslutUtil.createErrorMessage(2201002, "任务不可领奖励");
+			return ReslutUtil.createErrorMessage(2901002, "任务不可领奖励");
 		}
 
 		// 符合领取条件，赠送奖励
