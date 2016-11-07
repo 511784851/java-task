@@ -70,18 +70,18 @@ public class UserRelation {
 	public static List<PUser> getFirendList(String uuid) throws ClientProtocolException, IOException {
 		List<PUser> userList = new ArrayList<PUser>();
 
-		String url = "/social/listfriends?from=task&start=0&count=10000&uuid=" + uuid;
+		String url = "/social/listfriends?from=task&start=0&count=100000&uuid=" + uuid;
 		BaseHttpClient httpClient = new SocialHttpClient(url, null, null);
 		PMessage message = httpClient.getMethod();
 		String type = message.getType();
 		if ("PUserList".equals(type)) {
 			PUserList puserList = PUserList.parseFrom(message.getData());
-			userList = puserList.getListList();
+			List<PUser> list = puserList.getListList();
+			userList.addAll(list);
 		} else {
 			PResult result = PResult.parseFrom(message.getData());
 			log.debug("获取用户好友列表失败:" + result.getErrorCode());
 		}
-
 		return userList;
 	}
 
@@ -91,20 +91,25 @@ public class UserRelation {
 
 		int count = 100;
 		int offset = 0;// 分页起始值
-
-		String url = "/v1/news/inside/follow?from=task&offset=" + offset + "&count=" + count + "&uuidb=" + uuid;
-		BaseHttpClient httpClient = new NewsHttpClient(url, null, null);
-		PMessage message = httpClient.getMethod();
-		String type = message.getType();
-		if ("PFollowOrFansList".equals(type)) {
-			PFollowOrFansList stringList = PFollowOrFansList.parseFrom(message.getData());
-			List<PRecommendUser> list = stringList.getListList();
-			userList.addAll(list);
-		} else {
-			PResult result = PResult.parseFrom(message.getData());
-			log.debug("获取用户关注列表失败:" + result.getErrorCode());
-		}
-
+		boolean bool = true;
+		do {
+			String url = "/v1/news/inside/follow?from=task&offset=" + offset + "&count=" + count + "&uuidb=" + uuid;
+			BaseHttpClient httpClient = new NewsHttpClient(url, null, null);
+			PMessage message = httpClient.getMethod();
+			String type = message.getType();
+			if ("PFollowOrFansList".equals(type)) {
+				PFollowOrFansList stringList = PFollowOrFansList.parseFrom(message.getData());
+				List<PRecommendUser> list = stringList.getListList();
+				userList.addAll(list);
+				offset = stringList.getIndex();
+				if (list == null || list.size() == 0) {
+					bool = false;
+				}
+			} else {
+				PResult result = PResult.parseFrom(message.getData());
+				log.debug("获取用户关注列表失败:" + result.getErrorCode());
+			}
+		} while (bool);
 		return userList;
 	}
 
@@ -119,7 +124,8 @@ public class UserRelation {
 		String type = message.getType();
 		if ("PStringList".equals(type)) {
 			PStringList stringList = PStringList.parseFrom(message.getData());
-			return stringList.getListList();
+			ProtocolStringList list = stringList.getListList();
+			return list;
 		} else {
 			PResult result = PResult.parseFrom(message.getData());
 			log.debug("获取用户粉丝列表失败:" + result.getErrorCode());

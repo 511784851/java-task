@@ -44,7 +44,7 @@ public class TaskUtil {
 	private String userDailyTaskKey;
 	private long dailyTime;
 
-	private Jedis jedis;
+	// private Jedis jedis;
 
 	/*
 	 * 私有构造方法
@@ -55,7 +55,6 @@ public class TaskUtil {
 		this.userMainTaskKey = Constant.GAME_TASK_MAIN + uuid;
 		this.dailyTime = TaskHelper.getDailyDate();
 		this.userDailyTaskKey = Constant.GAME_TASK_DAILY + uuid + ":" + dailyTime;
-		this.jedis = RedisManager.getRedis();
 	}
 
 	/*
@@ -80,6 +79,7 @@ public class TaskUtil {
 	 * 初始化用户基础信息、主线任务
 	 */
 	public boolean init() {
+		Jedis jedis = RedisManager.getRedis();
 		boolean bool = jedis.exists(userInfoKey);
 		if (bool)
 			return bool;// 已 初始化
@@ -107,6 +107,7 @@ public class TaskUtil {
 	 */
 	public PMessage receive() {
 		String lock = Constant.GAME_USER_LOCK + uuid + ":RECEIVE";
+		Jedis jedis = RedisManager.getRedis();
 		boolean isLock = LockManager.getLock(lock, 30);
 		if (!isLock) {// 没有获得当前用户接任务的安全锁（很难出现此情况）
 			RedisManager.returnResource(jedis);
@@ -133,7 +134,8 @@ public class TaskUtil {
 	 * 获取任务列表
 	 */
 	public PMessage list() {
-		PTaskUserBasic userBasic = getUserBasic();// 基础信息
+		Jedis jedis = RedisManager.getRedis();
+		PTaskUserBasic userBasic = getUserBasic(jedis);// 基础信息
 		PTaskList.Builder taskListBuilder = PTaskList.newBuilder().setUserBasic(userBasic);
 
 		// 主线任务
@@ -149,7 +151,7 @@ public class TaskUtil {
 		}
 
 		// 日常任务
-		if (getIsDaily()) {
+		if (getIsDaily(jedis)) {
 			int max = LevelHelper.getMaxCountByLevel(userBasic.getLevel());// 用户当前等级可接最大日常任务数
 			Map<String, String> userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务
 			List<Integer> taskids = new ArrayList<Integer>();// 用户今日已初始化日常任务ID
@@ -204,6 +206,7 @@ public class TaskUtil {
 	 * 领奖励
 	 */
 	public PMessage reward() {
+		Jedis jedis = RedisManager.getRedis();
 		String lock = Constant.GAME_USER_LOCK + uuid + ":REWARD";
 		boolean isLock = LockManager.getLock(lock, 30);
 		if (!isLock) {// 没有获得当前用户领奖励的安全锁（很难出现此情况）
@@ -268,7 +271,8 @@ public class TaskUtil {
 	 */
 	public PMessage level() {
 		// 用户基础信息
-		PTaskUserBasic userBasic = getUserBasic();
+		Jedis jedis = RedisManager.getRedis();
+		PTaskUserBasic userBasic = getUserBasic(jedis);
 		RedisManager.returnResource(jedis);
 
 		PTaskLevelList.Builder taskLevelList = PTaskLevelList.newBuilder().setUserBasic(userBasic);
@@ -286,7 +290,7 @@ public class TaskUtil {
 	/*
 	 * 获取用户基础信息
 	 */
-	private PTaskUserBasic getUserBasic() {
+	private PTaskUserBasic getUserBasic(Jedis jedis) {
 		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
 		int level = Integer.parseInt(userInfo.get("level"));
 		long exp = Long.parseLong(userInfo.get("exp"));
@@ -340,7 +344,7 @@ public class TaskUtil {
 				.setState(state).setComplete(complete).setNum(num).setDesc(des).build();
 	}
 
-	private boolean getIsDaily() {
+	private boolean getIsDaily(Jedis jedis) {
 		String daily_max_man_str = BaseService.getProperty("daily_max_man");
 		int daily_max_man = Integer.parseInt(daily_max_man_str);
 		int totol = 0;

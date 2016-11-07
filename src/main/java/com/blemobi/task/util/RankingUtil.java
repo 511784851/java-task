@@ -66,12 +66,11 @@ public class RankingUtil {
 				c++;
 			}
 
-			int max = expArray.length > rankmax ? rankmax : expArray.length;
 			// 冒泡排序
 			long expTemp = 0;
 			String uuidTemp = "";
-			for (int i = 0; i < max; i++) {
-				for (int j = i + 1; j < max; j++) {
+			for (int i = 0; i < expArray.length; i++) {
+				for (int j = i + 1; j < expArray.length; j++) {
 					if (expArray[i] < expArray[j]) {
 						expTemp = expArray[i];
 						expArray[i] = expArray[j];
@@ -84,8 +83,10 @@ public class RankingUtil {
 				}
 			}
 
+			int max = expArray.length > rankmax ? rankmax : expArray.length;
 			String uuids = "";
-			for (String u : uuidArray) {
+			for (int i = 0; i < max; i++) {
+				String u = uuidArray[i];
 				if (uuids.length() > 0) {
 					uuids += ",";
 				}
@@ -131,29 +132,15 @@ public class RankingUtil {
 		PUser myuser = PUser.newBuilder().setUuid(userBase.getUUID()).setHeadImgURL(userBase.getHeadImgURL())
 				.setNickname(userBase.getNickname()).build();
 
-		List<PUser> firends = UserRelation.getFirendList(uuid);
-		log.debug("好友数量！" + firends.size());
-		List<PUser> firendList = new ArrayList<PUser>();
-
-		Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
-		for (PUser user : firends) {
-			log.debug("好友uuid！" + uuid);
-			for (String key : set) {
-				String uuid = key.substring(Constant.GAME_USER_INFO.length());
-				if (user.getUuid().equals(uuid)) {
-					firendList.add(user);
-					break;
-				}
-			}
-		}
+		List<PUser> firendList = UserRelation.getFirendList(uuid);
+		log.debug("好友数量！" + firendList.size());
 		firendList.add(myuser);
 		long[] expArray = new long[firendList.size()];
 		PUser[] userArray = new PUser[firendList.size()];
 		int c = 0;
 		for (PUser user : firendList) {
 			String uuid = user.getUuid();
-			long exp = Long.parseLong(jedis.hget(Constant.GAME_USER_INFO + uuid, "exp"));
-			expArray[c] = exp;
+			expArray[c] = getOtherUserExp(uuid);
 			userArray[c] = user;
 			c++;
 		}
@@ -200,29 +187,15 @@ public class RankingUtil {
 		PRecommendUser myuser = PRecommendUser.newBuilder().setUuid(userBase.getUUID())
 				.setHeadImgURL(userBase.getHeadImgURL()).setNickname(userBase.getNickname()).build();
 
-		List<PRecommendUser> firends = UserRelation.getFollowList(uuid);
-		log.debug("关注数量！" + firends.size());
-		List<PRecommendUser> firendList = new ArrayList<PRecommendUser>();
-
-		Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
-		for (PRecommendUser user : firends) {
-			log.debug("关注uuid！" + uuid);
-			for (String key : set) {
-				String uuid = key.substring(Constant.GAME_USER_INFO.length());
-				if (user.getUuid().equals(uuid)) {
-					firendList.add(user);
-					break;
-				}
-			}
-		}
+		List<PRecommendUser> firendList = UserRelation.getFollowList(uuid);
+		log.debug("关注数量！" + firendList.size());
 		firendList.add(myuser);
 		long[] expArray = new long[firendList.size()];
 		PRecommendUser[] userArray = new PRecommendUser[firendList.size()];
 		int c = 0;
 		for (PRecommendUser user : firendList) {
 			String uuid = user.getUuid();
-			long exp = Long.parseLong(jedis.hget(Constant.GAME_USER_INFO + uuid, "exp"));
-			expArray[c] = exp;
+			expArray[c] = getOtherUserExp(uuid);
 			userArray[c] = user;
 			c++;
 		}
@@ -259,5 +232,15 @@ public class RankingUtil {
 		}
 		rankBuilder.setRank(ranknum);
 		return ReslutUtil.createReslutMessage(rankBuilder.build());
+	}
+
+	private long getOtherUserExp(String uuid) {
+		String exp = jedis.hget(Constant.GAME_USER_INFO + uuid, "exp");
+		if (Strings.isNullOrEmpty(exp)) {
+			TaskUtil taskUtil = new TaskUtil(uuid, "", "", "");
+			taskUtil.init();
+			exp = jedis.hget(Constant.GAME_USER_INFO + uuid, "exp");
+		}
+		return Long.parseLong(exp);
 	}
 }
