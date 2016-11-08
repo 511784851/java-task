@@ -85,9 +85,9 @@ public class TaskTypeInfo {
 			desc = desc_tc;// 中文繁体
 		} else if ("en-us".equals(language)) {// 英文
 			if (param > 1) {
-				desc = desc_en.replace("%s", "s");
+				desc = desc_en.replace("(s)", "s").replace("(ies)", "ies");
 			} else {
-				desc = desc_en.replace("%s", "(s)");
+				desc = desc_en.replace("(s)", "").replace("(ies)", "");
 			}
 		} else if ("ko-kr".equals(language)) {
 			desc = desc_kr;// 韩文
