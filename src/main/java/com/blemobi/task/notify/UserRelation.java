@@ -165,28 +165,32 @@ public class UserRelation {
 		return language;
 	}
 
-	public void delVO() throws ClientProtocolException, IOException {
-		Jedis jedis = RedisManager.getRedis();
-		Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
-		String uuids = "";
-		for (String key : set) {
-			String uuid = key.substring(Constant.GAME_USER_INFO.length());
-			if (uuids.length() > 0) {
-				uuids += ",";
+	public static void delVO() {
+		try {
+			Jedis jedis = RedisManager.getRedis();
+			Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
+			String uuids = "";
+			for (String key : set) {
+				String uuid = key.substring(Constant.GAME_USER_INFO.length());
+				if (uuids.length() > 0) {
+					uuids += ",";
+				}
+				uuids += uuid;
 			}
-			uuids += uuid;
-		}
-		int count = 0;
-		List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
-		for (PUserBase userBase : userBaseList) {
-			if (!UserRelation.levelList.contains(userBase.getLevel())) {
-				String uuid = userBase.getUUID();
-				jedis.del(Constant.GAME_USER_INFO + uuid);
-				jedis.del(Constant.GAME_TASK_MAIN + uuid);
-				jedis.del(Constant.GAME_MSGID + uuid);
-				count++;
+			int count = 0;
+			List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
+			for (PUserBase userBase : userBaseList) {
+				if (!UserRelation.levelList.contains(userBase.getLevel())) {
+					String uuid = userBase.getUUID();
+					jedis.del(Constant.GAME_USER_INFO + uuid);
+					jedis.del(Constant.GAME_TASK_MAIN + uuid);
+					jedis.del(Constant.GAME_MSGID + uuid);
+					count++;
+				}
 			}
+			log.debug("清除VO用户数量：" + count);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		log.debug("清除VO用户数量：" + count);
 	}
 }
