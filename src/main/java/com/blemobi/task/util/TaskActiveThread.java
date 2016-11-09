@@ -2,7 +2,6 @@ package com.blemobi.task.util;
 
 import java.util.List;
 
-import com.blemobi.library.redis.RedisManager;
 import com.blemobi.task.basic.TaskHelper;
 import com.blemobi.task.basic.TaskInfo;
 import com.google.common.base.Strings;
@@ -15,11 +14,10 @@ import redis.clients.jedis.Jedis;
  */
 @Log4j
 public class TaskActiveThread {
-	public static void addQueue(String uuid) {
+	public static void addQueue(String uuid, Jedis jedis) {
 		String userInfoKey = Constant.GAME_USER_INFO + uuid;
 		String userMainTaskKey = Constant.GAME_TASK_MAIN + uuid;
 
-		Jedis jedis = RedisManager.getLongRedis();
 		String levelStr = jedis.hget(userInfoKey, "level");// 经验等级
 		int level = Integer.parseInt(levelStr);
 		String logStr = "uuid=[" + uuid + "],level=[" + level + "]";
@@ -64,7 +62,6 @@ public class TaskActiveThread {
 				}
 			}
 		}
-		RedisManager.returnResource(jedis);
 	}
 
 	/*

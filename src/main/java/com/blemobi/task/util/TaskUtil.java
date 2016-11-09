@@ -44,8 +44,6 @@ public class TaskUtil {
 	private String userDailyTaskKey;
 	private long dailyTime;
 
-	// private Jedis jedis;
-
 	/*
 	 * 私有构造方法
 	 */
@@ -81,9 +79,9 @@ public class TaskUtil {
 	public boolean init() {
 		Jedis jedis = RedisManager.getRedis();
 		boolean bool = jedis.exists(userInfoKey);
-		if (bool)
+		if (bool) {
 			return bool;// 已 初始化
-
+		}
 		// 基础信息
 		int level = LevelHelper.getLevelByExp(defaultEXP);
 		jedis.hsetnx(userInfoKey, "exp", defaultEXP + "");// 经验值
@@ -94,11 +92,18 @@ public class TaskUtil {
 		List<TaskInfo> mainTaskList = TaskHelper.getNoDependMainTaskByLevel(level);
 		for (TaskInfo taskInfo : mainTaskList) {
 			long rtn = jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
-			if (rtn == 1)
+			if (rtn == 1) {
 				SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);// 消息订阅（永久）
+			}
 		}
 
+		RedisManager.returnResource(jedis);
 		log.debug("用户[" + uuid + "]信息初始化完成");
+
+		// 等级成就
+		AchievementMsg achievementMsg = new AchievementMsg(uuid, 100, level);
+		achievementMsg.notifyMsg();
+
 		return bool;
 	}
 
@@ -241,6 +246,7 @@ public class TaskUtil {
 		int level = LevelHelper.getLevelByExp(exp);// 新的等级
 		if (level > oldLevel) {
 			jedis.hset(userInfoKey, "level", level + "");// 更新经验等级
+			// 等级推送和通知
 			NotifyManager notifyManager = new NotifyManager(uuid, level);
 			notifyManager.notifyMsg();
 			// 等级成就
@@ -248,6 +254,8 @@ public class TaskUtil {
 			achievementMsg.notifyMsg();
 		}
 
+		// 任务完成后续处理
+		TaskActiveThread.addQueue(uuid, jedis);
 		RedisManager.returnResource(jedis);
 		LockManager.releaseLock(lock);
 
@@ -261,8 +269,6 @@ public class TaskUtil {
 			achievementMsg.notifyMsg();
 		}
 
-		// 任务完成后续处理
-		TaskActiveThread.addQueue(uuid);
 		return ReslutUtil.createSucceedMessage();
 	}
 

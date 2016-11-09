@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -11,6 +12,7 @@ import com.blemobi.library.client.AccountHttpClient;
 import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.library.client.NewsHttpClient;
 import com.blemobi.library.client.SocialHttpClient;
+import com.blemobi.library.redis.RedisManager;
 import com.blemobi.sep.probuf.AccountApiProtos.PNotifyBaseInfo;
 import com.blemobi.sep.probuf.AccountApiProtos.PNotifyBaseInfoList;
 import com.blemobi.sep.probuf.AccountProtos.ELevelType;
@@ -23,9 +25,11 @@ import com.blemobi.sep.probuf.NewsProtos.PRecommendUser;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.blemobi.sep.probuf.ResultProtos.PStringList;
+import com.blemobi.task.util.Constant;
 import com.google.protobuf.ProtocolStringList;
 
 import lombok.extern.log4j.Log4j;
+import redis.clients.jedis.Jedis;
 
 @Log4j
 public class UserRelation {
@@ -39,7 +43,7 @@ public class UserRelation {
 	}
 
 	/*
-	 * 获取用户昵称，语言
+	 * 获取用户信息
 	 */
 	public static PMessage getUserInfo(String uuid) throws IOException {
 		String url = "/account/user/profile?from=task&uuid=" + uuid;
@@ -114,43 +118,74 @@ public class UserRelation {
 	}
 
 	// 获取用户粉丝列表
-	public static ProtocolStringList getFansList(String uuid) throws ClientProtocolException, IOException {
+	public static List<String> getFansList(String uuid) throws ClientProtocolException, IOException {
+		List<String> userList = new ArrayList<String>();
 		int count = 100;
 		int offset = 0;// 分页起始值
-
-		String url = "/v1/news/inside/fans?from=task&offset=" + offset + "&count=" + count + "&uuid=" + uuid;
-		BaseHttpClient httpClient = new NewsHttpClient(url, null, null);
-		PMessage message = httpClient.getMethod();
-		String type = message.getType();
-		if ("PStringList".equals(type)) {
-			PStringList stringList = PStringList.parseFrom(message.getData());
-			ProtocolStringList list = stringList.getListList();
-			return list;
-		} else {
-			PResult result = PResult.parseFrom(message.getData());
-			log.debug("获取用户粉丝列表失败:" + result.getErrorCode());
-		}
-
-		return null;
+		boolean bool = true;
+		do {
+			String url = "/v1/news/inside/fans?from=task&offset=" + offset + "&count=" + count + "&uuid=" + uuid;
+			BaseHttpClient httpClient = new NewsHttpClient(url, null, null);
+			PMessage message = httpClient.getMethod();
+			String type = message.getType();
+			if ("PStringList".equals(type)) {
+				PStringList stringList = PStringList.parseFrom(message.getData());
+				ProtocolStringList list = stringList.getListList();
+				userList.addAll(list);
+				if (list == null || list.size() == 0) {
+					bool = false;
+				}
+			} else {
+				PResult result = PResult.parseFrom(message.getData());
+				log.debug("获取用户粉丝列表失败:" + result.getErrorCode());
+			}
+		} while (bool);
+		return userList;
 	}
 
 	/*
-	 * 获取用户昵称，语言
+	 * 获取用户语言
 	 */
-	public static PNotifyBaseInfo getBaseInfo(String uuid) throws IOException {
-		PNotifyBaseInfo notifyBaseInfo = null;
-		String url = "/account/user/profile?from=task";
+	public static String getLanguage(String uuid) throws IOException {
+		String language = "";
+		String url = "/v1/account/user/notifybases?from=task";
 		BaseHttpClient httpClient = new AccountHttpClient(url, null, null);
 		PMessage message = httpClient.postBodyMethod(uuid.getBytes());
-		if ("PUser".equals(message.getType())) {
+		if ("PNotifyBaseInfoList".equals(message.getType())) {
 			PNotifyBaseInfoList motifyBaseInfoList = PNotifyBaseInfoList.parseFrom(message.getData());
 			Map<String, PNotifyBaseInfo> map = motifyBaseInfoList.getMap();
-			if (map != null) {
-				notifyBaseInfo = map.get(uuid);
-			}
-		} else {
+			PNotifyBaseInfo notifyBaseInfo = map.get(uuid);
+			language = notifyBaseInfo.getLanguage();
+			log.debug("用户语言：" + language);
+		} else if ("PResult".equals(message.getType())) {
 			PResult result = PResult.parseFrom(message.getData());
+			log.error("获取用户语言出错：" + result.getErrorCode() + " - " + result.getErrorMsg());
 		}
-		return notifyBaseInfo;
+		return language;
+	}
+
+	public void delVO() throws ClientProtocolException, IOException {
+		Jedis jedis = RedisManager.getRedis();
+		Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
+		String uuids = "";
+		for (String key : set) {
+			String uuid = key.substring(Constant.GAME_USER_INFO.length());
+			if (uuids.length() > 0) {
+				uuids += ",";
+			}
+			uuids += uuid;
+		}
+		int count = 0;
+		List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
+		for (PUserBase userBase : userBaseList) {
+			if (!UserRelation.levelList.contains(userBase.getLevel())) {
+				String uuid = userBase.getUUID();
+				jedis.del(Constant.GAME_USER_INFO + uuid);
+				jedis.del(Constant.GAME_TASK_MAIN + uuid);
+				jedis.del(Constant.GAME_MSGID + uuid);
+				count++;
+			}
+		}
+		log.debug("清除VO用户数量：" + count);
 	}
 }

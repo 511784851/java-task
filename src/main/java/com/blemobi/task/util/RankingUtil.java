@@ -31,7 +31,6 @@ public class RankingUtil {
 	private static List<PGuy> allRankGuyList = new ArrayList<PGuy>();
 
 	private String uuid;
-	private String language;
 	private String userInfoKey;
 	private long exp = 0;
 	private Jedis jedis;
@@ -39,10 +38,9 @@ public class RankingUtil {
 	/*
 	 * 构造方法
 	 */
-	public RankingUtil(String uuid, String language) {
+	public RankingUtil(String uuid) {
 		this.uuid = uuid;
 		this.userInfoKey = Constant.GAME_USER_INFO + uuid;
-		this.language = language;
 		this.jedis = RedisManager.getRedis();
 
 		String expStr = jedis.hget(userInfoKey, "exp");
@@ -65,7 +63,7 @@ public class RankingUtil {
 				uuidArray[c] = uuid;
 				c++;
 			}
-
+			RedisManager.returnResource(jedis);
 			// 冒泡排序
 			long expTemp = 0;
 			String uuidTemp = "";
@@ -107,6 +105,8 @@ public class RankingUtil {
 			allRankGuyList = rankGuyList;
 			cacheTime = System.currentTimeMillis();
 			log.debug("总排行数据计算完成！" + userBaseList.size());
+		} else {
+			RedisManager.returnResource(jedis);
 		}
 
 		PRank.Builder rankBuilder = PRank.newBuilder();
@@ -131,8 +131,14 @@ public class RankingUtil {
 		PUserBase userBase = userBaseList.get(0);
 		PUser myuser = PUser.newBuilder().setUuid(userBase.getUUID()).setHeadImgURL(userBase.getHeadImgURL())
 				.setNickname(userBase.getNickname()).build();
-
-		List<PUser> firendList = UserRelation.getFirendList(uuid);
+		List<PUser> _firendList = UserRelation.getFirendList(uuid);
+		List<PUser> firendList = new ArrayList<PUser>();
+		// 踢出VO用户
+		for (PUser user : _firendList) {
+			if (UserRelation.levelList.contains(user.getLevelInfo().getLevelType())) {
+				firendList.add(user);
+			}
+		}
 		log.debug("好友数量！" + firendList.size());
 		firendList.add(myuser);
 		long[] expArray = new long[firendList.size()];
@@ -144,7 +150,7 @@ public class RankingUtil {
 			userArray[c] = user;
 			c++;
 		}
-
+		RedisManager.returnResource(jedis);
 		long expTemp = 0;
 		PUser userTemp = null;
 		for (int i = 0; i < expArray.length; i++) {
@@ -182,7 +188,15 @@ public class RankingUtil {
 	// 关注排名
 	public PMessage rankFollow() throws ClientProtocolException, IOException {
 		// 获取用户自己
-		List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuid);
+		List<PUserBase> _userBaseList = UserRelation.getUserListInfo(uuid);
+		List<PUserBase> userBaseList = new ArrayList<PUserBase>();
+		// 踢出VO用户
+		for (PUserBase user : _userBaseList) {
+			if (UserRelation.levelList.contains(user.getLevel())) {
+				userBaseList.add(user);
+			}
+		}
+
 		PUserBase userBase = userBaseList.get(0);
 		PRecommendUser myuser = PRecommendUser.newBuilder().setUuid(userBase.getUUID())
 				.setHeadImgURL(userBase.getHeadImgURL()).setNickname(userBase.getNickname()).build();
@@ -199,7 +213,7 @@ public class RankingUtil {
 			userArray[c] = user;
 			c++;
 		}
-
+		RedisManager.returnResource(jedis);
 		long expTemp = 0;
 		PRecommendUser userTemp = null;
 		for (int i = 0; i < expArray.length; i++) {

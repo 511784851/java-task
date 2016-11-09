@@ -133,7 +133,7 @@ public class TaskProcess {
 	public PMessage rank(@CookieParam("uuid") String uuid, @QueryParam("scope") String scope,
 			@QueryParam("language") String language) throws BaseException, ClientProtocolException, IOException {
 
-		RankingUtil rankingUtil = new RankingUtil(uuid, language);
+		RankingUtil rankingUtil = new RankingUtil(uuid);
 		if ("public".equals(scope)) {
 			return rankingUtil.rankingAll();
 		} else if ("friend".equals(scope)) {

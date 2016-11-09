@@ -1,5 +1,6 @@
 package com.blemobi.task.notify;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,6 @@ import com.blemobi.sep.probuf.NotificationApiProtos.PPushMsg;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.blemobi.task.basic.LevelHelper;
-import com.google.protobuf.ProtocolStringList;
 
 import lombok.extern.log4j.Log4j;
 
@@ -44,7 +44,7 @@ public class NotifyManager {
 			pushMsgBuilder.addToUuids(uuid);
 
 			// 粉丝列表
-			ProtocolStringList stringList = UserRelation.getFansList(uuid);
+			List<String> stringList = UserRelation.getFansList(uuid);
 			log.debug("用户[" + uuid + "]经验等级升级了 -> " + level + " 粉丝数量：" + stringList.size());
 			for (String uuid : stringList) {
 				pushMsgBuilder.addToUuids(uuid);
@@ -70,15 +70,9 @@ public class NotifyManager {
 	// 推送通知
 	public void push() {
 		try {
-			String language = "";
-			PMessage pusermessage = UserRelation.getUserInfo(uuid);
-			if ("PUser".equals(pusermessage.getType())) {
-				PUser user = PUser.parseFrom(pusermessage.getData());
-				language = user.getLocale();
-			}
-			log.debug("用户[" + uuid + "]语言：" + language);
+			String language = UserRelation.getLanguage(uuid);
 			String levelName = LevelHelper.getLevelInfoByLevel(level).getTitle(language);
-			String conent = "恭喜！您的等级提升为：" + levelName;
+			String conent = getContent(levelName, language);
 
 			Map<String, String> info = new HashMap<String, String>();
 			info.put("MsgType", "tl");
@@ -124,5 +118,22 @@ public class NotifyManager {
 		} catch (Exception e) {
 
 		}
+	}
+
+	/*
+	 * 获取用户语音对应的推送文字内容
+	 */
+	private String getContent(String name, String language) throws IOException {
+		String content = "";
+		if ("zh-tw".equals(language)) {// 中文繁体
+			content = "您的经验等级升级为" + name;
+		} else if ("en-us".equals(language)) {// 英文
+			content = "Your EXP has been upgraded to " + name;
+		} else if ("ko-kr".equals(language)) {// 韩文
+			content = "현재 경험등급이" + name;
+		} else {// 中文简体（默认）
+			content = "您的经验等级升级为" + name;
+		}
+		return content;
 	}
 }
