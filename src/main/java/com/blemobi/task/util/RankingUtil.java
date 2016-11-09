@@ -127,10 +127,11 @@ public class RankingUtil {
 	// 好友排名
 	public PMessage rankFirend() throws ClientProtocolException, IOException {
 		// 获取用户自己
-		List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuid);
-		PUserBase userBase = userBaseList.get(0);
-		PUser myuser = PUser.newBuilder().setUuid(userBase.getUUID()).setHeadImgURL(userBase.getHeadImgURL())
-				.setNickname(userBase.getNickname()).build();
+		PMessage message = UserRelation.getUserInfo(uuid);
+		PUser puser = PUser.parseFrom(message.getData());
+		PUser myuser = PUser.newBuilder().setUuid(puser.getUuid()).setHeadImgURL(puser.getHeadImgURL())
+				.setNickname(puser.getNickname()).build();
+
 		List<PUser> _firendList = UserRelation.getFirendList(uuid);
 		List<PUser> firendList = new ArrayList<PUser>();
 		// 踢出VO用户
@@ -188,21 +189,20 @@ public class RankingUtil {
 	// 关注排名
 	public PMessage rankFollow() throws ClientProtocolException, IOException {
 		// 获取用户自己
-		List<PUserBase> _userBaseList = UserRelation.getUserListInfo(uuid);
-		List<PUserBase> userBaseList = new ArrayList<PUserBase>();
+		PMessage message = UserRelation.getUserInfo(uuid);
+		PUser puser = PUser.parseFrom(message.getData());
+		PRecommendUser myuser = PRecommendUser.newBuilder().setUuid(puser.getUuid())
+				.setHeadImgURL(puser.getHeadImgURL()).setNickname(puser.getNickname()).build();
+
+		List<PRecommendUser> _firendList = UserRelation.getFollowList(uuid);
+		List<PRecommendUser> firendList = new ArrayList<PRecommendUser>();
+		log.debug("关注数量！" + firendList.size());
 		// 踢出VO用户
-		for (PUserBase user : _userBaseList) {
-			if (UserRelation.levelList.contains(user.getLevel())) {
-				userBaseList.add(user);
+		for (PRecommendUser user : _firendList) {
+			if (UserRelation.levelList.contains(user.getLeveltype())) {
+				firendList.add(user);
 			}
 		}
-
-		PUserBase userBase = userBaseList.get(0);
-		PRecommendUser myuser = PRecommendUser.newBuilder().setUuid(userBase.getUUID())
-				.setHeadImgURL(userBase.getHeadImgURL()).setNickname(userBase.getNickname()).build();
-
-		List<PRecommendUser> firendList = UserRelation.getFollowList(uuid);
-		log.debug("关注数量！" + firendList.size());
 		firendList.add(myuser);
 		long[] expArray = new long[firendList.size()];
 		PRecommendUser[] userArray = new PRecommendUser[firendList.size()];
