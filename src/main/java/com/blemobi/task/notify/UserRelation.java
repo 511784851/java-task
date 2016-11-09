@@ -135,6 +135,7 @@ public class UserRelation {
 				if (list == null || list.size() == 0) {
 					bool = false;
 				}
+				offset += count;
 			} else {
 				PResult result = PResult.parseFrom(message.getData());
 				log.debug("获取用户粉丝列表失败:" + result.getErrorCode());
