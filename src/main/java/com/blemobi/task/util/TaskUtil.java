@@ -164,6 +164,7 @@ public class TaskUtil {
 				taskids.add(Integer.parseInt(s));
 			}
 			int syMax = max - taskids.size();// 预计还可初始化多少日常任务
+			log.debug("用户[" + uuid + "]预计还可初始化日常任务数量：" + syMax);
 			if (syMax > 0) {
 				// 剩余可初始化的日常任务
 				List<TaskInfo> syActiveList = new ArrayList<TaskInfo>();
@@ -178,13 +179,13 @@ public class TaskUtil {
 
 				// 今日剩余可初始化日常任务的数量
 				int size = syActiveList.size();
+				log.debug("用户[" + uuid + "]最终还可初始化日常任务数量：" + syMax);
 				if (size <= syMax) {
 					// 可以继续初始化日常任务
 					for (int i = 0; i < size; i++) {
 						TaskInfo taskInfo = syActiveList.get(i);
 						jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
 					}
-					// 重新获取用户今日已初始化的日常任务
 					userDailyTask = jedis.hgetAll(userDailyTaskKey);
 				} else if (size > syMax) {
 					Set<Integer> set = TaskHelper.getRandomSet(size, syMax);
@@ -192,6 +193,7 @@ public class TaskUtil {
 						TaskInfo taskInfo = syActiveList.get(i);
 						jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
 					}
+					userDailyTask = jedis.hgetAll(userDailyTaskKey);
 				}
 			}
 			for (String key : userDailyTask.keySet()) {
@@ -362,6 +364,7 @@ public class TaskUtil {
 				}
 			}
 		}
+		log.debug("用户[" + uuid + "]已完成主线任务数量：" + totol);
 		return totol >= daily_max_man ? true : false;
 	}
 }
