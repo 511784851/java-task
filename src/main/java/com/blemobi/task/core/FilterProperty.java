@@ -23,9 +23,14 @@ public class FilterProperty {
 		tokenPathArray.add("/task/user/level");
 		tokenPathArray.add("/task/user/receive");
 		tokenPathArray.add("/task/user/reward");
+		tokenPathArray.add("/task/user/rank");
+		tokenPathArray.add("/task/user/pk");
+		tokenPathArray.add("/task/callback/app");
 
 		fromPathArray = new ArrayList<String>();
-		// fromPathArray.add("/task/callback/msgid");
+		fromPathArray.add("/task/callback/msgid");
+		fromPathArray.add("/task/callback/level");
+		fromPathArray.add("/task/callback/userBase");
 	}
 
 	public List<ServerFilter> getFilterList() {

@@ -45,19 +45,7 @@ public class TaskProcess {
 	@Path("list")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
 	public PMessage list(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws Exception {
-		PMessage message = UserRelation.getUserInfo(uuid);
-		if (!"PUser".equals(message.getType())) {
-			return ReslutUtil.createErrorMessage(1001006, "用户不存在");
-		}
-
-		PUser user = PUser.parseFrom(message.getData());
-		int levelType = user.getLevelInfo().getLevelType();
-		if (!UserRelation.levelList.contains(levelType)) {
-			return ReslutUtil.createErrorMessage(2201000, "没有权限使用任务系统");
-		}
-
-		TaskUtil taskUtil = new TaskUtil(uuid, language, user.getNickname(), user.getHeadImgURL());
-		taskUtil.init();
+		TaskUtil taskUtil = new TaskUtil(uuid, language);
 		return taskUtil.list();
 	}
 
@@ -73,9 +61,7 @@ public class TaskProcess {
 	@Path("level")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
 	public PMessage level(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws Exception {
-		TaskUtil taskUtil = new TaskUtil(uuid, language, "", "");
-		taskUtil.init();
-
+		TaskUtil taskUtil = new TaskUtil(uuid, language);
 		return taskUtil.level();
 	}
 
@@ -97,7 +83,6 @@ public class TaskProcess {
 			TaskUtil taskUtil = new TaskUtil(uuid, Integer.parseInt(taskid));
 			taskUtil.receive();
 		}
-
 		return ReslutUtil.createSucceedMessage();
 	}
 

@@ -26,6 +26,7 @@ import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.blemobi.sep.probuf.ResultProtos.PStringList;
 import com.blemobi.task.util.Constant;
+import com.google.common.base.Strings;
 import com.google.protobuf.ProtocolStringList;
 
 import lombok.extern.log4j.Log4j;
@@ -189,6 +190,38 @@ public class UserRelation {
 				}
 			}
 			log.debug("清除VO用户数量：" + count);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void loadInfo() {
+		try {
+			Jedis jedis = RedisManager.getRedis();
+			Set<String> sets = jedis.keys(Constant.GAME_USER_INFO + "*");
+			String uuids = "";
+			for (String key : sets) {
+				String uuid = key.substring(Constant.GAME_USER_INFO.length());
+				Map<String, String> map = jedis.hgetAll(key);
+				if (Strings.isNullOrEmpty(map.get("nickname"))) {
+					if (uuids.length() > 0) {
+						uuids += ",";
+					}
+					uuids += uuid;
+				}
+			}
+			int count = 0;
+			List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
+			for (PUserBase userBase : userBaseList) {
+				String uuid = userBase.getUUID();
+				String userInfoKey = Constant.GAME_USER_INFO + uuid;
+				jedis.hset(userInfoKey, "nickname", userBase.getNickname());
+				jedis.hset(userInfoKey, "headimg", userBase.getHeadImgURL());
+				jedis.hset(userInfoKey, "language", userBase.getLanguage());
+				jedis.hset(userInfoKey, "levelType", userBase.getLevel() + "");
+				count++;
+			}
+			log.debug("重新获取用户基础信息：" + count);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -43,7 +43,7 @@ public class TaskManager {
 		BasicData basicData = new BasicData(task_config_url);
 		basicData.init();
 
-		UserRelation.delVO();
+		UserRelation.loadInfo();
 
 		log.info("Starting Task Server ...");
 

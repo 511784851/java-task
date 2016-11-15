@@ -755,6 +755,14 @@ public final class AccountProtos {
      * </pre>
      */
     qzone(9, 9),
+    /**
+     * <code>edg = 10;</code>
+     *
+     * <pre>
+     *EDG
+     * </pre>
+     */
+    edg(10, 10),
     UNRECOGNIZED(-1, -1),
     ;
 
@@ -838,6 +846,14 @@ public final class AccountProtos {
      * </pre>
      */
     public static final int qzone_VALUE = 9;
+    /**
+     * <code>edg = 10;</code>
+     *
+     * <pre>
+     *EDG
+     * </pre>
+     */
+    public static final int edg_VALUE = 10;
 
 
     public final int getNumber() {
@@ -860,6 +876,7 @@ public final class AccountProtos {
         case 7: return quanmin;
         case 8: return weibo;
         case 9: return qzone;
+        case 10: return edg;
         default: return null;
       }
     }
@@ -3061,7 +3078,7 @@ public final class AccountProtos {
      * <code>optional string password = 7;</code>
      *
      * <pre>
-     * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+     * 自有手机号码注册时输入的密码      //这个可以移除
      * </pre>
      */
     java.lang.String getPassword();
@@ -3069,7 +3086,7 @@ public final class AccountProtos {
      * <code>optional string password = 7;</code>
      *
      * <pre>
-     * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+     * 自有手机号码注册时输入的密码      //这个可以移除
      * </pre>
      */
     com.google.protobuf.ByteString
@@ -3178,7 +3195,7 @@ public final class AccountProtos {
      * <code>optional string birthday = 14;</code>
      *
      * <pre>
-     * 生日，格式19850101
+     * 生日，格式1985-01-01
      * </pre>
      */
     java.lang.String getBirthday();
@@ -3186,7 +3203,7 @@ public final class AccountProtos {
      * <code>optional string birthday = 14;</code>
      *
      * <pre>
-     * 生日，格式19850101
+     * 生日，格式1985-01-01
      * </pre>
      */
     com.google.protobuf.ByteString
@@ -3196,7 +3213,7 @@ public final class AccountProtos {
      * <code>optional string cellphone = 15;</code>
      *
      * <pre>
-     * 手机号
+     * 手机号     //这个可以移除
      * </pre>
      */
     java.lang.String getCellphone();
@@ -3204,7 +3221,7 @@ public final class AccountProtos {
      * <code>optional string cellphone = 15;</code>
      *
      * <pre>
-     * 手机号
+     * 手机号     //这个可以移除
      * </pre>
      */
     com.google.protobuf.ByteString
@@ -3214,7 +3231,7 @@ public final class AccountProtos {
      * <code>optional int32 timeZone = 16;</code>
      *
      * <pre>
-     * 时区
+     * 时区       //客户端没用到
      * </pre>
      */
     int getTimeZone();
@@ -3223,7 +3240,7 @@ public final class AccountProtos {
      * <code>optional string locale = 17;</code>
      *
      * <pre>
-     * 语言
+     * 语言       //客户端没用到
      * </pre>
      */
     java.lang.String getLocale();
@@ -3231,7 +3248,7 @@ public final class AccountProtos {
      * <code>optional string locale = 17;</code>
      *
      * <pre>
-     * 语言
+     * 语言       //客户端没用到
      * </pre>
      */
     com.google.protobuf.ByteString
@@ -3511,6 +3528,49 @@ public final class AccountProtos {
      * </pre>
      */
     boolean getIsFollowing();
+
+    /**
+     * <code>optional int64 registerTime = 37;</code>
+     *
+     * <pre>
+     * 注册时间
+     * </pre>
+     */
+    long getRegisterTime();
+
+    /**
+     * <code>optional .common.PLinkInfoList linkList = 38;</code>
+     *
+     * <pre>
+     * 第三方链接列表
+     * </pre>
+     */
+    boolean hasLinkList();
+    /**
+     * <code>optional .common.PLinkInfoList linkList = 38;</code>
+     *
+     * <pre>
+     * 第三方链接列表
+     * </pre>
+     */
+    com.blemobi.sep.probuf.AccountProtos.PLinkInfoList getLinkList();
+    /**
+     * <code>optional .common.PLinkInfoList linkList = 38;</code>
+     *
+     * <pre>
+     * 第三方链接列表
+     * </pre>
+     */
+    com.blemobi.sep.probuf.AccountProtos.PLinkInfoListOrBuilder getLinkListOrBuilder();
+
+    /**
+     * <code>optional int32 authStatus = 39;</code>
+     *
+     * <pre>
+     * 实名认证状态(0:未认证,1:审核中,2:审核未通过,3:已认证)
+     * </pre>
+     */
+    int getAuthStatus();
   }
   /**
    * Protobuf type {@code common.PUser}
@@ -3557,6 +3617,8 @@ public final class AccountProtos {
       thumbBackImage_ = "";
       bigBackImage_ = "";
       isFollowing_ = false;
+      registerTime_ = 0L;
+      authStatus_ = 0;
     }
 
     @java.lang.Override
@@ -3569,6 +3631,7 @@ public final class AccountProtos {
         com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
       this();
       int mutable_bitField0_ = 0;
+      int mutable_bitField1_ = 0;
       try {
         boolean done = false;
         while (!done) {
@@ -3772,6 +3835,29 @@ public final class AccountProtos {
               isFollowing_ = input.readBool();
               break;
             }
+            case 296: {
+
+              registerTime_ = input.readInt64();
+              break;
+            }
+            case 306: {
+              com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.Builder subBuilder = null;
+              if (linkList_ != null) {
+                subBuilder = linkList_.toBuilder();
+              }
+              linkList_ = input.readMessage(com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(linkList_);
+                linkList_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 312: {
+
+              authStatus_ = input.readInt32();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -3846,7 +3932,7 @@ public final class AccountProtos {
      * <code>optional string password = 7;</code>
      *
      * <pre>
-     * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+     * 自有手机号码注册时输入的密码      //这个可以移除
      * </pre>
      */
     public java.lang.String getPassword() {
@@ -3867,7 +3953,7 @@ public final class AccountProtos {
      * <code>optional string password = 7;</code>
      *
      * <pre>
-     * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+     * 自有手机号码注册时输入的密码      //这个可以移除
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -4123,7 +4209,7 @@ public final class AccountProtos {
      * <code>optional string birthday = 14;</code>
      *
      * <pre>
-     * 生日，格式19850101
+     * 生日，格式1985-01-01
      * </pre>
      */
     public java.lang.String getBirthday() {
@@ -4144,7 +4230,7 @@ public final class AccountProtos {
      * <code>optional string birthday = 14;</code>
      *
      * <pre>
-     * 生日，格式19850101
+     * 生日，格式1985-01-01
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -4167,7 +4253,7 @@ public final class AccountProtos {
      * <code>optional string cellphone = 15;</code>
      *
      * <pre>
-     * 手机号
+     * 手机号     //这个可以移除
      * </pre>
      */
     public java.lang.String getCellphone() {
@@ -4188,7 +4274,7 @@ public final class AccountProtos {
      * <code>optional string cellphone = 15;</code>
      *
      * <pre>
-     * 手机号
+     * 手机号     //这个可以移除
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -4211,7 +4297,7 @@ public final class AccountProtos {
      * <code>optional int32 timeZone = 16;</code>
      *
      * <pre>
-     * 时区
+     * 时区       //客户端没用到
      * </pre>
      */
     public int getTimeZone() {
@@ -4224,7 +4310,7 @@ public final class AccountProtos {
      * <code>optional string locale = 17;</code>
      *
      * <pre>
-     * 语言
+     * 语言       //客户端没用到
      * </pre>
      */
     public java.lang.String getLocale() {
@@ -4245,7 +4331,7 @@ public final class AccountProtos {
      * <code>optional string locale = 17;</code>
      *
      * <pre>
-     * 语言
+     * 语言       //客户端没用到
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -4797,6 +4883,65 @@ public final class AccountProtos {
       return isFollowing_;
     }
 
+    public static final int REGISTERTIME_FIELD_NUMBER = 37;
+    private long registerTime_;
+    /**
+     * <code>optional int64 registerTime = 37;</code>
+     *
+     * <pre>
+     * 注册时间
+     * </pre>
+     */
+    public long getRegisterTime() {
+      return registerTime_;
+    }
+
+    public static final int LINKLIST_FIELD_NUMBER = 38;
+    private com.blemobi.sep.probuf.AccountProtos.PLinkInfoList linkList_;
+    /**
+     * <code>optional .common.PLinkInfoList linkList = 38;</code>
+     *
+     * <pre>
+     * 第三方链接列表
+     * </pre>
+     */
+    public boolean hasLinkList() {
+      return linkList_ != null;
+    }
+    /**
+     * <code>optional .common.PLinkInfoList linkList = 38;</code>
+     *
+     * <pre>
+     * 第三方链接列表
+     * </pre>
+     */
+    public com.blemobi.sep.probuf.AccountProtos.PLinkInfoList getLinkList() {
+      return linkList_ == null ? com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.getDefaultInstance() : linkList_;
+    }
+    /**
+     * <code>optional .common.PLinkInfoList linkList = 38;</code>
+     *
+     * <pre>
+     * 第三方链接列表
+     * </pre>
+     */
+    public com.blemobi.sep.probuf.AccountProtos.PLinkInfoListOrBuilder getLinkListOrBuilder() {
+      return getLinkList();
+    }
+
+    public static final int AUTHSTATUS_FIELD_NUMBER = 39;
+    private int authStatus_;
+    /**
+     * <code>optional int32 authStatus = 39;</code>
+     *
+     * <pre>
+     * 实名认证状态(0:未认证,1:审核中,2:审核未通过,3:已认证)
+     * </pre>
+     */
+    public int getAuthStatus() {
+      return authStatus_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -4901,6 +5046,15 @@ public final class AccountProtos {
       }
       if (isFollowing_ != false) {
         output.writeBool(36, isFollowing_);
+      }
+      if (registerTime_ != 0L) {
+        output.writeInt64(37, registerTime_);
+      }
+      if (linkList_ != null) {
+        output.writeMessage(38, getLinkList());
+      }
+      if (authStatus_ != 0) {
+        output.writeInt32(39, authStatus_);
       }
     }
 
@@ -5033,6 +5187,18 @@ public final class AccountProtos {
       if (isFollowing_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(36, isFollowing_);
+      }
+      if (registerTime_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(37, registerTime_);
+      }
+      if (linkList_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(38, getLinkList());
+      }
+      if (authStatus_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(39, authStatus_);
       }
       memoizedSerializedSize = size;
       return size;
@@ -5219,6 +5385,16 @@ public final class AccountProtos {
 
         isFollowing_ = false;
 
+        registerTime_ = 0L;
+
+        if (linkListBuilder_ == null) {
+          linkList_ = null;
+        } else {
+          linkList_ = null;
+          linkListBuilder_ = null;
+        }
+        authStatus_ = 0;
+
         return this;
       }
 
@@ -5280,6 +5456,13 @@ public final class AccountProtos {
         result.thumbBackImage_ = thumbBackImage_;
         result.bigBackImage_ = bigBackImage_;
         result.isFollowing_ = isFollowing_;
+        result.registerTime_ = registerTime_;
+        if (linkListBuilder_ == null) {
+          result.linkList_ = linkList_;
+        } else {
+          result.linkList_ = linkListBuilder_.build();
+        }
+        result.authStatus_ = authStatus_;
         onBuilt();
         return result;
       }
@@ -5406,6 +5589,15 @@ public final class AccountProtos {
         if (other.getIsFollowing() != false) {
           setIsFollowing(other.getIsFollowing());
         }
+        if (other.getRegisterTime() != 0L) {
+          setRegisterTime(other.getRegisterTime());
+        }
+        if (other.hasLinkList()) {
+          mergeLinkList(other.getLinkList());
+        }
+        if (other.getAuthStatus() != 0) {
+          setAuthStatus(other.getAuthStatus());
+        }
         onChanged();
         return this;
       }
@@ -5527,7 +5719,7 @@ public final class AccountProtos {
        * <code>optional string password = 7;</code>
        *
        * <pre>
-       * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+       * 自有手机号码注册时输入的密码      //这个可以移除
        * </pre>
        */
       public java.lang.String getPassword() {
@@ -5548,7 +5740,7 @@ public final class AccountProtos {
        * <code>optional string password = 7;</code>
        *
        * <pre>
-       * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+       * 自有手机号码注册时输入的密码      //这个可以移除
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -5568,7 +5760,7 @@ public final class AccountProtos {
        * <code>optional string password = 7;</code>
        *
        * <pre>
-       * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+       * 自有手机号码注册时输入的密码      //这个可以移除
        * </pre>
        */
       public Builder setPassword(
@@ -5585,7 +5777,7 @@ public final class AccountProtos {
        * <code>optional string password = 7;</code>
        *
        * <pre>
-       * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+       * 自有手机号码注册时输入的密码      //这个可以移除
        * </pre>
        */
       public Builder clearPassword() {
@@ -5598,7 +5790,7 @@ public final class AccountProtos {
        * <code>optional string password = 7;</code>
        *
        * <pre>
-       * 自有手机号码注册时输入的密码      //这个可以移除，转移到Login
+       * 自有手机号码注册时输入的密码      //这个可以移除
        * </pre>
        */
       public Builder setPasswordBytes(
@@ -6105,7 +6297,7 @@ public final class AccountProtos {
        * <code>optional string birthday = 14;</code>
        *
        * <pre>
-       * 生日，格式19850101
+       * 生日，格式1985-01-01
        * </pre>
        */
       public java.lang.String getBirthday() {
@@ -6126,7 +6318,7 @@ public final class AccountProtos {
        * <code>optional string birthday = 14;</code>
        *
        * <pre>
-       * 生日，格式19850101
+       * 生日，格式1985-01-01
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -6146,7 +6338,7 @@ public final class AccountProtos {
        * <code>optional string birthday = 14;</code>
        *
        * <pre>
-       * 生日，格式19850101
+       * 生日，格式1985-01-01
        * </pre>
        */
       public Builder setBirthday(
@@ -6163,7 +6355,7 @@ public final class AccountProtos {
        * <code>optional string birthday = 14;</code>
        *
        * <pre>
-       * 生日，格式19850101
+       * 生日，格式1985-01-01
        * </pre>
        */
       public Builder clearBirthday() {
@@ -6176,7 +6368,7 @@ public final class AccountProtos {
        * <code>optional string birthday = 14;</code>
        *
        * <pre>
-       * 生日，格式19850101
+       * 生日，格式1985-01-01
        * </pre>
        */
       public Builder setBirthdayBytes(
@@ -6195,7 +6387,7 @@ public final class AccountProtos {
        * <code>optional string cellphone = 15;</code>
        *
        * <pre>
-       * 手机号
+       * 手机号     //这个可以移除
        * </pre>
        */
       public java.lang.String getCellphone() {
@@ -6216,7 +6408,7 @@ public final class AccountProtos {
        * <code>optional string cellphone = 15;</code>
        *
        * <pre>
-       * 手机号
+       * 手机号     //这个可以移除
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -6236,7 +6428,7 @@ public final class AccountProtos {
        * <code>optional string cellphone = 15;</code>
        *
        * <pre>
-       * 手机号
+       * 手机号     //这个可以移除
        * </pre>
        */
       public Builder setCellphone(
@@ -6253,7 +6445,7 @@ public final class AccountProtos {
        * <code>optional string cellphone = 15;</code>
        *
        * <pre>
-       * 手机号
+       * 手机号     //这个可以移除
        * </pre>
        */
       public Builder clearCellphone() {
@@ -6266,7 +6458,7 @@ public final class AccountProtos {
        * <code>optional string cellphone = 15;</code>
        *
        * <pre>
-       * 手机号
+       * 手机号     //这个可以移除
        * </pre>
        */
       public Builder setCellphoneBytes(
@@ -6285,7 +6477,7 @@ public final class AccountProtos {
        * <code>optional int32 timeZone = 16;</code>
        *
        * <pre>
-       * 时区
+       * 时区       //客户端没用到
        * </pre>
        */
       public int getTimeZone() {
@@ -6295,7 +6487,7 @@ public final class AccountProtos {
        * <code>optional int32 timeZone = 16;</code>
        *
        * <pre>
-       * 时区
+       * 时区       //客户端没用到
        * </pre>
        */
       public Builder setTimeZone(int value) {
@@ -6308,7 +6500,7 @@ public final class AccountProtos {
        * <code>optional int32 timeZone = 16;</code>
        *
        * <pre>
-       * 时区
+       * 时区       //客户端没用到
        * </pre>
        */
       public Builder clearTimeZone() {
@@ -6323,7 +6515,7 @@ public final class AccountProtos {
        * <code>optional string locale = 17;</code>
        *
        * <pre>
-       * 语言
+       * 语言       //客户端没用到
        * </pre>
        */
       public java.lang.String getLocale() {
@@ -6344,7 +6536,7 @@ public final class AccountProtos {
        * <code>optional string locale = 17;</code>
        *
        * <pre>
-       * 语言
+       * 语言       //客户端没用到
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -6364,7 +6556,7 @@ public final class AccountProtos {
        * <code>optional string locale = 17;</code>
        *
        * <pre>
-       * 语言
+       * 语言       //客户端没用到
        * </pre>
        */
       public Builder setLocale(
@@ -6381,7 +6573,7 @@ public final class AccountProtos {
        * <code>optional string locale = 17;</code>
        *
        * <pre>
-       * 语言
+       * 语言       //客户端没用到
        * </pre>
        */
       public Builder clearLocale() {
@@ -6394,7 +6586,7 @@ public final class AccountProtos {
        * <code>optional string locale = 17;</code>
        *
        * <pre>
-       * 语言
+       * 语言       //客户端没用到
        * </pre>
        */
       public Builder setLocaleBytes(
@@ -7775,6 +7967,235 @@ public final class AccountProtos {
         onChanged();
         return this;
       }
+
+      private long registerTime_ ;
+      /**
+       * <code>optional int64 registerTime = 37;</code>
+       *
+       * <pre>
+       * 注册时间
+       * </pre>
+       */
+      public long getRegisterTime() {
+        return registerTime_;
+      }
+      /**
+       * <code>optional int64 registerTime = 37;</code>
+       *
+       * <pre>
+       * 注册时间
+       * </pre>
+       */
+      public Builder setRegisterTime(long value) {
+        
+        registerTime_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 registerTime = 37;</code>
+       *
+       * <pre>
+       * 注册时间
+       * </pre>
+       */
+      public Builder clearRegisterTime() {
+        
+        registerTime_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private com.blemobi.sep.probuf.AccountProtos.PLinkInfoList linkList_ = null;
+      private com.google.protobuf.SingleFieldBuilder<
+          com.blemobi.sep.probuf.AccountProtos.PLinkInfoList, com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.Builder, com.blemobi.sep.probuf.AccountProtos.PLinkInfoListOrBuilder> linkListBuilder_;
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public boolean hasLinkList() {
+        return linkListBuilder_ != null || linkList_ != null;
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public com.blemobi.sep.probuf.AccountProtos.PLinkInfoList getLinkList() {
+        if (linkListBuilder_ == null) {
+          return linkList_ == null ? com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.getDefaultInstance() : linkList_;
+        } else {
+          return linkListBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public Builder setLinkList(com.blemobi.sep.probuf.AccountProtos.PLinkInfoList value) {
+        if (linkListBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          linkList_ = value;
+          onChanged();
+        } else {
+          linkListBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public Builder setLinkList(
+          com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.Builder builderForValue) {
+        if (linkListBuilder_ == null) {
+          linkList_ = builderForValue.build();
+          onChanged();
+        } else {
+          linkListBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public Builder mergeLinkList(com.blemobi.sep.probuf.AccountProtos.PLinkInfoList value) {
+        if (linkListBuilder_ == null) {
+          if (linkList_ != null) {
+            linkList_ =
+              com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.newBuilder(linkList_).mergeFrom(value).buildPartial();
+          } else {
+            linkList_ = value;
+          }
+          onChanged();
+        } else {
+          linkListBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public Builder clearLinkList() {
+        if (linkListBuilder_ == null) {
+          linkList_ = null;
+          onChanged();
+        } else {
+          linkList_ = null;
+          linkListBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.Builder getLinkListBuilder() {
+        
+        onChanged();
+        return getLinkListFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      public com.blemobi.sep.probuf.AccountProtos.PLinkInfoListOrBuilder getLinkListOrBuilder() {
+        if (linkListBuilder_ != null) {
+          return linkListBuilder_.getMessageOrBuilder();
+        } else {
+          return linkList_ == null ?
+              com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.getDefaultInstance() : linkList_;
+        }
+      }
+      /**
+       * <code>optional .common.PLinkInfoList linkList = 38;</code>
+       *
+       * <pre>
+       * 第三方链接列表
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.blemobi.sep.probuf.AccountProtos.PLinkInfoList, com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.Builder, com.blemobi.sep.probuf.AccountProtos.PLinkInfoListOrBuilder> 
+          getLinkListFieldBuilder() {
+        if (linkListBuilder_ == null) {
+          linkListBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.blemobi.sep.probuf.AccountProtos.PLinkInfoList, com.blemobi.sep.probuf.AccountProtos.PLinkInfoList.Builder, com.blemobi.sep.probuf.AccountProtos.PLinkInfoListOrBuilder>(
+                  getLinkList(),
+                  getParentForChildren(),
+                  isClean());
+          linkList_ = null;
+        }
+        return linkListBuilder_;
+      }
+
+      private int authStatus_ ;
+      /**
+       * <code>optional int32 authStatus = 39;</code>
+       *
+       * <pre>
+       * 实名认证状态(0:未认证,1:审核中,2:审核未通过,3:已认证)
+       * </pre>
+       */
+      public int getAuthStatus() {
+        return authStatus_;
+      }
+      /**
+       * <code>optional int32 authStatus = 39;</code>
+       *
+       * <pre>
+       * 实名认证状态(0:未认证,1:审核中,2:审核未通过,3:已认证)
+       * </pre>
+       */
+      public Builder setAuthStatus(int value) {
+        
+        authStatus_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 authStatus = 39;</code>
+       *
+       * <pre>
+       * 实名认证状态(0:未认证,1:审核中,2:审核未通过,3:已认证)
+       * </pre>
+       */
+      public Builder clearAuthStatus() {
+        
+        authStatus_ = 0;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -8881,6 +9302,15 @@ public final class AccountProtos {
      */
     java.util.Map<java.lang.String, java.lang.String>
     getUserData();
+
+    /**
+     * <code>optional int64 registerTime = 23;</code>
+     *
+     * <pre>
+     * 注册时间
+     * </pre>
+     */
+    long getRegisterTime();
   }
   /**
    * Protobuf type {@code common.PUserEx}
@@ -8914,6 +9344,7 @@ public final class AccountProtos {
       userResume_ = "";
       lastUpdateTime_ = 0L;
       lastLoginTime_ = 0L;
+      registerTime_ = 0L;
     }
 
     @java.lang.Override
@@ -9042,6 +9473,11 @@ public final class AccountProtos {
               userData = input.readMessage(
                   UserDataDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
               userData_.getMutableMap().put(userData.getKey(), userData.getValue());
+              break;
+            }
+            case 184: {
+
+              registerTime_ = input.readInt64();
               break;
             }
           }
@@ -9694,6 +10130,19 @@ public final class AccountProtos {
       return internalGetUserData().getMap();
     }
 
+    public static final int REGISTERTIME_FIELD_NUMBER = 23;
+    private long registerTime_;
+    /**
+     * <code>optional int64 registerTime = 23;</code>
+     *
+     * <pre>
+     * 注册时间
+     * </pre>
+     */
+    public long getRegisterTime() {
+      return registerTime_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -9762,6 +10211,9 @@ public final class AccountProtos {
             .setValue(entry.getValue())
             .build();
         output.writeMessage(22, userData);
+      }
+      if (registerTime_ != 0L) {
+        output.writeInt64(23, registerTime_);
       }
     }
 
@@ -9844,6 +10296,10 @@ public final class AccountProtos {
             .build();
         size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(22, userData);
+      }
+      if (registerTime_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(23, registerTime_);
       }
       memoizedSerializedSize = size;
       return size;
@@ -10015,6 +10471,8 @@ public final class AccountProtos {
         lastLoginTime_ = 0L;
 
         internalGetMutableUserData().clear();
+        registerTime_ = 0L;
+
         return this;
       }
 
@@ -10057,6 +10515,7 @@ public final class AccountProtos {
         result.lastLoginTime_ = lastLoginTime_;
         result.userData_ = internalGetUserData();
         result.userData_.makeImmutable();
+        result.registerTime_ = registerTime_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -10135,6 +10594,9 @@ public final class AccountProtos {
         }
         internalGetMutableUserData().mergeFrom(
             other.internalGetUserData());
+        if (other.getRegisterTime() != 0L) {
+          setRegisterTime(other.getRegisterTime());
+        }
         onChanged();
         return this;
       }
@@ -11437,6 +11899,44 @@ public final class AccountProtos {
       getMutableUserData() {
         return internalGetMutableUserData().getMutableMap();
       }
+
+      private long registerTime_ ;
+      /**
+       * <code>optional int64 registerTime = 23;</code>
+       *
+       * <pre>
+       * 注册时间
+       * </pre>
+       */
+      public long getRegisterTime() {
+        return registerTime_;
+      }
+      /**
+       * <code>optional int64 registerTime = 23;</code>
+       *
+       * <pre>
+       * 注册时间
+       * </pre>
+       */
+      public Builder setRegisterTime(long value) {
+        
+        registerTime_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 registerTime = 23;</code>
+       *
+       * <pre>
+       * 注册时间
+       * </pre>
+       */
+      public Builder clearRegisterTime() {
+        
+        registerTime_ = 0L;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -11611,6 +12111,24 @@ public final class AccountProtos {
      */
     com.google.protobuf.ByteString
         getUserResumeBytes();
+
+    /**
+     * <code>optional string Language = 12;</code>
+     *
+     * <pre>
+     * 语言
+     * </pre>
+     */
+    java.lang.String getLanguage();
+    /**
+     * <code>optional string Language = 12;</code>
+     *
+     * <pre>
+     * 语言
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getLanguageBytes();
   }
   /**
    * Protobuf type {@code common.PUserBase}
@@ -11635,6 +12153,7 @@ public final class AccountProtos {
       realName_ = "";
       headImgURL_ = "";
       userResume_ = "";
+      language_ = "";
     }
 
     @java.lang.Override
@@ -11700,6 +12219,12 @@ public final class AccountProtos {
               com.google.protobuf.ByteString bs = input.readBytes();
 
               userResume_ = bs;
+              break;
+            }
+            case 98: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+
+              language_ = bs;
               break;
             }
           }
@@ -12003,6 +12528,50 @@ public final class AccountProtos {
       }
     }
 
+    public static final int LANGUAGE_FIELD_NUMBER = 12;
+    private volatile java.lang.Object language_;
+    /**
+     * <code>optional string Language = 12;</code>
+     *
+     * <pre>
+     * 语言
+     * </pre>
+     */
+    public java.lang.String getLanguage() {
+      java.lang.Object ref = language_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          language_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string Language = 12;</code>
+     *
+     * <pre>
+     * 语言
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getLanguageBytes() {
+      java.lang.Object ref = language_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        language_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -12035,6 +12604,9 @@ public final class AccountProtos {
       }
       if (!getUserResumeBytes().isEmpty()) {
         output.writeBytes(11, getUserResumeBytes());
+      }
+      if (!getLanguageBytes().isEmpty()) {
+        output.writeBytes(12, getLanguageBytes());
       }
     }
 
@@ -12071,6 +12643,10 @@ public final class AccountProtos {
       if (!getUserResumeBytes().isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(11, getUserResumeBytes());
+      }
+      if (!getLanguageBytes().isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(12, getLanguageBytes());
       }
       memoizedSerializedSize = size;
       return size;
@@ -12201,6 +12777,8 @@ public final class AccountProtos {
 
         userResume_ = "";
 
+        language_ = "";
+
         return this;
       }
 
@@ -12230,6 +12808,7 @@ public final class AccountProtos {
         result.realName_ = realName_;
         result.headImgURL_ = headImgURL_;
         result.userResume_ = userResume_;
+        result.language_ = language_;
         onBuilt();
         return result;
       }
@@ -12270,6 +12849,10 @@ public final class AccountProtos {
         }
         if (!other.getUserResume().isEmpty()) {
           userResume_ = other.userResume_;
+          onChanged();
+        }
+        if (!other.getLanguage().isEmpty()) {
+          language_ = other.language_;
           onChanged();
         }
         onChanged();
@@ -12872,6 +13455,96 @@ public final class AccountProtos {
   }
   
         userResume_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object language_ = "";
+      /**
+       * <code>optional string Language = 12;</code>
+       *
+       * <pre>
+       * 语言
+       * </pre>
+       */
+      public java.lang.String getLanguage() {
+        java.lang.Object ref = language_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            language_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string Language = 12;</code>
+       *
+       * <pre>
+       * 语言
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getLanguageBytes() {
+        java.lang.Object ref = language_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          language_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string Language = 12;</code>
+       *
+       * <pre>
+       * 语言
+       * </pre>
+       */
+      public Builder setLanguage(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        language_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string Language = 12;</code>
+       *
+       * <pre>
+       * 语言
+       * </pre>
+       */
+      public Builder clearLanguage() {
+        
+        language_ = getDefaultInstance().getLanguage();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string Language = 12;</code>
+       *
+       * <pre>
+       * 语言
+       * </pre>
+       */
+      public Builder setLanguageBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        language_ = value;
         onChanged();
         return this;
       }
@@ -27144,8 +27817,8 @@ public final class AccountProtos {
       "\n\raccount.proto\022\006common\"(\n\tPUserList\022\033\n\004" +
       "list\030\001 \003(\0132\r.common.PUser\")\n\tPLiveInfo\022\017" +
       "\n\007website\030\001 \001(\t\022\013\n\003url\030\002 \001(\t\"0\n\rPLiveInf" +
-      "oList\022\037\n\004list\030\001 \003(\0132\021.common.PLiveInfo\"\362" +
-      "\004\n\005PUser\022\014\n\004uuid\030\006 \001(\t\022\020\n\010password\030\007 \001(\t" +
+      "oList\022\037\n\004list\030\001 \003(\0132\021.common.PLiveInfo\"\305" +
+      "\005\n\005PUser\022\014\n\004uuid\030\006 \001(\t\022\020\n\010password\030\007 \001(\t" +
       "\022\020\n\010username\030\010 \001(\t\022\020\n\010nickname\030\t \001(\t\022\022\n\n" +
       "headImgURL\030\n \001(\t\022\020\n\010realname\030\013 \001(\t\022\016\n\006ge" +
       "nder\030\014 \001(\005\022\r\n\005email\030\r \001(\t\022\020\n\010birthday\030\016 " +
@@ -27160,84 +27833,88 @@ public final class AccountProtos {
       "\t\022\020\n\010areaName\030\037 \001(\t\022\022\n\nliveRemind\030  \001(\010\022" +
       "\'\n\010liveInfo\030! \001(\0132\025.common.PLiveInfoList" +
       "\022\026\n\016thumbBackImage\030\" \001(\t\022\024\n\014bigBackImage" +
-      "\030# \001(\t\022\023\n\013isFollowing\030$ \001(\010\",\n\013PUserList",
-      "Ex\022\035\n\004list\030\001 \003(\0132\017.common.PUserEx\"\217\003\n\007PU" +
-      "serEx\022\014\n\004uuid\030\006 \001(\t\022\017\n\007project\030\007 \001(\t\022\020\n\010" +
-      "username\030\010 \001(\t\022\020\n\010password\030\t \001(\t\022\020\n\010nick" +
-      "name\030\n \001(\t\022\020\n\010realname\030\013 \001(\t\022\016\n\006gender\030\014" +
-      " \001(\005\022\020\n\010birthday\030\r \001(\t\022\r\n\005email\030\016 \001(\t\022\021\n" +
-      "\tcellphone\030\017 \001(\t\022\020\n\010timeZone\030\020 \001(\005\022\022\n\nhe" +
-      "adImgURL\030\021 \001(\t\022\016\n\006locale\030\022 \001(\t\022\022\n\nuserRe" +
-      "sume\030\023 \001(\t\022\026\n\016lastUpdateTime\030\024 \001(\003\022\025\n\rla" +
-      "stLoginTime\030\025 \001(\003\022/\n\010userData\030\026 \003(\0132\035.co" +
-      "mmon.PUserEx.UserDataEntry\032/\n\rUserDataEn",
-      "try\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\206\001\n\t" +
-      "PUserBase\022\r\n\005Level\030\002 \001(\005\022\014\n\004UUID\030\006 \001(\t\022\020" +
-      "\n\010UserName\030\007 \001(\t\022\020\n\010Nickname\030\010 \001(\t\022\020\n\010Re" +
-      "alName\030\t \001(\t\022\022\n\nHeadImgURL\030\n \001(\t\022\022\n\nUser" +
-      "Resume\030\013 \001(\t\"0\n\rPUserBaseList\022\037\n\004list\030\001 " +
-      "\003(\0132\021.common.PUserBase\"c\n\tPPhoneMap\022)\n\004l" +
-      "ist\030\001 \003(\0132\033.common.PPhoneMap.ListEntry\032+" +
-      "\n\tListEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:" +
-      "\0028\001\"^\n\010PAccount\022\021\n\tcellphone\030\002 \001(\010\022\016\n\006we" +
-      "chat\030\003 \001(\010\022\r\n\005weibo\030\004 \001(\010\022\020\n\010facebook\030\005 ",
-      "\001(\010\022\016\n\006google\030\006 \001(\010\"\204\001\n\nPLevelInfo\022\021\n\tle" +
-      "velType\030\001 \001(\005\0222\n\010mapRight\030\002 \003(\0132 .common" +
-      ".PLevelInfo.MapRightEntry\032/\n\rMapRightEnt" +
-      "ry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\010:\0028\001\"C\n\014PL" +
-      "evelInfoEx\022\014\n\004uuid\030\001 \001(\t\022%\n\tlevelInfo\030\002 " +
-      "\001(\0132\022.common.PLevelInfo\"C\n\013PLevelInfos\022\"" +
-      "\n\004list\030\001 \003(\0132\024.common.PLevelInfoEx\022\020\n\010fa" +
-      "ilUuid\030\002 \003(\t\"\034\n\013PLiveRemind\022\r\n\005offOn\030\001 \001" +
-      "(\010\"9\n\020PAccountInitInfo\022\022\n\nauthStatus\030\001 \001" +
-      "(\005\022\021\n\tcellphone\030\002 \001(\t\",\n\nPBackImage\022\021\n\to",
-      "bjectKey\030\001 \001(\t\022\013\n\003url\030\002 \001(\t\"7\n\023PBackThum" +
-      "bImageList\022 \n\004list\030\001 \003(\0132\022.common.PBackI" +
-      "mage\"\220\001\n\021PReadNameAuthInfo\022\014\n\004uuid\030\001 \001(\t" +
-      "\022\022\n\nauthStatus\030\002 \001(\005\022\020\n\010readName\030\003 \001(\t\022\020" +
-      "\n\010birthday\030\004 \001(\t\022\020\n\010idCardNo\030\005 \001(\t\022\021\n\tid" +
-      "CardImg\030\006 \001(\t\022\020\n\010authTime\030\007 \001(\005\"@\n\025PRead" +
-      "NameAuthInfoList\022\'\n\004list\030\001 \003(\0132\031.common." +
-      "PReadNameAuthInfo\"\'\n\026PReadNameAuthInfoCo" +
-      "unt\022\r\n\005count\030\001 \001(\003\"3\n\014PPrivacyInfo\022\016\n\006my" +
-      "Fans\030\001 \001(\010\022\023\n\013myAttention\030\002 \001(\010\"!\n\rPLang",
-      "uageInfo\022\020\n\010language\030\001 \001(\t\"&\n\tPLinkInfo\022" +
-      "\014\n\004type\030\001 \001(\005\022\013\n\003url\030\002 \001(\t\"0\n\rPLinkInfoL" +
-      "ist\022\037\n\004list\030\001 \003(\0132\021.common.PLinkInfo\"\226\002\n" +
-      "\026PAccountNewsPersonInfo\022\021\n\tfriendCnt\030\001 \001" +
-      "(\005\022\021\n\tfollowCnt\030\002 \001(\005\022\017\n\007fansCnt\030\003 \001(\005\022\017" +
-      "\n\007textCnt\030\004 \001(\005\022\020\n\010imageCnt\030\005 \001(\005\022\020\n\010aud" +
-      "ioCnt\030\006 \001(\005\022\020\n\010videoCnt\030\007 \001(\005\022\023\n\013Communi" +
-      "tyID\030\010 \001(\t\022\033\n\004user\030\t \001(\0132\r.common.PUser\022" +
-      "\022\n\nfollowship\030\n \001(\005\022\016\n\006friend\030\013 \001(\010\022(\n\tl" +
-      "inkInfos\030\014 \001(\0132\025.common.PLinkInfoList\"\213\001",
-      "\n\026PAccountChatPersonInfo\022\023\n\013communityId\030" +
-      "\001 \001(\t\022\025\n\rcommunityName\030\002 \001(\t\022\025\n\rcommunit" +
-      "yIcon\030\003 \001(\t\022\021\n\tIntroduce\030\004 \001(\t\022\033\n\004user\030\005" +
-      " \001(\0132\r.common.PUser*>\n\nELevelType\022\010\n\004Use" +
-      "r\020\000\022\007\n\003Vip\020\001\022\010\n\004Vipp\020\002\022\006\n\002Vo\020\003\022\013\n\007Touris" +
-      "t\020\004*\266\005\n\010ERightId\022\033\n\027weibo_show_left_cata" +
-      "log\020\000\022\033\n\027weibo_show_top_dropdown\020\001\022\023\n\017we" +
-      "ibo_show_icon\020\002\022\026\n\022weibo_show_comment\020\003\022" +
-      "\026\n\022weibo_show_collect\020\004\022\023\n\017weibo_show_mo" +
-      "re\020\005\022\033\n\027weibo_show_view_details\020\006\022\026\n\022wei",
-      "bo_comment_text\020\007\022\027\n\023weibo_comment_audio" +
-      "\020\010\022\023\n\017weibo_post_text\020\t\022\024\n\020weibo_post_im" +
-      "age\020\n\022\024\n\020weibo_post_video\020\013\022\024\n\020weibo_pos" +
-      "t_audio\020\014\022\"\n\036personal_record_external_li" +
-      "nks\020\r\022\030\n\024personal_record_icon\020\016\022\035\n\031perso" +
-      "nal_record_community\020\017\022\'\n#personal_recor" +
-      "d_video_classify_page\020\020\022\'\n#personal_reco" +
-      "rd_audio_classify_page\020\021\022\033\n\027friend_syste" +
-      "m_recommend\020\022\022\030\n\024friend_system_search\020\023\022" +
-      "\"\n\036friend_system_friend_apply_for\020\024\022\036\n\032f",
-      "riend_system_address_book\020\025\022\030\n\024friend_sy" +
-      "stem_friend\020\026\022\036\n\032friend_system_my_apply_" +
-      "for\020\027\022\r\n\treal_name\020\030*v\n\tELinkType\022\n\n\006tao" +
-      "bao\020\000\022\006\n\002jd\020\001\022\006\n\002yy\020\002\022\010\n\004huya\020\003\022\t\n\005douyu" +
-      "\020\004\022\t\n\005panda\020\005\022\n\n\006zhanqi\020\006\022\013\n\007quanmin\020\007\022\t" +
-      "\n\005weibo\020\010\022\t\n\005qzone\020\tB\'\n\026com.blemobi.sep." +
-      "probufB\rAccountProtosb\006proto3"
+      "\030# \001(\t\022\023\n\013isFollowing\030$ \001(\010\022\024\n\014registerT",
+      "ime\030% \001(\003\022\'\n\010linkList\030& \001(\0132\025.common.PLi" +
+      "nkInfoList\022\022\n\nauthStatus\030\' \001(\005\",\n\013PUserL" +
+      "istEx\022\035\n\004list\030\001 \003(\0132\017.common.PUserEx\"\245\003\n" +
+      "\007PUserEx\022\014\n\004uuid\030\006 \001(\t\022\017\n\007project\030\007 \001(\t\022" +
+      "\020\n\010username\030\010 \001(\t\022\020\n\010password\030\t \001(\t\022\020\n\010n" +
+      "ickname\030\n \001(\t\022\020\n\010realname\030\013 \001(\t\022\016\n\006gende" +
+      "r\030\014 \001(\005\022\020\n\010birthday\030\r \001(\t\022\r\n\005email\030\016 \001(\t" +
+      "\022\021\n\tcellphone\030\017 \001(\t\022\020\n\010timeZone\030\020 \001(\005\022\022\n" +
+      "\nheadImgURL\030\021 \001(\t\022\016\n\006locale\030\022 \001(\t\022\022\n\nuse" +
+      "rResume\030\023 \001(\t\022\026\n\016lastUpdateTime\030\024 \001(\003\022\025\n",
+      "\rlastLoginTime\030\025 \001(\003\022/\n\010userData\030\026 \003(\0132\035" +
+      ".common.PUserEx.UserDataEntry\022\024\n\014registe" +
+      "rTime\030\027 \001(\003\032/\n\rUserDataEntry\022\013\n\003key\030\001 \001(" +
+      "\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\230\001\n\tPUserBase\022\r\n\005Le" +
+      "vel\030\002 \001(\005\022\014\n\004UUID\030\006 \001(\t\022\020\n\010UserName\030\007 \001(" +
+      "\t\022\020\n\010Nickname\030\010 \001(\t\022\020\n\010RealName\030\t \001(\t\022\022\n" +
+      "\nHeadImgURL\030\n \001(\t\022\022\n\nUserResume\030\013 \001(\t\022\020\n" +
+      "\010Language\030\014 \001(\t\"0\n\rPUserBaseList\022\037\n\004list" +
+      "\030\001 \003(\0132\021.common.PUserBase\"c\n\tPPhoneMap\022)" +
+      "\n\004list\030\001 \003(\0132\033.common.PPhoneMap.ListEntr",
+      "y\032+\n\tListEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
+      "(\t:\0028\001\"^\n\010PAccount\022\021\n\tcellphone\030\002 \001(\010\022\016\n" +
+      "\006wechat\030\003 \001(\010\022\r\n\005weibo\030\004 \001(\010\022\020\n\010facebook" +
+      "\030\005 \001(\010\022\016\n\006google\030\006 \001(\010\"\204\001\n\nPLevelInfo\022\021\n" +
+      "\tlevelType\030\001 \001(\005\0222\n\010mapRight\030\002 \003(\0132 .com" +
+      "mon.PLevelInfo.MapRightEntry\032/\n\rMapRight" +
+      "Entry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\010:\0028\001\"C\n" +
+      "\014PLevelInfoEx\022\014\n\004uuid\030\001 \001(\t\022%\n\tlevelInfo" +
+      "\030\002 \001(\0132\022.common.PLevelInfo\"C\n\013PLevelInfo" +
+      "s\022\"\n\004list\030\001 \003(\0132\024.common.PLevelInfoEx\022\020\n",
+      "\010failUuid\030\002 \003(\t\"\034\n\013PLiveRemind\022\r\n\005offOn\030" +
+      "\001 \001(\010\"9\n\020PAccountInitInfo\022\022\n\nauthStatus\030" +
+      "\001 \001(\005\022\021\n\tcellphone\030\002 \001(\t\",\n\nPBackImage\022\021" +
+      "\n\tobjectKey\030\001 \001(\t\022\013\n\003url\030\002 \001(\t\"7\n\023PBackT" +
+      "humbImageList\022 \n\004list\030\001 \003(\0132\022.common.PBa" +
+      "ckImage\"\220\001\n\021PReadNameAuthInfo\022\014\n\004uuid\030\001 " +
+      "\001(\t\022\022\n\nauthStatus\030\002 \001(\005\022\020\n\010readName\030\003 \001(" +
+      "\t\022\020\n\010birthday\030\004 \001(\t\022\020\n\010idCardNo\030\005 \001(\t\022\021\n" +
+      "\tidCardImg\030\006 \001(\t\022\020\n\010authTime\030\007 \001(\005\"@\n\025PR" +
+      "eadNameAuthInfoList\022\'\n\004list\030\001 \003(\0132\031.comm",
+      "on.PReadNameAuthInfo\"\'\n\026PReadNameAuthInf" +
+      "oCount\022\r\n\005count\030\001 \001(\003\"3\n\014PPrivacyInfo\022\016\n" +
+      "\006myFans\030\001 \001(\010\022\023\n\013myAttention\030\002 \001(\010\"!\n\rPL" +
+      "anguageInfo\022\020\n\010language\030\001 \001(\t\"&\n\tPLinkIn" +
+      "fo\022\014\n\004type\030\001 \001(\005\022\013\n\003url\030\002 \001(\t\"0\n\rPLinkIn" +
+      "foList\022\037\n\004list\030\001 \003(\0132\021.common.PLinkInfo\"" +
+      "\226\002\n\026PAccountNewsPersonInfo\022\021\n\tfriendCnt\030" +
+      "\001 \001(\005\022\021\n\tfollowCnt\030\002 \001(\005\022\017\n\007fansCnt\030\003 \001(" +
+      "\005\022\017\n\007textCnt\030\004 \001(\005\022\020\n\010imageCnt\030\005 \001(\005\022\020\n\010" +
+      "audioCnt\030\006 \001(\005\022\020\n\010videoCnt\030\007 \001(\005\022\023\n\013Comm",
+      "unityID\030\010 \001(\t\022\033\n\004user\030\t \001(\0132\r.common.PUs" +
+      "er\022\022\n\nfollowship\030\n \001(\005\022\016\n\006friend\030\013 \001(\010\022(" +
+      "\n\tlinkInfos\030\014 \001(\0132\025.common.PLinkInfoList" +
+      "\"\213\001\n\026PAccountChatPersonInfo\022\023\n\013community" +
+      "Id\030\001 \001(\t\022\025\n\rcommunityName\030\002 \001(\t\022\025\n\rcommu" +
+      "nityIcon\030\003 \001(\t\022\021\n\tIntroduce\030\004 \001(\t\022\033\n\004use" +
+      "r\030\005 \001(\0132\r.common.PUser*>\n\nELevelType\022\010\n\004" +
+      "User\020\000\022\007\n\003Vip\020\001\022\010\n\004Vipp\020\002\022\006\n\002Vo\020\003\022\013\n\007Tou" +
+      "rist\020\004*\266\005\n\010ERightId\022\033\n\027weibo_show_left_c" +
+      "atalog\020\000\022\033\n\027weibo_show_top_dropdown\020\001\022\023\n",
+      "\017weibo_show_icon\020\002\022\026\n\022weibo_show_comment" +
+      "\020\003\022\026\n\022weibo_show_collect\020\004\022\023\n\017weibo_show" +
+      "_more\020\005\022\033\n\027weibo_show_view_details\020\006\022\026\n\022" +
+      "weibo_comment_text\020\007\022\027\n\023weibo_comment_au" +
+      "dio\020\010\022\023\n\017weibo_post_text\020\t\022\024\n\020weibo_post" +
+      "_image\020\n\022\024\n\020weibo_post_video\020\013\022\024\n\020weibo_" +
+      "post_audio\020\014\022\"\n\036personal_record_external" +
+      "_links\020\r\022\030\n\024personal_record_icon\020\016\022\035\n\031pe" +
+      "rsonal_record_community\020\017\022\'\n#personal_re" +
+      "cord_video_classify_page\020\020\022\'\n#personal_r",
+      "ecord_audio_classify_page\020\021\022\033\n\027friend_sy" +
+      "stem_recommend\020\022\022\030\n\024friend_system_search" +
+      "\020\023\022\"\n\036friend_system_friend_apply_for\020\024\022\036" +
+      "\n\032friend_system_address_book\020\025\022\030\n\024friend" +
+      "_system_friend\020\026\022\036\n\032friend_system_my_app" +
+      "ly_for\020\027\022\r\n\treal_name\020\030*\177\n\tELinkType\022\n\n\006" +
+      "taobao\020\000\022\006\n\002jd\020\001\022\006\n\002yy\020\002\022\010\n\004huya\020\003\022\t\n\005do" +
+      "uyu\020\004\022\t\n\005panda\020\005\022\n\n\006zhanqi\020\006\022\013\n\007quanmin\020" +
+      "\007\022\t\n\005weibo\020\010\022\t\n\005qzone\020\t\022\007\n\003edg\020\nB\'\n\026com." +
+      "blemobi.sep.probufB\rAccountProtosb\006proto",
+      "3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -27274,7 +27951,7 @@ public final class AccountProtos {
     internal_static_common_PUser_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_common_PUser_descriptor,
-        new java.lang.String[] { "Uuid", "Password", "Username", "Nickname", "HeadImgURL", "Realname", "Gender", "Email", "Birthday", "Cellphone", "TimeZone", "Locale", "MembershipLevel", "LastUpdateTime", "LastLoginTime", "UserResume", "Link1", "Link2", "Link3", "ChatId", "LevelInfo", "Disable", "IsAI", "ForceChangePwd", "AreaCode", "AreaName", "LiveRemind", "LiveInfo", "ThumbBackImage", "BigBackImage", "IsFollowing", });
+        new java.lang.String[] { "Uuid", "Password", "Username", "Nickname", "HeadImgURL", "Realname", "Gender", "Email", "Birthday", "Cellphone", "TimeZone", "Locale", "MembershipLevel", "LastUpdateTime", "LastLoginTime", "UserResume", "Link1", "Link2", "Link3", "ChatId", "LevelInfo", "Disable", "IsAI", "ForceChangePwd", "AreaCode", "AreaName", "LiveRemind", "LiveInfo", "ThumbBackImage", "BigBackImage", "IsFollowing", "RegisterTime", "LinkList", "AuthStatus", });
     internal_static_common_PUserListEx_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_common_PUserListEx_fieldAccessorTable = new
@@ -27286,7 +27963,7 @@ public final class AccountProtos {
     internal_static_common_PUserEx_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_common_PUserEx_descriptor,
-        new java.lang.String[] { "Uuid", "Project", "Username", "Password", "Nickname", "Realname", "Gender", "Birthday", "Email", "Cellphone", "TimeZone", "HeadImgURL", "Locale", "UserResume", "LastUpdateTime", "LastLoginTime", "UserData", });
+        new java.lang.String[] { "Uuid", "Project", "Username", "Password", "Nickname", "Realname", "Gender", "Birthday", "Email", "Cellphone", "TimeZone", "HeadImgURL", "Locale", "UserResume", "LastUpdateTime", "LastLoginTime", "UserData", "RegisterTime", });
     internal_static_common_PUserEx_UserDataEntry_descriptor =
       internal_static_common_PUserEx_descriptor.getNestedTypes().get(0);
     internal_static_common_PUserEx_UserDataEntry_fieldAccessorTable = new
@@ -27298,7 +27975,7 @@ public final class AccountProtos {
     internal_static_common_PUserBase_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_common_PUserBase_descriptor,
-        new java.lang.String[] { "Level", "UUID", "UserName", "Nickname", "RealName", "HeadImgURL", "UserResume", });
+        new java.lang.String[] { "Level", "UUID", "UserName", "Nickname", "RealName", "HeadImgURL", "UserResume", "Language", });
     internal_static_common_PUserBaseList_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_common_PUserBaseList_fieldAccessorTable = new
