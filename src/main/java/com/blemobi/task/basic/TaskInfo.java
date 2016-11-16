@@ -24,6 +24,11 @@ public class TaskInfo {
 	// 任务描述
 	private String desc;
 
+	private int easy_num;
+	private int common_num;
+	private int hard_num;
+	private int epic_num;
+
 	public int getTaskid() {
 		return taskid;
 	}
@@ -86,6 +91,38 @@ public class TaskInfo {
 
 	public void setDesc(String desc) {
 		this.desc = desc;
+	}
+
+	public int getEasy_num() {
+		return easy_num;
+	}
+
+	public void setEasy_num(int easy_num) {
+		this.easy_num = easy_num;
+	}
+
+	public int getCommon_num() {
+		return common_num;
+	}
+
+	public void setCommon_num(int common_num) {
+		this.common_num = common_num;
+	}
+
+	public int getHard_num() {
+		return hard_num;
+	}
+
+	public void setHard_num(int hard_num) {
+		this.hard_num = hard_num;
+	}
+
+	public int getEpic_num() {
+		return epic_num;
+	}
+
+	public void setEpic_num(int epic_num) {
+		this.epic_num = epic_num;
 	}
 
 }

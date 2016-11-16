@@ -58,12 +58,15 @@ public class CallbackManager {
 					num = TaskHelper.getMainTask(taskId).getNum();
 				} else if (TaskTag.DAILY == tag) {// 日常任务
 					userTaskKey = Constant.GAME_TASK_DAILY + uuid + ":" + dailyTime;
-					num = TaskHelper.getDailyTask(taskId).getNum();
 				}
 				String targetStr = jedis.hget(userTaskKey, taskId + "");
 				if (!Strings.isNullOrEmpty(targetStr)) {// 任务已初始化
 					int target = Integer.parseInt(targetStr);
 					if (target >= 0) {// 任务未完成
+						if (TaskTag.DAILY == tag) {// 日常任务
+							int did = Integer.parseInt(jedis.hget(userTaskKey, TaskUtil.diffculty + taskId));
+							num = TaskHelper.getDailyTaskNum(taskId, did);// 任务要求次数
+						}
 						// 累加一次任务进度
 						long rtn = jedis.hincrBy(userTaskKey, taskId + "", 1);
 						if (rtn < num) {// 任务未完成

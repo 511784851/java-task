@@ -32,6 +32,7 @@ import redis.clients.jedis.Jedis;
  */
 @Log4j
 public class TaskUtil {
+	public final static String diffculty = "dif_";
 	private final long defaultEXP = 0;
 
 	private String uuid;
@@ -153,7 +154,7 @@ public class TaskUtil {
 		List<Integer> taskTypes = new ArrayList<Integer>();// 已完成主线任务类型
 		Map<String, String> userMainTask = jedis.hgetAll(userMainTaskKey);
 		for (String key : userMainTask.keySet()) {
-			PTaskInfo taskInfo = getTaskInfo(key, userMainTask.get(key));
+			PTaskInfo taskInfo = getTaskInfo(key, userMainTask.get(key), 0);
 			if (taskInfo.getState() == 3) {// 已完成
 				taskTypes.add(taskInfo.getType());
 				continue;// 主线任务不显示已完成任务
@@ -166,8 +167,16 @@ public class TaskUtil {
 			int max = LevelHelper.getMaxCountByLevel(userBasic.getLevel());// 用户当前等级可接最大日常任务数
 			Map<String, String> userDailyTask = jedis.hgetAll(userDailyTaskKey);// 用户今日已初始化的日常任务
 			List<Integer> taskids = new ArrayList<Integer>();// 用户今日已初始化日常任务ID
+			int count = 0;// 已初始化困难和史诗任务数量
 			for (String s : userDailyTask.keySet()) {
-				taskids.add(Integer.parseInt(s));
+				if (s.startsWith(diffculty)) {
+					String d = userDailyTask.get(s);
+					if ("3".equals(d) || "4".equals(d)) {
+						count++;
+					}
+				} else {
+					taskids.add(Integer.parseInt(s));
+				}
 			}
 			int syMax = max - taskids.size();// 预计还可初始化多少日常任务
 			log.debug("用户[" + uuid + "]预计还可初始化日常任务数量：" + syMax);
@@ -186,28 +195,54 @@ public class TaskUtil {
 				// 今日剩余可初始化日常任务的数量
 				int size = syActiveList.size();
 				log.debug("用户[" + uuid + "]最终还可初始化日常任务数量：" + syMax);
-				if (size <= syMax) {
-					// 可以继续初始化日常任务
-					for (int i = 0; i < size; i++) {
-						TaskInfo taskInfo = syActiveList.get(i);
-						jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+				if (size > 0) {
+					int max_h = LevelHelper.getMaxHCountByLevel(userBasic.getLevel());// 用户当前等级对应的可接最大困难和史诗日常任务数量
+					if (size <= syMax) {
+						// 可以继续初始化日常任务
+						for (int i = 0; i < size; i++) {
+							int dif = 0;
+							if (max_h - count > 0) {
+								dif = LevelHelper.getRandomDifficultyAll(userBasic.getLevel());
+							} else {
+								dif = LevelHelper.getRandomDifficulty(userBasic.getLevel());
+							}
+							if (dif == 3 || dif == 4) {
+								count++;
+							}
+							TaskInfo taskInfo = syActiveList.get(i);
+							jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+							jedis.hsetnx(userDailyTaskKey, diffculty + taskInfo.getTaskid(), dif + "");
+						}
+						userDailyTask = jedis.hgetAll(userDailyTaskKey);
+					} else if (size > syMax) {
+						Set<Integer> set = TaskHelper.getRandomSet(size, syMax);
+						for (int i : set) {
+							int dif = 0;
+							if (max_h - count > 0) {
+								dif = LevelHelper.getRandomDifficultyAll(userBasic.getLevel());
+							} else {
+								dif = LevelHelper.getRandomDifficulty(userBasic.getLevel());
+							}
+							if (dif == 3 || dif == 4) {
+								count++;
+							}
+							TaskInfo taskInfo = syActiveList.get(i);
+							jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+							jedis.hsetnx(userDailyTaskKey, diffculty + taskInfo.getTaskid(), dif + "");
+						}
+						userDailyTask = jedis.hgetAll(userDailyTaskKey);
 					}
-					userDailyTask = jedis.hgetAll(userDailyTaskKey);
-				} else if (size > syMax) {
-					Set<Integer> set = TaskHelper.getRandomSet(size, syMax);
-					for (int i : set) {
-						TaskInfo taskInfo = syActiveList.get(i);
-						jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
-					}
-					userDailyTask = jedis.hgetAll(userDailyTaskKey);
 				}
 			}
 			for (String key : userDailyTask.keySet()) {
-				PTaskInfo taskInfo = getTaskInfo(key, userDailyTask.get(key));
-				if (taskInfo.getState() == 3) {
-					continue;
+				if (!key.startsWith(diffculty)) {
+					int did = Integer.parseInt(userDailyTask.get(diffculty + key));
+					PTaskInfo taskInfo = getTaskInfo(key, userDailyTask.get(key), did);
+					if (taskInfo.getState() == 3) {
+						continue;
+					}
+					taskListBuilder.addDailyTask(taskInfo);
 				}
-				taskListBuilder.addDailyTask(taskInfo);
 			}
 		}
 
@@ -238,7 +273,14 @@ public class TaskUtil {
 
 		int target = Integer.parseInt(targetStr);
 		TaskInfo taskInfo = TaskHelper.getTaskDetail(taskId);
-		if (target < taskInfo.getNum()) {
+		int num = taskInfo.getNum();// 任务要求次数
+		long exp = taskInfo.getExp();// 任务经验值
+		if (TaskHelper.getTaskTag(taskId) == TaskTag.DAILY) {
+			int did = Integer.parseInt(jedis.hget(userTaskKey, diffculty + taskId));
+			num = TaskHelper.getDailyTaskNum(taskId, did);
+			exp = TaskHelper.getDailyTaskExp(taskId, did);
+		}
+		if (target < num) {
 			RedisManager.returnResource(jedis);
 			LockManager.releaseLock(lock);
 			return ReslutUtil.createErrorMessage(2901002, "任务不可领奖励");
@@ -247,11 +289,11 @@ public class TaskUtil {
 		// 符合领取条件，赠送奖励
 		jedis.hset(userTaskKey, taskInfo.getTaskid() + "", Integer.MIN_VALUE + "");// 修改任务状态
 		jedis.hincrBy(userInfoKey, "num", 1);// 累加一次任务完成
-		long exp = jedis.hincrBy(userInfoKey, "exp", taskInfo.getExp());// 更新经验值
+		long newExp = jedis.hincrBy(userInfoKey, "exp", exp);// 更新经验值
 
 		String oldLevelStr = jedis.hget(userInfoKey, "level");
 		int oldLevel = Integer.parseInt(oldLevelStr);// 旧的等级
-		int level = LevelHelper.getLevelByExp(exp);// 新的等级
+		int level = LevelHelper.getLevelByExp(newExp);// 新的等级
 		if (level > oldLevel) {
 			jedis.hset(userInfoKey, "level", level + "");// 更新经验等级
 			// 等级推送和通知
@@ -333,11 +375,16 @@ public class TaskUtil {
 	/*
 	 * 获取任务信息
 	 */
-	private PTaskInfo getTaskInfo(String key, String targetStr) {
+	private PTaskInfo getTaskInfo(String key, String targetStr, int did) {
 		int taskId = Integer.parseInt(key);// 任务ID
 		int target = Integer.parseInt(targetStr);// 任务进度
 		TaskInfo taskInfo = TaskHelper.getTaskDetail(taskId);// 任务信息
 		int num = taskInfo.getNum();// 任务要求次数
+		long exp = taskInfo.getExp();// 任务经验值
+		if (TaskHelper.getTaskTag(taskId) == TaskTag.DAILY) {
+			num = TaskHelper.getDailyTaskNum(taskId, did);
+			exp = TaskHelper.getDailyTaskExp(taskId, did);
+		}
 		int complete = 0;// 已完成次数
 		int state = 0; // 任务状态（0-未接受，1-进行中，2-可领奖，3-已完成）
 		if (target == -1) {
@@ -356,8 +403,8 @@ public class TaskUtil {
 
 		String des = TaskHelper.getTaskDes(taskInfo.getType(), language, num);
 
-		return PTaskInfo.newBuilder().setTaskid(taskId).setExp(taskInfo.getExp()).setType(taskInfo.getType())
-				.setState(state).setComplete(complete).setNum(num).setDesc(des).build();
+		return PTaskInfo.newBuilder().setTaskid(taskId).setExp(exp).setType(taskInfo.getType()).setState(state)
+				.setComplete(complete).setNum(num).setDesc(des).build();
 	}
 
 	private boolean getIsDaily(Jedis jedis) {

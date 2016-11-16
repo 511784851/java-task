@@ -151,4 +151,30 @@ public class TaskHelper {
 
 		return map.keySet();
 	}
+
+	/*
+	 * 根据日常任务ID和任务难度获取经验值
+	 */
+	public static long getDailyTaskExp(int taskId, int id) {
+		TaskInfo taskInfo = BasicData.dailyTaskMap.get(taskId);
+		int dexp = DifficultyHelper.getDExpById(id);
+		return taskInfo.getExp() + dexp;
+	}
+
+	/*
+	 * 根据日常任务ID和任务难度获取任务次数
+	 */
+	public static int getDailyTaskNum(int taskId, int id) {
+		TaskInfo taskInfo = BasicData.dailyTaskMap.get(taskId);
+		if (id == 1) {
+			return taskInfo.getEasy_num();
+		} else if (id == 2) {
+			return taskInfo.getCommon_num();
+		} else if (id == 3) {
+			return taskInfo.getHard_num();
+		} else if (id == 4) {
+			return taskInfo.getEpic_num();
+		}
+		return 0;
+	}
 }

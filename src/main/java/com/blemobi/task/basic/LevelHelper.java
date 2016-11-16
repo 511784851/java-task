@@ -1,6 +1,7 @@
 package com.blemobi.task.basic;
 
 import java.util.Collection;
+import java.util.Random;
 
 /*
  * 经验等级管理类
@@ -71,5 +72,47 @@ public class LevelHelper {
 	 */
 	public static Collection<LevelInfo> getAllLevelList() {
 		return BasicData.levelMap.values();
+	}
+
+	/*
+	 * 获取等级对应的可接最大困难和史诗日常任务数量
+	 */
+	public static int getMaxHCountByLevel(int level) {
+		return BasicData.levelMap.get(level).getMax_h();
+	}
+
+	/*
+	 * 产生一个随机的任务难度
+	 */
+	public static int getRandomDifficultyAll(int level) {
+		LevelInfo levelInfo = getLevelInfoByLevel(level);
+		int max = levelInfo.getSimple_pro() + levelInfo.getNormal_pro() + levelInfo.getHard_pro()
+				+ levelInfo.getEpic_pro();
+		Random ra = new Random();
+		int random = ra.nextInt(max) + 1;
+		if (random <= levelInfo.getSimple_pro()) {
+			return 1;
+		} else if (random <= levelInfo.getSimple_pro() + levelInfo.getNormal_pro()) {
+			return 2;
+		} else if (random <= levelInfo.getSimple_pro() + levelInfo.getNormal_pro() + levelInfo.getHard_pro()) {
+			return 3;
+		} else {
+			return 4;
+		}
+	}
+
+	/*
+	 * 产生一个随机的任务难度（限制在简单和普通难度之间）
+	 */
+	public static int getRandomDifficulty(int level) {
+		LevelInfo levelInfo = getLevelInfoByLevel(level);
+		int max = levelInfo.getSimple_pro() + levelInfo.getNormal_pro();
+		Random ra = new Random();
+		int random = ra.nextInt(max) + 1;
+		if (random <= levelInfo.getSimple_pro()) {
+			return 1;
+		} else {
+			return 2;
+		}
 	}
 }

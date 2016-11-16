@@ -1,5 +1,6 @@
 package com.blemobi.task.basic;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -44,6 +45,8 @@ public class BasicData {
 	public static Map<Integer, TaskTag> taskIdtoTag = new LinkedHashMap<Integer, TaskTag>();
 	// 全部等级
 	public static Map<Integer, LevelInfo> levelMap = new LinkedHashMap<Integer, LevelInfo>();
+	// 任务难度
+	public static Map<Integer, Difficulty> difficultyMap = new LinkedHashMap<Integer, Difficulty>();
 
 	/*
 	 * 构造方法
@@ -67,6 +70,7 @@ public class BasicData {
 			this.readMainTask(1);
 			this.readDailyTask(2);
 			this.readLevel(3);
+			this.readDifficulty(4);
 
 			log.debug("任务配置数据读取完成！");
 		} catch (Exception e) {
@@ -200,12 +204,18 @@ public class BasicData {
 						keyMap.put("taskid", cell.getColumnIndex());
 					} else if ("type".equals(cell.toString())) {
 						keyMap.put("type", cell.getColumnIndex());
-					} else if ("num".equals(cell.toString())) {
-						keyMap.put("num", cell.getColumnIndex());
 					} else if ("exp".equals(cell.toString())) {
 						keyMap.put("exp", cell.getColumnIndex());
 					} else if ("desc".equals(cell.toString())) {
 						keyMap.put("desc", cell.getColumnIndex());
+					} else if ("easy".equals(cell.toString())) {
+						keyMap.put("easy", cell.getColumnIndex());
+					} else if ("common".equals(cell.toString())) {
+						keyMap.put("common", cell.getColumnIndex());
+					} else if ("hard".equals(cell.toString())) {
+						keyMap.put("hard", cell.getColumnIndex());
+					} else if ("epic".equals(cell.toString())) {
+						keyMap.put("epic", cell.getColumnIndex());
 					}
 				}
 			} else if (row.getRowNum() > 1) {
@@ -215,9 +225,12 @@ public class BasicData {
 					int type = (int) row.getCell(keyMap.get("type")).getNumericCellValue();
 					taskInfo.setTaskid(taskid);
 					taskInfo.setType(type);
-					taskInfo.setNum((int) row.getCell(keyMap.get("num")).getNumericCellValue());
 					taskInfo.setExp((int) row.getCell(keyMap.get("exp")).getNumericCellValue());
 					taskInfo.setDesc(row.getCell(keyMap.get("desc")).toString());
+					taskInfo.setEasy_num((int) row.getCell(keyMap.get("easy")).getNumericCellValue());
+					taskInfo.setCommon_num((int) row.getCell(keyMap.get("common")).getNumericCellValue());
+					taskInfo.setHard_num((int) row.getCell(keyMap.get("hard")).getNumericCellValue());
+					taskInfo.setEpic_num((int) row.getCell(keyMap.get("epic")).getNumericCellValue());
 
 					dailyTaskMap.put(taskid, taskInfo);
 
@@ -257,6 +270,16 @@ public class BasicData {
 						keyMap.put("title-kr", cell.getColumnIndex());
 					} else if ("title-en".equals(cell.toString())) {
 						keyMap.put("title-en", cell.getColumnIndex());
+					} else if ("max-h".equals(cell.toString())) {
+						keyMap.put("max-h", cell.getColumnIndex());
+					} else if ("simple-pro".equals(cell.toString())) {
+						keyMap.put("simple-pro", cell.getColumnIndex());
+					} else if ("normal-pro".equals(cell.toString())) {
+						keyMap.put("normal-pro", cell.getColumnIndex());
+					} else if ("hard-pro".equals(cell.toString())) {
+						keyMap.put("hard-pro", cell.getColumnIndex());
+					} else if ("epic-pro".equals(cell.toString())) {
+						keyMap.put("epic-pro", cell.getColumnIndex());
 					}
 				}
 			} else if (row.getRowNum() > 1) {
@@ -270,8 +293,41 @@ public class BasicData {
 				levelInfo.setTitle_kr(row.getCell(keyMap.get("title-kr")).toString());
 				levelInfo.setTitle_sc(row.getCell(keyMap.get("title-sc")).toString());
 				levelInfo.setTitle_tc(row.getCell(keyMap.get("title-tc")).toString());
+				levelInfo.setMax_h((int) row.getCell(keyMap.get("max-h")).getNumericCellValue());
+				levelInfo.setSimple_pro((int) (row.getCell(keyMap.get("simple-pro")).getNumericCellValue() * 100));
+				levelInfo.setNormal_pro((int) (row.getCell(keyMap.get("normal-pro")).getNumericCellValue() * 100));
+				levelInfo.setHard_pro((int) (row.getCell(keyMap.get("hard-pro")).getNumericCellValue() * 100));
+				levelInfo.setEpic_pro((int) (row.getCell(keyMap.get("epic-pro")).getNumericCellValue() * 100));
 
 				levelMap.put(level, levelInfo);
+			}
+		}
+	}
+
+	/*
+	 * 读取任务难度信息
+	 */
+	private void readDifficulty(int sheetId) {
+		Sheet sheet = this.wb.getSheetAt(sheetId);
+		Map<String, Integer> keyMap = new HashMap<String, Integer>();
+		for (Row row : sheet) {
+			if (row.getRowNum() == 1) {
+				for (Cell cell : row) {
+					if ("id".equals(cell.toString())) {
+						keyMap.put("id", cell.getColumnIndex());
+					} else if ("desc".equals(cell.toString())) {
+						keyMap.put("desc", cell.getColumnIndex());
+					} else if ("d-exp".equals(cell.toString())) {
+						keyMap.put("d-exp", cell.getColumnIndex());
+					}
+				}
+			} else if (row.getRowNum() > 1) {
+				Difficulty difficulty = new Difficulty();
+				int id = (int) row.getCell(keyMap.get("id")).getNumericCellValue();
+				difficulty.setId(id);
+				difficulty.setDesc(row.getCell(keyMap.get("desc")).toString());
+				difficulty.setExp((int) row.getCell(keyMap.get("d-exp")).getNumericCellValue());
+				difficultyMap.put(id, difficulty);
 			}
 		}
 	}
@@ -348,7 +404,10 @@ public class BasicData {
 		for (TaskInfo taskInfo : dailyTaskMap.values()) {
 			System.out.print("[" + taskInfo.getTaskid() + "] ");
 			System.out.print("[" + taskInfo.getType() + "] ");
-			System.out.print("[" + taskInfo.getNum() + "] ");
+			System.out.print("[" + taskInfo.getEasy_num() + "] ");
+			System.out.print("[" + taskInfo.getCommon_num() + "] ");
+			System.out.print("[" + taskInfo.getHard_num() + "] ");
+			System.out.print("[" + taskInfo.getEpic_num() + "] ");
 			System.out.print("[" + taskInfo.getExp() + "] ");
 			System.out.print("[" + taskInfo.getDesc() + "] ");
 			System.out.println();
@@ -386,8 +445,23 @@ public class BasicData {
 			System.out.print("[" + levelInfo.getTitle_kr() + "] ");
 			System.out.print("[" + levelInfo.getTitle_sc() + "] ");
 			System.out.print("[" + levelInfo.getTitle_tc() + "] ");
+
+			System.out.print("[" + levelInfo.getMax_h() + "] ");
+			System.out.print("[" + levelInfo.getSimple_pro() + "] ");
+			System.out.print("[" + levelInfo.getNormal_pro() + "] ");
+			System.out.print("[" + levelInfo.getHard_pro() + "] ");
+			System.out.print("[" + levelInfo.getEpic_pro() + "] ");
 			System.out.println();
 		}
 		System.out.println("------------等级信息[levelMap]结束-------------");
+
+		System.out.println("------------任务难度信息[difficultyMap]开始-------------");
+		for (Difficulty difficulty : difficultyMap.values()) {
+			System.out.print("[" + difficulty.getId() + "] ");
+			System.out.print("[" + difficulty.getDesc() + "] ");
+			System.out.print("[" + difficulty.getExp() + "] ");
+			System.out.println();
+		}
+		System.out.println("------------任务难度信息[difficultyMap]结束-------------");
 	}
 }

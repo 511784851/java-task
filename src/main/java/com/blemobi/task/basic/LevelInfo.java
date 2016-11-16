@@ -20,6 +20,13 @@ public class LevelInfo {
 	private String title_en;
 	// 韩文
 	private String title_kr;
+	// 最大困难+史诗的个数
+	private int max_h;
+
+	private int simple_pro;
+	private int normal_pro;
+	private int hard_pro;
+	private int epic_pro;
 
 	public int getLevel() {
 		return level;
@@ -95,4 +102,45 @@ public class LevelInfo {
 		else
 			return title_sc;// 中文简体（默认）
 	}
+
+	public int getMax_h() {
+		return max_h;
+	}
+
+	public void setMax_h(int max_h) {
+		this.max_h = max_h;
+	}
+
+	public int getSimple_pro() {
+		return simple_pro;
+	}
+
+	public void setSimple_pro(int simple_pro) {
+		this.simple_pro = simple_pro;
+	}
+
+	public int getNormal_pro() {
+		return normal_pro;
+	}
+
+	public void setNormal_pro(int normal_pro) {
+		this.normal_pro = normal_pro;
+	}
+
+	public int getHard_pro() {
+		return hard_pro;
+	}
+
+	public void setHard_pro(int hard_pro) {
+		this.hard_pro = hard_pro;
+	}
+
+	public int getEpic_pro() {
+		return epic_pro;
+	}
+
+	public void setEpic_pro(int epic_pro) {
+		this.epic_pro = epic_pro;
+	}
+
 }
