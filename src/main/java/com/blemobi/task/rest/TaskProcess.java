@@ -45,6 +45,26 @@ public class TaskProcess {
 	@Path("list")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
 	public PMessage list(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws Exception {
+		String userInfoKey = Constant.GAME_USER_INFO + uuid;
+		Jedis jedis = RedisManager.getRedis();
+		boolean bool = jedis.exists(userInfoKey);
+		RedisManager.returnResource(jedis);
+		if (!bool) {// 未初始化
+			PMessage message = UserRelation.getUserInfo(uuid);
+			if (!"PUser".equals(message.getType())) {
+				ReslutUtil.createErrorMessage(1001006, "用户不存在");
+			}
+
+			PUser user = PUser.parseFrom(message.getData());
+			int levelType = user.getLevelInfo().getLevelType();
+			if (!UserRelation.levelList.contains(levelType)) {
+				ReslutUtil.createErrorMessage(2201000, "没有权限使用任务系统");
+			}
+
+			TaskUtil taskUtil = new TaskUtil(uuid, user);
+			taskUtil.init();
+		}
+
 		TaskUtil taskUtil = new TaskUtil(uuid, language);
 		return taskUtil.list();
 	}
