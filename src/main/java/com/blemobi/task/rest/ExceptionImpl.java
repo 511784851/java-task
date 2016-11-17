@@ -15,7 +15,7 @@ import lombok.extern.log4j.Log4j;
  */
 @Log4j
 @Provider
-public class ExceptionMapperSupport implements ExceptionMapper<Exception> {
+public class ExceptionImpl implements ExceptionMapper<Exception> {
 	/**
 	 * 异常处理
 	 * 
@@ -23,7 +23,7 @@ public class ExceptionMapperSupport implements ExceptionMapper<Exception> {
 	 * @return 异常处理后的Response对象
 	 */
 	public Response toResponse(Exception exception) {
-		log.error("Chat server catch an exception, MSG=[" + exception.getMessage() + "]");
+		log.error("Task server catch an exception, MSG=[" + exception.getMessage() + "]");
 		exception.printStackTrace();
 		PMessage msg = ReslutUtil.createErrorMessage(1001012, "系统繁忙");
 		return Response.ok(msg, MediaTypeExt.APPLICATION_PROTOBUF).status(200).build();

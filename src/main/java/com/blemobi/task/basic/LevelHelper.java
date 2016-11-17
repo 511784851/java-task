@@ -31,7 +31,7 @@ public class LevelHelper {
 	 */
 	public static LevelInfo getNextLevelInfoByLevel(int level) {
 		int nextLevel = level + 1;
-		LevelInfo levelInfo = BasicData.levelMap.get(nextLevel);
+		LevelInfo levelInfo = getLevelInfoByLevel(nextLevel);
 		if (levelInfo != null) {
 			return levelInfo;
 		} else {
@@ -43,28 +43,34 @@ public class LevelHelper {
 	 * 获取经验等级的最小经验值
 	 */
 	public static long getMinExpByLevel(int level) {
-		return BasicData.levelMap.get(level).getExp_min();
+		return getLevelInfoByLevel(level).getExp_min();
 	}
 
 	/*
 	 * 获取等级对应的可接最大日常任务数量
 	 */
 	public static int getMaxCountByLevel(int level) {
-		return BasicData.levelMap.get(level).getMax();
+		return getLevelInfoByLevel(level).getMax();
 	}
 
 	/*
 	 * 获取最大经验等级
 	 */
 	public static int getMaxLevel() {
-		return BasicData.levelMap.size();
+		int max_level = 0;
+		for (int level : BasicData.levelMap.keySet()) {
+			if (level > max_level) {
+				max_level = level;
+			}
+		}
+		return max_level;
 	}
 
 	/*
 	 * 获取最大经验值
 	 */
 	public static long getMaxExp() {
-		return BasicData.levelMap.get(getMaxLevel()).getExp_min();
+		return getLevelInfoByLevel(getMaxLevel()).getExp_min();
 	}
 
 	/*
@@ -78,7 +84,7 @@ public class LevelHelper {
 	 * 获取等级对应的可接最大困难和史诗日常任务数量
 	 */
 	public static int getMaxHCountByLevel(int level) {
-		return BasicData.levelMap.get(level).getMax_h();
+		return getLevelInfoByLevel(level).getMax_h();
 	}
 
 	/*
@@ -102,7 +108,7 @@ public class LevelHelper {
 	}
 
 	/*
-	 * 产生一个随机的任务难度（限制在简单和普通难度之间）
+	 * 产生一个随机的任务难度（限制在简单和一般难度之间）
 	 */
 	public static int getRandomDifficulty(int level) {
 		LevelInfo levelInfo = getLevelInfoByLevel(level);

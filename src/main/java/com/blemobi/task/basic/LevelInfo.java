@@ -20,12 +20,15 @@ public class LevelInfo {
 	private String title_en;
 	// 韩文
 	private String title_kr;
-	// 最大困难+史诗的个数
+	// 可接最大困难+史诗的个数
 	private int max_h;
-
+	// 简单概率
 	private int simple_pro;
+	// 一般概率
 	private int normal_pro;
+	// 困难概率
 	private int hard_pro;
+	// 史诗概率
 	private int epic_pro;
 
 	public int getLevel() {

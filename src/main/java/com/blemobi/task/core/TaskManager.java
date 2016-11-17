@@ -32,7 +32,7 @@ public class TaskManager {
 		HealthManager.startService(check_port, selfName);
 
 		// 读取配置文件中的数据
-		String task_config_url = BasicData.getTaskConfig();// BaseService.getProperty("task_config_url");
+		String task_config_url = BasicData.getTaskConfig();
 		log.debug("task_config_url: " + task_config_url);
 		while (Strings.isNullOrEmpty(task_config_url)) {
 			Thread.sleep(1000);

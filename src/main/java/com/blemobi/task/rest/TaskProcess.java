@@ -151,7 +151,7 @@ public class TaskProcess {
 	}
 
 	/**
-	 * 排行
+	 * pk
 	 * 
 	 * @param taskId
 	 *            任务ID
@@ -165,31 +165,18 @@ public class TaskProcess {
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
 	public PMessage pk(@CookieParam("uuid") String uuid, @QueryParam("pk_uuid") String pk_uuid,
 			@QueryParam("language") String language) throws BaseException, ClientProtocolException, IOException {
+
 		Jedis jedis = RedisManager.getRedis();
-
-		String userInfoKey = Constant.GAME_USER_INFO + uuid;
-		PTaskUserBasic userBasic = getUserBasic(uuid, jedis, userInfoKey, language);
-
-		String pkUserInfoKey = Constant.GAME_USER_INFO + pk_uuid;
-		PTaskUserBasic pkUserBasic = getUserBasic(pk_uuid, jedis, pkUserInfoKey, language);
-
-		int userTaskTotol = 0; // 自己已完成任务总数
-		int pkUserTaskTotol = 0; // 对方已完成任务总数
-
-		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
-		if (userInfo != null) {
-			userTaskTotol = Integer.parseInt(userInfo.get("num"));
-		}
-
-		Map<String, String> pkuserInfo = jedis.hgetAll(pkUserInfoKey);
-		if (pkuserInfo != null) {
-			pkUserTaskTotol = Integer.parseInt(pkuserInfo.get("num"));
-		}
-
+		Map<String, String> userInfo = jedis.hgetAll(Constant.GAME_USER_INFO + uuid); // 自己
+		Map<String, String> pkuserInfo = jedis.hgetAll(Constant.GAME_USER_INFO + pk_uuid); // 对方
 		RedisManager.returnResource(jedis);
 
+		PTaskUserBasic userBasic = getUserBasic(userInfo, language);
+		PTaskUserBasic pkUserBasic = getUserBasic(pkuserInfo, language);
+
 		PTaskUserPk taskUserPk = PTaskUserPk.newBuilder().setUserBasic(userBasic).setPkUserBasic(pkUserBasic)
-				.setUserTaskTotol(userTaskTotol).setPkUserTaskTotol(pkUserTaskTotol).build();
+				.setUserTaskTotol(Integer.parseInt(userInfo.get("num")))
+				.setPkUserTaskTotol(Integer.parseInt(pkuserInfo.get("num"))).build();
 
 		return ReslutUtil.createReslutMessage(taskUserPk);
 	}
@@ -197,24 +184,16 @@ public class TaskProcess {
 	/*
 	 * 获取用户基础信息
 	 */
-	private PTaskUserBasic getUserBasic(String uuid, Jedis jedis, String userInfoKey, String language)
-			throws IOException {
-		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
-		if (userInfo != null) {
-			int level = Integer.parseInt(userInfo.get("level"));
-			long exp = Long.parseLong(userInfo.get("exp"));
+	private PTaskUserBasic getUserBasic(Map<String, String> userInfo, String language) throws IOException {
+		int level = Integer.parseInt(userInfo.get("level"));
+		long exp = Long.parseLong(userInfo.get("exp"));
 
-			PMessage message = UserRelation.getUserInfo(uuid);
-			PUser user = PUser.parseFrom(message.getData());
+		LevelInfo levelInfo = LevelHelper.getLevelInfoByLevel(level);
+		LevelInfo nextLevelInfo = LevelHelper.getNextLevelInfoByLevel(level);
 
-			LevelInfo levelInfo = LevelHelper.getLevelInfoByLevel(level);
-			LevelInfo nextLevelInfo = LevelHelper.getNextLevelInfoByLevel(level);
-
-			return PTaskUserBasic.newBuilder().setLevel(level).setExp(exp).setLevelName(levelInfo.getTitle(language))
-					.setNextLevel(nextLevelInfo.getLevel()).setNextLevelExp(nextLevelInfo.getExp_min())
-					.setNextLevelName(nextLevelInfo.getTitle(language)).setNickname(user.getNickname())
-					.setHeadimg(user.getHeadImgURL()).build();
-		}
-		return null;
+		return PTaskUserBasic.newBuilder().setLevel(level).setExp(exp).setLevelName(levelInfo.getTitle(language))
+				.setNextLevel(nextLevelInfo.getLevel()).setNextLevelExp(nextLevelInfo.getExp_min())
+				.setNextLevelName(nextLevelInfo.getTitle(language)).setNickname(userInfo.get("nickname"))
+				.setHeadimg(userInfo.get("headimg")).build();
 	}
 }

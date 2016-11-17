@@ -36,6 +36,9 @@ import redis.clients.jedis.Jedis;
 public class UserRelation {
 	public static List<Integer> levelList;
 
+	/*
+	 * 用户角色的允许范围
+	 */
 	static {
 		levelList = new ArrayList<Integer>();
 		levelList.add(ELevelType.User_VALUE);
@@ -44,7 +47,7 @@ public class UserRelation {
 	}
 
 	/*
-	 * 获取用户信息
+	 * 获取用户基础信息
 	 */
 	public static PMessage getUserInfo(String uuid) throws IOException {
 		String url = "/account/user/profile?from=task&uuid=" + uuid;
@@ -52,7 +55,9 @@ public class UserRelation {
 		return httpClient.getMethod();
 	}
 
-	// 批量获取用户基础信息
+	/*
+	 * 批量获取用户基础信息
+	 */
 	public static List<PUserBase> getUserListInfo(String uuids) throws ClientProtocolException, IOException {
 		List<PUserBase> userLIst = new ArrayList<PUserBase>();
 
@@ -71,7 +76,9 @@ public class UserRelation {
 		return userLIst;
 	}
 
-	// 获取用户好友列表
+	/*
+	 * 获取用户好友列表
+	 */
 	public static List<PUser> getFirendList(String uuid) throws ClientProtocolException, IOException {
 		List<PUser> userList = new ArrayList<PUser>();
 
@@ -90,7 +97,9 @@ public class UserRelation {
 		return userList;
 	}
 
-	// 获取用户关注列表
+	/*
+	 * 获取用户关注列表
+	 */
 	public static List<PRecommendUser> getFollowList(String uuid) throws ClientProtocolException, IOException {
 		List<PRecommendUser> userList = new ArrayList<PRecommendUser>();
 
@@ -118,7 +127,9 @@ public class UserRelation {
 		return userList;
 	}
 
-	// 获取用户粉丝列表
+	/*
+	 * 获取用户粉丝列表
+	 */
 	public static List<String> getFansList(String uuid) throws ClientProtocolException, IOException {
 		List<String> userList = new ArrayList<String>();
 		int count = 100;
@@ -166,64 +177,62 @@ public class UserRelation {
 		return language;
 	}
 
-	public static void delVO() {
-		try {
-			Jedis jedis = RedisManager.getRedis();
-			Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
-			String uuids = "";
-			for (String key : set) {
-				String uuid = key.substring(Constant.GAME_USER_INFO.length());
+	/*
+	 * 服务启动时可校验VO用户
+	 */
+	public static void delVO() throws ClientProtocolException, IOException {
+		Jedis jedis = RedisManager.getRedis();
+		Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
+		String uuids = "";
+		for (String key : set) {
+			String uuid = key.substring(Constant.GAME_USER_INFO.length());
+			if (uuids.length() > 0) {
+				uuids += ",";
+			}
+			uuids += uuid;
+		}
+		int count = 0;
+		List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
+		for (PUserBase userBase : userBaseList) {
+			if (!UserRelation.levelList.contains(userBase.getLevel())) {
+				String uuid = userBase.getUUID();
+				jedis.del(Constant.GAME_USER_INFO + uuid);
+				jedis.del(Constant.GAME_TASK_MAIN + uuid);
+				jedis.del(Constant.GAME_MSGID + uuid);
+				count++;
+			}
+		}
+		log.debug("清除VO用户数量：" + count);
+	}
+
+	/*
+	 * 服务启动时，可校验用户基础信息是否完善
+	 */
+	public static void loadInfo() throws ClientProtocolException, IOException {
+		Jedis jedis = RedisManager.getRedis();
+		Set<String> sets = jedis.keys(Constant.GAME_USER_INFO + "*");
+		String uuids = "";
+		for (String key : sets) {
+			String uuid = key.substring(Constant.GAME_USER_INFO.length());
+			Map<String, String> map = jedis.hgetAll(key);
+			if (Strings.isNullOrEmpty(map.get("nickname"))) {
 				if (uuids.length() > 0) {
 					uuids += ",";
 				}
 				uuids += uuid;
 			}
-			int count = 0;
-			List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
-			for (PUserBase userBase : userBaseList) {
-				if (!UserRelation.levelList.contains(userBase.getLevel())) {
-					String uuid = userBase.getUUID();
-					jedis.del(Constant.GAME_USER_INFO + uuid);
-					jedis.del(Constant.GAME_TASK_MAIN + uuid);
-					jedis.del(Constant.GAME_MSGID + uuid);
-					count++;
-				}
-			}
-			log.debug("清除VO用户数量：" + count);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-	}
-
-	public static void loadInfo() {
-		try {
-			Jedis jedis = RedisManager.getRedis();
-			Set<String> sets = jedis.keys(Constant.GAME_USER_INFO + "*");
-			String uuids = "";
-			for (String key : sets) {
-				String uuid = key.substring(Constant.GAME_USER_INFO.length());
-				Map<String, String> map = jedis.hgetAll(key);
-				if (Strings.isNullOrEmpty(map.get("nickname"))) {
-					if (uuids.length() > 0) {
-						uuids += ",";
-					}
-					uuids += uuid;
-				}
-			}
-			int count = 0;
-			List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
-			for (PUserBase userBase : userBaseList) {
-				String uuid = userBase.getUUID();
-				String userInfoKey = Constant.GAME_USER_INFO + uuid;
-				jedis.hset(userInfoKey, "nickname", userBase.getNickname());
-				jedis.hset(userInfoKey, "headimg", userBase.getHeadImgURL());
-				jedis.hset(userInfoKey, "language", userBase.getLanguage());
-				jedis.hset(userInfoKey, "levelType", userBase.getLevel() + "");
-				count++;
-			}
-			log.debug("重新获取用户基础信息：" + count);
-		} catch (Exception e) {
-			e.printStackTrace();
+		int count = 0;
+		List<PUserBase> userBaseList = UserRelation.getUserListInfo(uuids);
+		for (PUserBase userBase : userBaseList) {
+			String uuid = userBase.getUUID();
+			String userInfoKey = Constant.GAME_USER_INFO + uuid;
+			jedis.hset(userInfoKey, "nickname", userBase.getNickname());
+			jedis.hset(userInfoKey, "headimg", userBase.getHeadImgURL());
+			jedis.hset(userInfoKey, "language", userBase.getLanguage());
+			jedis.hset(userInfoKey, "levelType", userBase.getLevel() + "");
+			count++;
 		}
+		log.debug("重新获取用户基础信息：" + count);
 	}
 }

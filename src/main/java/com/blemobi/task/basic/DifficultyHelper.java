@@ -5,7 +5,7 @@ package com.blemobi.task.basic;
  */
 public class DifficultyHelper {
 	/*
-	 * 根据难度ID返回经验变化值
+	 * 根据难度ID返回经验修正值
 	 */
 	public static int getDExpById(int id) {
 		return BasicData.difficultyMap.get(id).getExp();

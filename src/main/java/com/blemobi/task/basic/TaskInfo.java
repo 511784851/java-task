@@ -15,7 +15,7 @@ public class TaskInfo {
 	private long exp;
 	// 任务类型ID（消息订阅ID）
 	private int type;
-	// 任务数量
+	// 任务数量（主线有效）
 	private int num;
 	// 任务接取依赖条件（"|"或"&"）
 	private char logic;
@@ -23,10 +23,13 @@ public class TaskInfo {
 	private List<Integer> depend = new ArrayList<Integer>();
 	// 任务描述
 	private String desc;
-
+	// 简单次数（日常有效）
 	private int easy_num;
+	// 一般次数（日常有效）
 	private int common_num;
+	// 困难次数（日常有效）
 	private int hard_num;
+	// 史诗次数（日常有效）
 	private int epic_num;
 
 	public int getTaskid() {

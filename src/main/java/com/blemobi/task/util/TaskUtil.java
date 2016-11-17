@@ -290,6 +290,11 @@ public class TaskUtil {
 		jedis.hset(userTaskKey, taskInfo.getTaskid() + "", Integer.MIN_VALUE + "");// 修改任务状态
 		jedis.hincrBy(userInfoKey, "num", 1);// 累加一次任务完成
 		long newExp = jedis.hincrBy(userInfoKey, "exp", exp);// 更新经验值
+		if (newExp > LevelHelper.getMaxExp()) {
+			newExp = LevelHelper.getMaxExp();
+			jedis.hset(userInfoKey, "exp", newExp + "");
+			log.debug("用户[" + uuid + "]已达最大经验值：" + newExp);
+		}
 
 		String oldLevelStr = jedis.hget(userInfoKey, "level");
 		int oldLevel = Integer.parseInt(oldLevelStr);// 旧的等级
@@ -407,6 +412,9 @@ public class TaskUtil {
 				.setComplete(complete).setNum(num).setDesc(des).build();
 	}
 
+	/*
+	 * 验证是否达到接取日常任务的条件
+	 */
 	private boolean getIsDaily(Jedis jedis) {
 		String daily_max_man_str = BaseService.getProperty("daily_max_man");
 		int daily_max_man = Integer.parseInt(daily_max_man_str);
