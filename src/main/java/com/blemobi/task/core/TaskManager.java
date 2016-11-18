@@ -10,7 +10,7 @@ import com.blemobi.library.jetty.JettyServer;
 import com.blemobi.library.jetty.ServerFilter;
 import com.blemobi.library.log.LoggerManager;
 import com.blemobi.task.basic.BasicData;
-import com.blemobi.task.notify.UserRelation;
+import com.blemobi.task.util.UserRelation;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;

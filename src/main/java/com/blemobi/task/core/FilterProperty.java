@@ -19,18 +19,18 @@ public class FilterProperty {
 
 	public FilterProperty() {
 		tokenPathArray = new ArrayList<String>();
-		tokenPathArray.add("/task/user/list");
-		tokenPathArray.add("/task/user/level");
-		tokenPathArray.add("/task/user/receive");
-		tokenPathArray.add("/task/user/reward");
-		tokenPathArray.add("/task/user/rank");
-		tokenPathArray.add("/task/user/pk");
-		tokenPathArray.add("/task/callback/app");
+		tokenPathArray.add("/user/list");
+		tokenPathArray.add("/user/level");
+		tokenPathArray.add("/user/receive");
+		tokenPathArray.add("/user/reward");
+		tokenPathArray.add("/user/rank");
+		tokenPathArray.add("/user/pk");
+		tokenPathArray.add("/callback/app");
 
 		fromPathArray = new ArrayList<String>();
-		fromPathArray.add("/task/callback/msgid");
-		fromPathArray.add("/task/callback/level");
-		fromPathArray.add("/task/callback/userBase");
+		fromPathArray.add("/callback/msgid");
+		fromPathArray.add("/callback/level");
+		fromPathArray.add("/callback/userBase");
 	}
 
 	public List<ServerFilter> getFilterList() {

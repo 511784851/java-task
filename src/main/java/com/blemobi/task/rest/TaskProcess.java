@@ -16,13 +16,11 @@ import org.apache.http.client.ClientProtocolException;
 import com.blemobi.library.exception.BaseException;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos.PUser;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.TaskProtos.PTaskUserBasic;
 import com.blemobi.sep.probuf.TaskProtos.PTaskUserPk;
 import com.blemobi.task.basic.LevelHelper;
 import com.blemobi.task.basic.LevelInfo;
-import com.blemobi.task.notify.UserRelation;
 import com.blemobi.task.util.Constant;
 import com.blemobi.task.util.RankingUtil;
 import com.blemobi.task.util.TaskUtil;
@@ -45,26 +43,6 @@ public class TaskProcess {
 	@Path("list")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
 	public PMessage list(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws Exception {
-		String userInfoKey = Constant.GAME_USER_INFO + uuid;
-		Jedis jedis = RedisManager.getRedis();
-		boolean bool = jedis.exists(userInfoKey);
-		RedisManager.returnResource(jedis);
-		if (!bool) {// 未初始化
-			PMessage message = UserRelation.getUserInfo(uuid);
-			if (!"PUser".equals(message.getType())) {
-				ReslutUtil.createErrorMessage(1001006, "用户不存在");
-			}
-
-			PUser user = PUser.parseFrom(message.getData());
-			int levelType = user.getLevelInfo().getLevelType();
-			if (!UserRelation.levelList.contains(levelType)) {
-				ReslutUtil.createErrorMessage(2201000, "没有权限使用任务系统");
-			}
-
-			TaskUtil taskUtil = new TaskUtil(uuid, user);
-			taskUtil.init();
-		}
-
 		TaskUtil taskUtil = new TaskUtil(uuid, language);
 		return taskUtil.list();
 	}
@@ -101,7 +79,9 @@ public class TaskProcess {
 		String[] taskidArray = taskIds.split(",");
 		for (String taskid : taskidArray) {
 			TaskUtil taskUtil = new TaskUtil(uuid, Integer.parseInt(taskid));
-			taskUtil.receive();
+			if (!taskUtil.receive()) {
+				return ReslutUtil.createErrorMessage(2901001, "任务不可接取");
+			}
 		}
 		return ReslutUtil.createSucceedMessage();
 	}

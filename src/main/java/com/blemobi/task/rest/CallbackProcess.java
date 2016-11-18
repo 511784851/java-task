@@ -24,10 +24,10 @@ import com.blemobi.task.basic.LevelHelper;
 import com.blemobi.task.basic.LevelInfo;
 import com.blemobi.task.basic.TaskHelper;
 import com.blemobi.task.basic.TaskTag;
-import com.blemobi.task.notify.UserRelation;
+import com.blemobi.task.msg.SubscribeMsg;
 import com.blemobi.task.util.CallbackManager;
 import com.blemobi.task.util.Constant;
-import com.blemobi.task.util.SubscribeThread;
+import com.blemobi.task.util.UserRelation;
 import com.google.common.base.Strings;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
@@ -141,7 +141,7 @@ public class CallbackProcess {
 					Map<String, String> userMsgids = jedis.hgetAll(Constant.GAME_MSGID + uuid);
 					jedis.del(Constant.GAME_MSGID + uuid);
 					for (String msgid : userMsgids.keySet()) {
-						SubscribeThread.addQueue(uuid, Integer.parseInt(msgid), 0);// 消息订阅（取消）
+						SubscribeMsg.add(uuid, Integer.parseInt(msgid), 0);// 消息订阅（取消）
 					}
 				}
 			}

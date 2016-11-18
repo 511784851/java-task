@@ -20,7 +20,6 @@ import com.blemobi.sep.probuf.DataPublishingProtos.PGuy;
 import com.blemobi.sep.probuf.DataPublishingProtos.PRank;
 import com.blemobi.sep.probuf.NewsProtos.PRecommendUser;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
-import com.blemobi.task.notify.UserRelation;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;

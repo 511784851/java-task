@@ -1,4 +1,4 @@
-package com.blemobi.task.notify;
+package com.blemobi.task.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +25,6 @@ import com.blemobi.sep.probuf.NewsProtos.PRecommendUser;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.blemobi.sep.probuf.ResultProtos.PStringList;
-import com.blemobi.task.util.Constant;
 import com.google.common.base.Strings;
 import com.google.protobuf.ProtocolStringList;
 

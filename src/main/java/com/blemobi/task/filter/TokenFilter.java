@@ -15,9 +15,9 @@ import com.blemobi.library.util.CommonUtil;
 import com.blemobi.library.util.ReslutUtil;
 import com.blemobi.sep.probuf.AccountProtos.PUser;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
-import com.blemobi.task.notify.UserRelation;
 import com.blemobi.task.util.Constant;
 import com.blemobi.task.util.TaskUtil;
+import com.blemobi.task.util.UserRelation;
 import com.google.common.base.Strings;
 
 import redis.clients.jedis.Jedis;

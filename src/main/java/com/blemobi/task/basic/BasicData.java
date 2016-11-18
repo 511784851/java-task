@@ -385,82 +385,92 @@ public class BasicData {
 	 * 查看数据
 	 */
 	private void out() {
-		System.out.println("------------主线任务信息[mainTaskMap]开始-------------");
-		for (TaskInfo taskInfo : mainTaskMap.values()) {
-			System.out.print("[" + taskInfo.getTaskid() + "] ");
-			System.out.print("[" + taskInfo.getType() + "] ");
-			System.out.print("[" + taskInfo.getNum() + "] ");
-			System.out.print("[" + taskInfo.getLevel() + "] ");
-			System.out.print("[" + taskInfo.getExp() + "] ");
-			System.out.print("[" + taskInfo.getLogic() + "] ");
-			System.out.print("[" + taskInfo.getDepend() + "] ");
-			System.out.print("[" + taskInfo.getDesc() + "] ");
-			System.out.println();
-		}
-		System.out.println("------------主线任务信息[mainTaskMap]结束-------------");
-
-		System.out.println("------------日常务信息[dailyTaskMap]开始-------------");
-		for (TaskInfo taskInfo : dailyTaskMap.values()) {
-			System.out.print("[" + taskInfo.getTaskid() + "] ");
-			System.out.print("[" + taskInfo.getType() + "] ");
-			System.out.print("[" + taskInfo.getEasy_num() + "] ");
-			System.out.print("[" + taskInfo.getCommon_num() + "] ");
-			System.out.print("[" + taskInfo.getHard_num() + "] ");
-			System.out.print("[" + taskInfo.getEpic_num() + "] ");
-			System.out.print("[" + taskInfo.getExp() + "] ");
-			System.out.print("[" + taskInfo.getDesc() + "] ");
-			System.out.println();
-		}
-		System.out.println("------------日常任务信息[dailyTaskMap]结束-------------");
-
-		System.out.println("------------任务类型信息[taskTypeInfo]开始-------------");
+		StringBuffer sb = new StringBuffer("\r\n");
+		sb.append("------------任务类型信息[taskTypeInfo]开始-------------");
+		sb.append("\r\n");
 		for (TaskTypeInfo taskTypeInfo : taskTypeMap.values()) {
-			System.out.print("[" + taskTypeInfo.getType() + "] ");
-			System.out.print("[" + taskTypeInfo.getServer() + "] ");
-			System.out.print("[" + taskTypeInfo.getDesc_sc() + "] ");
-			System.out.print("[" + taskTypeInfo.getDesc_tc() + "] ");
-			System.out.print("[" + taskTypeInfo.getDesc_en() + "] ");
-			System.out.print("[" + taskTypeInfo.getDesc_kr() + "] ");
-			System.out.print("[" + taskTypeInfo.getTaskidList() + "] ");
-			System.out.println();
+			sb.append("[" + taskTypeInfo.getType() + "] ");
+			sb.append("[" + taskTypeInfo.getServer() + "] ");
+			sb.append("[" + taskTypeInfo.getDesc_sc() + "] ");
+			sb.append("[" + taskTypeInfo.getDesc_tc() + "] ");
+			sb.append("[" + taskTypeInfo.getDesc_en() + "] ");
+			sb.append("[" + taskTypeInfo.getDesc_kr() + "] ");
+			sb.append("[" + taskTypeInfo.getTaskidList() + "] ");
+			sb.append("\r\n");
 		}
-		System.out.println("------------任务类型信息[taskTypeInfo]结束-------------");
-
-		System.out.println("------------任务Tag信息[taskIdtoTag]开始-------------");
+		sb.append("------------任务类型信息[taskTypeInfo]结束-------------");
+		sb.append("\r\n");
+		sb.append("------------主线任务信息[mainTaskMap]开始-------------");
+		sb.append("\r\n");
+		for (TaskInfo taskInfo : mainTaskMap.values()) {
+			sb.append("[" + taskInfo.getTaskid() + "] ");
+			sb.append("[" + taskInfo.getType() + "] ");
+			sb.append("[" + taskInfo.getNum() + "] ");
+			sb.append("[" + taskInfo.getLevel() + "] ");
+			sb.append("[" + taskInfo.getExp() + "] ");
+			sb.append("[" + taskInfo.getLogic() + "] ");
+			sb.append("[" + taskInfo.getDepend() + "] ");
+			sb.append("[" + taskInfo.getDesc() + "] ");
+			sb.append("\r\n");
+		}
+		sb.append("------------主线任务信息[mainTaskMap]结束-------------");
+		sb.append("\r\n");
+		sb.append("------------日常务信息[dailyTaskMap]开始-------------");
+		sb.append("\r\n");
+		for (TaskInfo taskInfo : dailyTaskMap.values()) {
+			sb.append("[" + taskInfo.getTaskid() + "] ");
+			sb.append("[" + taskInfo.getType() + "] ");
+			sb.append("[" + taskInfo.getEasy_num() + "] ");
+			sb.append("[" + taskInfo.getCommon_num() + "] ");
+			sb.append("[" + taskInfo.getHard_num() + "] ");
+			sb.append("[" + taskInfo.getEpic_num() + "] ");
+			sb.append("[" + taskInfo.getExp() + "] ");
+			sb.append("[" + taskInfo.getDesc() + "] ");
+			sb.append("\r\n");
+		}
+		sb.append("------------日常任务信息[dailyTaskMap]结束-------------");
+		sb.append("\r\n");
+		sb.append("------------任务Tag信息[taskIdtoTag]开始-------------");
+		sb.append("\r\n");
 		for (int taskid : taskIdtoTag.keySet()) {
-			System.out.print("[" + taskid + "] ");
-			System.out.print("[" + taskIdtoTag.get(taskid) + "] ");
-			System.out.println();
+			sb.append("[" + taskid + "->");
+			sb.append(taskIdtoTag.get(taskid) + "] ");
+			sb.append(" ");
 		}
-		System.out.println("------------任务Tag信息[taskIdtoTag]结束-------------");
-
-		System.out.println("------------等级信息[levelMap]开始-------------");
+		sb.append("\r\n");
+		sb.append("------------任务Tag信息[taskIdtoTag]结束-------------");
+		sb.append("\r\n");
+		sb.append("------------等级信息[levelMap]开始-------------");
+		sb.append("\r\n");
 		for (LevelInfo levelInfo : levelMap.values()) {
-			System.out.print("[" + levelInfo.getLevel() + "] ");
-			System.out.print("[" + levelInfo.getExp_min() + "] ");
-			System.out.print("[" + levelInfo.getExp_max() + "] ");
-			System.out.print("[" + levelInfo.getMax() + "] ");
-			System.out.print("[" + levelInfo.getTitle_en() + "] ");
-			System.out.print("[" + levelInfo.getTitle_kr() + "] ");
-			System.out.print("[" + levelInfo.getTitle_sc() + "] ");
-			System.out.print("[" + levelInfo.getTitle_tc() + "] ");
+			sb.append("[" + levelInfo.getLevel() + "] ");
+			sb.append("[" + levelInfo.getExp_min() + "] ");
+			sb.append("[" + levelInfo.getExp_max() + "] ");
+			sb.append("[" + levelInfo.getMax() + "] ");
+			sb.append("[" + levelInfo.getTitle_en() + "] ");
+			sb.append("[" + levelInfo.getTitle_kr() + "] ");
+			sb.append("[" + levelInfo.getTitle_sc() + "] ");
+			sb.append("[" + levelInfo.getTitle_tc() + "] ");
 
-			System.out.print("[" + levelInfo.getMax_h() + "] ");
-			System.out.print("[" + levelInfo.getSimple_pro() + "] ");
-			System.out.print("[" + levelInfo.getNormal_pro() + "] ");
-			System.out.print("[" + levelInfo.getHard_pro() + "] ");
-			System.out.print("[" + levelInfo.getEpic_pro() + "] ");
-			System.out.println();
+			sb.append("[" + levelInfo.getMax_h() + "] ");
+			sb.append("[" + levelInfo.getSimple_pro() + "] ");
+			sb.append("[" + levelInfo.getNormal_pro() + "] ");
+			sb.append("[" + levelInfo.getHard_pro() + "] ");
+			sb.append("[" + levelInfo.getEpic_pro() + "] ");
+			sb.append("\r\n");
 		}
-		System.out.println("------------等级信息[levelMap]结束-------------");
-
-		System.out.println("------------任务难度信息[difficultyMap]开始-------------");
+		sb.append("------------等级信息[levelMap]结束-------------");
+		sb.append("\r\n");
+		sb.append("------------任务难度信息[difficultyMap]开始-------------");
+		sb.append("\r\n");
 		for (Difficulty difficulty : difficultyMap.values()) {
-			System.out.print("[" + difficulty.getId() + "] ");
-			System.out.print("[" + difficulty.getDesc() + "] ");
-			System.out.print("[" + difficulty.getExp() + "] ");
-			System.out.println();
+			sb.append("[" + difficulty.getId() + "] ");
+			sb.append("[" + difficulty.getDesc() + "] ");
+			sb.append("[" + difficulty.getExp() + "] ");
+			sb.append("\r\n");
 		}
-		System.out.println("------------任务难度信息[difficultyMap]结束-------------");
+		sb.append("------------任务难度信息[difficultyMap]结束-------------");
+
+		log.debug(sb.toString());
 	}
 }

@@ -21,7 +21,9 @@ import com.blemobi.task.basic.LevelInfo;
 import com.blemobi.task.basic.TaskHelper;
 import com.blemobi.task.basic.TaskInfo;
 import com.blemobi.task.basic.TaskTag;
-import com.blemobi.task.notify.NotifyManager;
+import com.blemobi.task.msg.AchievementMsg;
+import com.blemobi.task.msg.NotifyMsg;
+import com.blemobi.task.msg.SubscribeMsg;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;
@@ -94,52 +96,43 @@ public class TaskUtil {
 		jedis.hset(userInfoKey, "headimg", user.getHeadImgURL());
 		jedis.hset(userInfoKey, "language", user.getLocale());
 		jedis.hset(userInfoKey, "levelType", user.getLevelInfo().getLevelType() + "");
-
 		// 获取可默认接取的主线任务列表
 		List<TaskInfo> mainTaskList = TaskHelper.getNoDependMainTaskByLevel(level);
 		for (TaskInfo taskInfo : mainTaskList) {
 			long rtn = jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
 			if (rtn == 1) {
-				SubscribeThread.addQueue(uuid, taskInfo.getType(), -1);// 消息订阅（永久）
+				SubscribeMsg.add(uuid, taskInfo.getType(), -1);// 消息订阅（永久）
 			}
 		}
-
 		RedisManager.returnResource(jedis);
+		AchievementMsg.add(uuid, 100, level);// 等级成就
 		log.debug("用户[" + uuid + "]信息初始化完成");
-
-		// 等级成就
-		AchievementMsg achievementMsg = new AchievementMsg(uuid, 100, level);
-		achievementMsg.notifyMsg();
-
 		return true;
 	}
 
 	/*
 	 * 接取每日任务
 	 */
-	public PMessage receive() {
+	public boolean receive() {
 		String lock = Constant.GAME_USER_LOCK + uuid + ":RECEIVE";
 		Jedis jedis = RedisManager.getRedis();
 		boolean isLock = LockManager.getLock(lock, 30);
 		if (!isLock) {// 没有获得当前用户接任务的安全锁（很难出现此情况）
 			RedisManager.returnResource(jedis);
-			return ReslutUtil.createErrorMessage(1001000, "系统繁忙");
+			return false;
 		}
-
 		String target = jedis.hget(userDailyTaskKey, taskId + "");
 		if (!"-1".equals(target)) {
 			RedisManager.returnResource(jedis);
 			LockManager.releaseLock(lock);
-			return ReslutUtil.createErrorMessage(2901001, "任务不可接取");
+			return false;
 		}
-
 		jedis.hset(userDailyTaskKey, taskId + "", "0");
+		SubscribeMsg.add(uuid, TaskHelper.getDailyTask(taskId).getType(), dailyTime);// 消息订阅
+
 		RedisManager.returnResource(jedis);
 		LockManager.releaseLock(lock);
-
-		// 任务消息订阅
-		SubscribeThread.addQueue(uuid, TaskHelper.getDailyTask(taskId).getType(), dailyTime);
-		return ReslutUtil.createSucceedMessage();
+		return true;
 	}
 
 	/*
@@ -191,47 +184,24 @@ public class TaskUtil {
 						syActiveList.add(taskInfo);
 					}
 				}
-
 				// 今日剩余可初始化日常任务的数量
 				int size = syActiveList.size();
 				log.debug("用户[" + uuid + "]最终还可初始化日常任务数量：" + syMax);
 				if (size > 0) {
 					int max_h = LevelHelper.getMaxHCountByLevel(userBasic.getLevel());// 用户当前等级对应的可接最大困难和史诗日常任务数量
-					if (size <= syMax) {
-						// 可以继续初始化日常任务
+					if (size <= syMax) {// 剩余任务可以全部可初始化
 						for (int i = 0; i < size; i++) {
-							int dif = 0;
-							if (max_h - count > 0) {
-								dif = LevelHelper.getRandomDifficultyAll(userBasic.getLevel());
-							} else {
-								dif = LevelHelper.getRandomDifficulty(userBasic.getLevel());
-							}
-							if (dif == 3 || dif == 4) {
-								count++;
-							}
 							TaskInfo taskInfo = syActiveList.get(i);
-							jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
-							jedis.hsetnx(userDailyTaskKey, diffculty + taskInfo.getTaskid(), dif + "");
+							count = stepDailyTask(taskInfo, userBasic.getLevel(), count, max_h, jedis);
 						}
-						userDailyTask = jedis.hgetAll(userDailyTaskKey);
-					} else if (size > syMax) {
-						Set<Integer> set = TaskHelper.getRandomSet(size, syMax);
+					} else {// 在剩余任务中随机挑选任务
+						Set<Integer> set = TaskHelper.getRandomSet(size, syMax);// 随机任务ID
 						for (int i : set) {
-							int dif = 0;
-							if (max_h - count > 0) {
-								dif = LevelHelper.getRandomDifficultyAll(userBasic.getLevel());
-							} else {
-								dif = LevelHelper.getRandomDifficulty(userBasic.getLevel());
-							}
-							if (dif == 3 || dif == 4) {
-								count++;
-							}
 							TaskInfo taskInfo = syActiveList.get(i);
-							jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
-							jedis.hsetnx(userDailyTaskKey, diffculty + taskInfo.getTaskid(), dif + "");
+							count = stepDailyTask(taskInfo, userBasic.getLevel(), count, max_h, jedis);
 						}
-						userDailyTask = jedis.hgetAll(userDailyTaskKey);
 					}
+					userDailyTask = jedis.hgetAll(userDailyTaskKey);
 				}
 			}
 			for (String key : userDailyTask.keySet()) {
@@ -302,26 +272,21 @@ public class TaskUtil {
 		if (level > oldLevel) {
 			jedis.hset(userInfoKey, "level", level + "");// 更新经验等级
 			// 等级推送和通知
-			NotifyManager notifyManager = new NotifyManager(uuid, level);
-			notifyManager.notifyMsg();
-			// 等级成就
-			AchievementMsg achievementMsg = new AchievementMsg(uuid, 100, level);
-			achievementMsg.notifyMsg();
+			NotifyMsg.add(uuid, level);
+			AchievementMsg.add(uuid, 100, level);// 等级成就
 		}
 
 		// 任务完成后续处理
-		TaskActiveThread.addQueue(uuid, jedis);
+		new TaskActive(uuid, jedis).step();
 		RedisManager.returnResource(jedis);
 		LockManager.releaseLock(lock);
 
 		// 任务达成成就
 		TaskTag tag = TaskHelper.getTaskTag(taskId);
 		if (tag == TaskTag.MAIN) {
-			AchievementMsg achievementMsg = new AchievementMsg(uuid, 400, 1);
-			achievementMsg.notifyMsg();
+			AchievementMsg.add(uuid, 400, 1);
 		} else if (tag == TaskTag.DAILY) {
-			AchievementMsg achievementMsg = new AchievementMsg(uuid, 401, 1);
-			achievementMsg.notifyMsg();
+			AchievementMsg.add(uuid, 401, 1);
 		}
 
 		return ReslutUtil.createSucceedMessage();
@@ -363,6 +328,26 @@ public class TaskUtil {
 		return PTaskUserBasic.newBuilder().setLevel(level).setExp(exp).setLevelName(levelInfo.getTitle(language))
 				.setNextLevel(nextLevelInfo.getLevel()).setNextLevelExp(nextLevelInfo.getExp_min())
 				.setNextLevelName(nextLevelInfo.getTitle(language)).setNickname(nickname).setHeadimg(headimg).build();
+	}
+
+	/*
+	 * 产生一个随机难度日常任务并初始化
+	 */
+	private int stepDailyTask(TaskInfo taskInfo, int level, int count, int max_h, Jedis jedis) {
+		int dif = 1;// 随机任务难度
+		if (max_h - count > 0) {
+			// 在所有难度中根据概率产生一个难度ID
+			dif = LevelHelper.getRandomDifficultyAll(level);
+		} else {
+			// 在简单和一般难度任务中根据概率产生一个难度ID
+			dif = LevelHelper.getRandomDifficulty(level);
+		}
+		if (dif == 3 || dif == 4) {
+			count++;
+		}
+		jedis.hsetnx(userDailyTaskKey, taskInfo.getTaskid() + "", "-1");
+		jedis.hsetnx(userDailyTaskKey, diffculty + taskInfo.getTaskid(), dif + "");
+		return count;
 	}
 
 	/*
