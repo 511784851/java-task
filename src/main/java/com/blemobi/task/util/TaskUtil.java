@@ -114,6 +114,9 @@ public class TaskUtil {
 	 * 接取每日任务
 	 */
 	public boolean receive() {
+		if (TaskHelper.getTaskTag(taskId) != TaskTag.DAILY) {// 非日常任务
+			return true;
+		}
 		String lock = Constant.GAME_USER_LOCK + uuid + ":RECEIVE";
 		Jedis jedis = RedisManager.getRedis();
 		boolean isLock = LockManager.getLock(lock, 30);
