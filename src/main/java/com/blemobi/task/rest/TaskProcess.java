@@ -28,7 +28,7 @@ import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
 
 import redis.clients.jedis.Jedis;
 
-@Path("/user")
+@Path("/task/user")
 public class TaskProcess {
 
 	/**

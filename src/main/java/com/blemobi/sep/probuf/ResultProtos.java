@@ -7350,6 +7350,1131 @@ public final class ResultProtos {
 
   }
 
+  public interface PBinaryMsgOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:common.PBinaryMsg)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional int32 MsgType = 1;</code>
+     */
+    int getMsgType();
+
+    /**
+     * <code>optional bytes MsgData = 2;</code>
+     */
+    com.google.protobuf.ByteString getMsgData();
+  }
+  /**
+   * Protobuf type {@code common.PBinaryMsg}
+   *
+   * <pre>
+   *&#64;note 带类型的二进制数据包，通过解析MsgType后再把MsgData反序列化为proto
+   * </pre>
+   */
+  public  static final class PBinaryMsg extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:common.PBinaryMsg)
+      PBinaryMsgOrBuilder {
+    // Use PBinaryMsg.newBuilder() to construct.
+    private PBinaryMsg(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private PBinaryMsg() {
+      msgType_ = 0;
+      msgData_ = com.google.protobuf.ByteString.EMPTY;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private PBinaryMsg(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+
+              msgType_ = input.readInt32();
+              break;
+            }
+            case 18: {
+
+              msgData_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsg_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsg_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.class, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder.class);
+    }
+
+    public static final int MSGTYPE_FIELD_NUMBER = 1;
+    private int msgType_;
+    /**
+     * <code>optional int32 MsgType = 1;</code>
+     */
+    public int getMsgType() {
+      return msgType_;
+    }
+
+    public static final int MSGDATA_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString msgData_;
+    /**
+     * <code>optional bytes MsgData = 2;</code>
+     */
+    public com.google.protobuf.ByteString getMsgData() {
+      return msgData_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (msgType_ != 0) {
+        output.writeInt32(1, msgType_);
+      }
+      if (!msgData_.isEmpty()) {
+        output.writeBytes(2, msgData_);
+      }
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (msgType_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, msgType_);
+      }
+      if (!msgData_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, msgData_);
+      }
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.blemobi.sep.probuf.ResultProtos.PBinaryMsg prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code common.PBinaryMsg}
+     *
+     * <pre>
+     *&#64;note 带类型的二进制数据包，通过解析MsgType后再把MsgData反序列化为proto
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:common.PBinaryMsg)
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsg_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsg_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.class, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder.class);
+      }
+
+      // Construct using com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        msgType_ = 0;
+
+        msgData_ = com.google.protobuf.ByteString.EMPTY;
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsg_descriptor;
+      }
+
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg getDefaultInstanceForType() {
+        return com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.getDefaultInstance();
+      }
+
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg build() {
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsg result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg buildPartial() {
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsg result = new com.blemobi.sep.probuf.ResultProtos.PBinaryMsg(this);
+        result.msgType_ = msgType_;
+        result.msgData_ = msgData_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.blemobi.sep.probuf.ResultProtos.PBinaryMsg) {
+          return mergeFrom((com.blemobi.sep.probuf.ResultProtos.PBinaryMsg)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.blemobi.sep.probuf.ResultProtos.PBinaryMsg other) {
+        if (other == com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.getDefaultInstance()) return this;
+        if (other.getMsgType() != 0) {
+          setMsgType(other.getMsgType());
+        }
+        if (other.getMsgData() != com.google.protobuf.ByteString.EMPTY) {
+          setMsgData(other.getMsgData());
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsg parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.blemobi.sep.probuf.ResultProtos.PBinaryMsg) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private int msgType_ ;
+      /**
+       * <code>optional int32 MsgType = 1;</code>
+       */
+      public int getMsgType() {
+        return msgType_;
+      }
+      /**
+       * <code>optional int32 MsgType = 1;</code>
+       */
+      public Builder setMsgType(int value) {
+        
+        msgType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 MsgType = 1;</code>
+       */
+      public Builder clearMsgType() {
+        
+        msgType_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString msgData_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes MsgData = 2;</code>
+       */
+      public com.google.protobuf.ByteString getMsgData() {
+        return msgData_;
+      }
+      /**
+       * <code>optional bytes MsgData = 2;</code>
+       */
+      public Builder setMsgData(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        msgData_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes MsgData = 2;</code>
+       */
+      public Builder clearMsgData() {
+        
+        msgData_ = getDefaultInstance().getMsgData();
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:common.PBinaryMsg)
+    }
+
+    // @@protoc_insertion_point(class_scope:common.PBinaryMsg)
+    private static final com.blemobi.sep.probuf.ResultProtos.PBinaryMsg DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.blemobi.sep.probuf.ResultProtos.PBinaryMsg();
+    }
+
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsg getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<PBinaryMsg> PARSER =
+        new com.google.protobuf.AbstractParser<PBinaryMsg>() {
+      public PBinaryMsg parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new PBinaryMsg(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PBinaryMsg> getParserForType() {
+      return PARSER;
+    }
+
+    public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface PBinaryMsgListOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:common.PBinaryMsgList)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    java.util.List<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg> 
+        getListList();
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    com.blemobi.sep.probuf.ResultProtos.PBinaryMsg getList(int index);
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    int getListCount();
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    java.util.List<? extends com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder> 
+        getListOrBuilderList();
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder getListOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code common.PBinaryMsgList}
+   *
+   * <pre>
+   *&#64;note PBinaryMsg的列表
+   * </pre>
+   */
+  public  static final class PBinaryMsgList extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:common.PBinaryMsgList)
+      PBinaryMsgListOrBuilder {
+    // Use PBinaryMsgList.newBuilder() to construct.
+    private PBinaryMsgList(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private PBinaryMsgList() {
+      list_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private PBinaryMsgList(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                list_ = new java.util.ArrayList<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              list_.add(input.readMessage(com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          list_ = java.util.Collections.unmodifiableList(list_);
+        }
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsgList_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsgList_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList.class, com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList.Builder.class);
+    }
+
+    public static final int LIST_FIELD_NUMBER = 1;
+    private java.util.List<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg> list_;
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    public java.util.List<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg> getListList() {
+      return list_;
+    }
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    public java.util.List<? extends com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder> 
+        getListOrBuilderList() {
+      return list_;
+    }
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    public int getListCount() {
+      return list_.size();
+    }
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg getList(int index) {
+      return list_.get(index);
+    }
+    /**
+     * <code>repeated .common.PBinaryMsg List = 1;</code>
+     */
+    public com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder getListOrBuilder(
+        int index) {
+      return list_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < list_.size(); i++) {
+        output.writeMessage(1, list_.get(i));
+      }
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < list_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, list_.get(i));
+      }
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code common.PBinaryMsgList}
+     *
+     * <pre>
+     *&#64;note PBinaryMsg的列表
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:common.PBinaryMsgList)
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsgListOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsgList_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsgList_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList.class, com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList.Builder.class);
+      }
+
+      // Construct using com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getListFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (listBuilder_ == null) {
+          list_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          listBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.blemobi.sep.probuf.ResultProtos.internal_static_common_PBinaryMsgList_descriptor;
+      }
+
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList getDefaultInstanceForType() {
+        return com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList.getDefaultInstance();
+      }
+
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList build() {
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList buildPartial() {
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList result = new com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList(this);
+        int from_bitField0_ = bitField0_;
+        if (listBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            list_ = java.util.Collections.unmodifiableList(list_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.list_ = list_;
+        } else {
+          result.list_ = listBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList) {
+          return mergeFrom((com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList other) {
+        if (other == com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList.getDefaultInstance()) return this;
+        if (listBuilder_ == null) {
+          if (!other.list_.isEmpty()) {
+            if (list_.isEmpty()) {
+              list_ = other.list_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureListIsMutable();
+              list_.addAll(other.list_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.list_.isEmpty()) {
+            if (listBuilder_.isEmpty()) {
+              listBuilder_.dispose();
+              listBuilder_ = null;
+              list_ = other.list_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              listBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getListFieldBuilder() : null;
+            } else {
+              listBuilder_.addAllMessages(other.list_);
+            }
+          }
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg> list_ =
+        java.util.Collections.emptyList();
+      private void ensureListIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          list_ = new java.util.ArrayList<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg>(list_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.blemobi.sep.probuf.ResultProtos.PBinaryMsg, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder, com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder> listBuilder_;
+
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public java.util.List<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg> getListList() {
+        if (listBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(list_);
+        } else {
+          return listBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public int getListCount() {
+        if (listBuilder_ == null) {
+          return list_.size();
+        } else {
+          return listBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg getList(int index) {
+        if (listBuilder_ == null) {
+          return list_.get(index);
+        } else {
+          return listBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder setList(
+          int index, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg value) {
+        if (listBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureListIsMutable();
+          list_.set(index, value);
+          onChanged();
+        } else {
+          listBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder setList(
+          int index, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder builderForValue) {
+        if (listBuilder_ == null) {
+          ensureListIsMutable();
+          list_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          listBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder addList(com.blemobi.sep.probuf.ResultProtos.PBinaryMsg value) {
+        if (listBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureListIsMutable();
+          list_.add(value);
+          onChanged();
+        } else {
+          listBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder addList(
+          int index, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg value) {
+        if (listBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureListIsMutable();
+          list_.add(index, value);
+          onChanged();
+        } else {
+          listBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder addList(
+          com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder builderForValue) {
+        if (listBuilder_ == null) {
+          ensureListIsMutable();
+          list_.add(builderForValue.build());
+          onChanged();
+        } else {
+          listBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder addList(
+          int index, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder builderForValue) {
+        if (listBuilder_ == null) {
+          ensureListIsMutable();
+          list_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          listBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder addAllList(
+          java.lang.Iterable<? extends com.blemobi.sep.probuf.ResultProtos.PBinaryMsg> values) {
+        if (listBuilder_ == null) {
+          ensureListIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, list_);
+          onChanged();
+        } else {
+          listBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder clearList() {
+        if (listBuilder_ == null) {
+          list_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          listBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public Builder removeList(int index) {
+        if (listBuilder_ == null) {
+          ensureListIsMutable();
+          list_.remove(index);
+          onChanged();
+        } else {
+          listBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder getListBuilder(
+          int index) {
+        return getListFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder getListOrBuilder(
+          int index) {
+        if (listBuilder_ == null) {
+          return list_.get(index);  } else {
+          return listBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public java.util.List<? extends com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder> 
+           getListOrBuilderList() {
+        if (listBuilder_ != null) {
+          return listBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(list_);
+        }
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder addListBuilder() {
+        return getListFieldBuilder().addBuilder(
+            com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder addListBuilder(
+          int index) {
+        return getListFieldBuilder().addBuilder(
+            index, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .common.PBinaryMsg List = 1;</code>
+       */
+      public java.util.List<com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder> 
+           getListBuilderList() {
+        return getListFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.blemobi.sep.probuf.ResultProtos.PBinaryMsg, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder, com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder> 
+          getListFieldBuilder() {
+        if (listBuilder_ == null) {
+          listBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.blemobi.sep.probuf.ResultProtos.PBinaryMsg, com.blemobi.sep.probuf.ResultProtos.PBinaryMsg.Builder, com.blemobi.sep.probuf.ResultProtos.PBinaryMsgOrBuilder>(
+                  list_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          list_ = null;
+        }
+        return listBuilder_;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:common.PBinaryMsgList)
+    }
+
+    // @@protoc_insertion_point(class_scope:common.PBinaryMsgList)
+    private static final com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList();
+    }
+
+    public static com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<PBinaryMsgList> PARSER =
+        new com.google.protobuf.AbstractParser<PBinaryMsgList>() {
+      public PBinaryMsgList parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new PBinaryMsgList(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PBinaryMsgList> getParserForType() {
+      return PARSER;
+    }
+
+    public com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_common_PResult_descriptor;
   private static
@@ -7425,6 +8550,16 @@ public final class ResultProtos {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_common_PFloat64Single_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_common_PBinaryMsg_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_common_PBinaryMsg_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_common_PBinaryMsgList_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_common_PBinaryMsgList_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -7447,8 +8582,10 @@ public final class ResultProtos {
       "e\022\013\n\003Val\030\001 \001(\t\"\033\n\014PInt64Single\022\013\n\003Val\030\001 " +
       "\001(\003\"\033\n\014PInt32Single\022\013\n\003Val\030\001 \001(\005\"\032\n\013PBoo" +
       "lSingle\022\013\n\003Val\030\001 \001(\010\"\035\n\016PFloat64Single\022\013" +
-      "\n\003Val\030\001 \001(\001B&\n\026com.blemobi.sep.probufB\014R" +
-      "esultProtosb\006proto3"
+      "\n\003Val\030\001 \001(\001\".\n\nPBinaryMsg\022\017\n\007MsgType\030\001 \001" +
+      "(\005\022\017\n\007MsgData\030\002 \001(\014\"2\n\016PBinaryMsgList\022 \n" +
+      "\004List\030\001 \003(\0132\022.common.PBinaryMsgB&\n\026com.b" +
+      "lemobi.sep.probufB\014ResultProtosb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -7552,6 +8689,18 @@ public final class ResultProtos {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_common_PFloat64Single_descriptor,
         new java.lang.String[] { "Val", });
+    internal_static_common_PBinaryMsg_descriptor =
+      getDescriptor().getMessageTypes().get(15);
+    internal_static_common_PBinaryMsg_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_common_PBinaryMsg_descriptor,
+        new java.lang.String[] { "MsgType", "MsgData", });
+    internal_static_common_PBinaryMsgList_descriptor =
+      getDescriptor().getMessageTypes().get(16);
+    internal_static_common_PBinaryMsgList_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_common_PBinaryMsgList_descriptor,
+        new java.lang.String[] { "List", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

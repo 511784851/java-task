@@ -54,7 +54,7 @@ public class TaskManager {
 		List<ServerFilter> serverFilterList = filterProperty.getFilterList();
 
 		log.info("Task Server Running Port:" + jetty_port);
-		JettyServer jettyServer = new JettyServer(selfName, packages, port, serverFilterList);
+		JettyServer jettyServer = new JettyServer("", packages, port, serverFilterList);
 		jettyServer.start();
 
 		// 初始化Consul日志管理

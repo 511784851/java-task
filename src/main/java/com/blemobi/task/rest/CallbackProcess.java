@@ -34,7 +34,7 @@ import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
 
 import redis.clients.jedis.Jedis;
 
-@Path("/callback")
+@Path("/task/callback")
 public class CallbackProcess {
 	/**
 	 * 消息回调（for server）

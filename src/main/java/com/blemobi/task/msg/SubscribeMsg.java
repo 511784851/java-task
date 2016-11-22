@@ -99,7 +99,7 @@ public class SubscribeMsg extends Thread {
 		// 检查是否需要重新订阅
 		boolean bool = isSubscribe(time, oldTimeStr);
 		if (bool) {
-			log.debug("消息需要订阅 -> " + logStr);
+			// log.debug("消息需要订阅 -> " + logStr);
 			List<PSubscribe> serList = serverMap.get(server);
 			if (serList == null) {
 				serList = new ArrayList<PSubscribe>();
@@ -143,8 +143,15 @@ public class SubscribeMsg extends Thread {
 			PResult result = PResult.parseFrom(message.getData());
 			if (result.getErrorCode() == 0) {
 				log.debug("[" + server + "]消息订阅成功: " + list.size());
+				for (PSubscribe subscribe : list) {
+					jedis.hset(Constant.GAME_MSGID + subscribe.getUuid(), subscribe.getMsgid() + "",
+							subscribe.getTime() + "");
+				}
 			} else {
 				log.debug("[" + server + "]消息订阅失败: " + list.size() + " -> " + result.getErrorCode());
+				for (PSubscribe subscribe : list) {
+					add(subscribe.getUuid(), subscribe.getMsgid(), subscribe.getTime());
+				}
 			}
 		}
 	}
