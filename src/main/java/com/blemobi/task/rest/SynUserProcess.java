@@ -40,7 +40,6 @@ public class SynUserProcess {
 	@Path("msgpush/consumer")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
 	public PMessage consumer(PBinaryMsgList binaryMsgList) throws InvalidProtocolBufferException {
-		log.debug("有用户信息变更的同步数据");
 		Jedis jedis = RedisManager.getRedis();
 		List<PBinaryMsg> list = binaryMsgList.getListList();
 		for (PBinaryMsg binaryMsg : list) {
@@ -50,7 +49,6 @@ public class SynUserProcess {
 			PUserBaseList userBaseListArray = PUserBaseList.parseFrom(binaryMsg.getMsgData());
 			for (PUserBase user : userBaseListArray.getListList()) {
 				String uuid = user.getUUID();
-				log.debug("有用户信息变更的同步数据了 uuid=" + uuid);
 				try {
 					String userInfoKey = Constant.GAME_USER_INFO + uuid;
 					boolean bool = jedis.exists(userInfoKey);
@@ -77,8 +75,9 @@ public class SynUserProcess {
 							}
 						}
 					}
+					log.debug("用户信息同步成功 -> uuid=" + uuid);
 				} catch (Exception e) {
-					log.debug("有用户信息变更的同步数据异常了 uuid=" + uuid);
+					log.debug("用户信息同步异常 -> uuid=" + uuid);
 					e.printStackTrace();
 				}
 			}
