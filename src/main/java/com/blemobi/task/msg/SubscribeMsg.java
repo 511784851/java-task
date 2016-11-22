@@ -39,7 +39,10 @@ public class SubscribeMsg extends Thread {
 	 */
 	public static void add(String uuid, int msgid, long time) {
 		queue.add(PSubscribe.newBuilder().setUuid(uuid).setMsgid(msgid).setTime(time).build());
-		Thread.currentThread();
+	}
+
+	private void add(PSubscribe subscribe) {
+		queue.add(subscribe);
 	}
 
 	static {
@@ -99,7 +102,7 @@ public class SubscribeMsg extends Thread {
 		// 检查是否需要重新订阅
 		boolean bool = isSubscribe(time, oldTimeStr);
 		if (bool) {
-			// log.debug("消息需要订阅 -> " + logStr);
+			log.debug("消息需要订阅 -> " + logStr);
 			List<PSubscribe> serList = serverMap.get(server);
 			if (serList == null) {
 				serList = new ArrayList<PSubscribe>();
@@ -150,7 +153,7 @@ public class SubscribeMsg extends Thread {
 			} else {
 				log.debug("[" + server + "]消息订阅失败: " + list.size() + " -> " + result.getErrorCode());
 				for (PSubscribe subscribe : list) {
-					add(subscribe.getUuid(), subscribe.getMsgid(), subscribe.getTime());
+					add(subscribe);
 				}
 			}
 		}
