@@ -137,24 +137,32 @@ public class SubscribeMsg extends Thread {
 	private void send(Map<String, List<PSubscribe>> serverMap) throws IOException {
 		for (String server : serverMap.keySet()) {
 			List<PSubscribe> list = serverMap.get(server);
-			PSubscribeArray subscribeArray = PSubscribeArray.newBuilder().addAllSubscribe(list).build();
+			try {
+				PSubscribeArray subscribeArray = PSubscribeArray.newBuilder().addAllSubscribe(list).build();
 
-			String basePath = "chat".equals(server) ? "/" : "/v1/";
-			basePath += server + "/inside/task/msg/subscribe?from=task";
-			BaseHttpClient httpClient = new CommonHttpClient(server, basePath, null, null);
-			PMessage message = httpClient.postBodyMethod(subscribeArray.toByteArray(), "application/x-protobuf");
-			PResult result = PResult.parseFrom(message.getData());
-			if (result.getErrorCode() == 0) {
-				log.debug("[" + server + "]消息订阅成功: " + list.size());
-				for (PSubscribe subscribe : list) {
-					jedis.hset(Constant.GAME_MSGID + subscribe.getUuid(), subscribe.getMsgid() + "",
-							subscribe.getTime() + "");
+				String basePath = "chat".equals(server) ? "/" : "/v1/";
+				basePath += server + "/inside/task/msg/subscribe?from=task";
+				BaseHttpClient httpClient = new CommonHttpClient(server, basePath, null, null);
+				PMessage message = httpClient.postBodyMethod(subscribeArray.toByteArray(), "application/x-protobuf");
+				PResult result = PResult.parseFrom(message.getData());
+				if (result.getErrorCode() == 0) {
+					log.debug("[" + server + "]消息订阅成功: " + list.size());
+					for (PSubscribe subscribe : list) {
+						jedis.hset(Constant.GAME_MSGID + subscribe.getUuid(), subscribe.getMsgid() + "",
+								subscribe.getTime() + "");
+					}
+				} else {
+					log.debug("[" + server + "]消息订阅失败: " + list.size() + " -> " + result.getErrorCode());
+					for (PSubscribe subscribe : list) {
+						add(subscribe);
+					}
 				}
-			} else {
-				log.debug("[" + server + "]消息订阅失败: " + list.size() + " -> " + result.getErrorCode());
+			} catch (Exception e) {
+				log.debug("[" + server + "]消息订阅异常: " + list.size() + " -> " + e.getMessage());
 				for (PSubscribe subscribe : list) {
 					add(subscribe);
 				}
+				e.printStackTrace();
 			}
 		}
 	}
