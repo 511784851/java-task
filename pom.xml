@@ -25,8 +25,13 @@
 	</properties>
 
 	<dependencies>
-		<!-- 公共库 <dependency> <groupId>com.blemobi.library</groupId> <artifactId>java-public-library</artifactId> 
-			<version>0.0.4</version> </dependency> -->
+		<!-- 公共库 <dependency> -->
+		<dependency>
+			<groupId>com.blemobi.library</groupId>
+			<artifactId>java-public-library</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
 		<!-- log -->
 		<dependency>
 			<groupId>log4j</groupId>
