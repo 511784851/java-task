@@ -28,8 +28,6 @@ public class TaskManager {
 		ConsulManager.startService(selfName, args, consulIntervalTime); // 启动连接Consul服务
 		// 发布Consul的健康发现
 		startHealth();
-		// 读取任务配置数据
-		loadData();
 		log.info("Starting Task Server ...");
 		// 启动Jetty HTTP服务器
 		startJetty();
@@ -67,11 +65,13 @@ public class TaskManager {
 	private static void startJetty() throws Exception {
 		String jetty_port = BaseService.getProperty("jetty_port");
 		int port = Integer.parseInt(jetty_port);
-		
+
 		FilterProperty filterProperty = new FilterProperty();
 		List<ServerFilter> serverFilterList = filterProperty.getFilterList();
-		
+
 		JettyServer jettyServer = new JettyServer(selfName, packages, port, serverFilterList);
+		// 读取任务配置数据
+		loadData();
 		jettyServer.start();
 	}
 }
