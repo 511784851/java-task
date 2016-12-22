@@ -57,14 +57,14 @@ public class TokenFilter implements Filter {
 			return;
 		}
 
-//		String userInfoKey = Constant.GAME_USER_INFO + uuid;
-//		Jedis jedis = RedisManager.getRedis();
-//		boolean bool = jedis.exists(userInfoKey);
-//		RedisManager.returnResource(jedis);
-//		if (!bool) {// 未初始化
-//			TaskUtil taskUtil = new TaskUtil(uuid);
-//			taskUtil.init();
-//		}
+		String userInfoKey = Constant.GAME_USER_INFO + uuid;
+		Jedis jedis = RedisManager.getRedis();
+		boolean bool = jedis.exists(userInfoKey);
+		RedisManager.returnResource(jedis);
+		if (!bool) {// 未初始化
+			TaskUtil taskUtil = new TaskUtil(uuid);
+			taskUtil.init();
+		}
 
 		// 继续执行
 		chain.doFilter(request, response);
