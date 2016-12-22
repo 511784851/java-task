@@ -12,10 +12,13 @@ import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
 
+import com.blemobi.library.cache.UserBaseCache;
+import com.blemobi.library.client.NewsHttpClient;
+import com.blemobi.library.client.SocialHttpClient;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos.PLevelInfo;
 import com.blemobi.sep.probuf.AccountProtos.PUser;
+import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.sep.probuf.DataPublishingProtos.PGuy;
 import com.blemobi.sep.probuf.DataPublishingProtos.PRank;
 import com.blemobi.sep.probuf.NewsProtos.PRecommendUser;
@@ -36,18 +39,14 @@ public class RankingUtil {
 	private static Map<String, Integer> staticGuyRankMap;
 
 	private String uuid;
-	private String userInfoKey;
 	private Jedis jedis;
-	private Map<String, String> userInfoMap;
 
 	/*
 	 * 构造方法
 	 */
 	public RankingUtil(String uuid) {
 		this.uuid = uuid;
-		this.userInfoKey = Constant.GAME_USER_INFO + uuid;
 		this.jedis = RedisManager.getRedis();
-		this.userInfoMap = jedis.hgetAll(userInfoKey);
 	}
 
 	/*
@@ -60,10 +59,11 @@ public class RankingUtil {
 			PGuy[] guyArray = new PGuy[set.size()];
 			int i = 0;
 			for (String key : set) {
-				Map<String, String> map = jedis.hgetAll(key);
-				PGuy guy = PGuy.newBuilder().setUuid(key.substring(Constant.GAME_USER_INFO.length()))
-						.setNickname(map.get("nickname")).setHeadImgURL(map.get("headimg"))
-						.setRankValue(Integer.parseInt(map.get("exp"))).build();
+				String memberUuid = key.substring(Constant.GAME_USER_INFO.length());
+				int exp = getOtherUserExp(memberUuid);
+				PUserBase userBase = UserBaseCache.get(memberUuid);
+				PGuy guy = PGuy.newBuilder().setUuid(memberUuid).setNickname(userBase.getNickname())
+						.setHeadImgURL(userBase.getHeadImgURL()).setRankValue(exp).build();
 				guyArray[i++] = guy;
 			}
 			RedisManager.returnResource(jedis);
@@ -92,7 +92,7 @@ public class RankingUtil {
 			RedisManager.returnResource(jedis);
 		}
 
-		int exp = Integer.parseInt(userInfoMap.get("exp"));
+		int exp = getOtherUserExp(uuid);
 		Integer rankObject = staticGuyRankMap.get(uuid);
 		int rank = rankObject != null ? rankObject : -1;
 
@@ -106,12 +106,12 @@ public class RankingUtil {
 	public PMessage rankFirend() throws ClientProtocolException, IOException {
 		List<PGuy> guyList = new ArrayList<PGuy>();
 		// 好友信息
-		List<PUser> firendList = UserRelation.getFirendList(uuid);
+		SocialHttpClient httpClient = new SocialHttpClient();
+		List<PUser> firendList = httpClient.getAllFriendList(uuid);
 		for (PUser user : firendList) {
 			if (UserRelation.levelList.contains(user.getLevelInfo().getLevelType())) {// 排除VO用户
 				String otherUuid = user.getUuid();
-				int otherExp = getOtherUserExp(otherUuid, user);
-
+				int otherExp = getOtherUserExp(otherUuid);
 				PGuy guy = PGuy.newBuilder().setUuid(otherUuid).setNickname(user.getNickname())
 						.setHeadImgURL(user.getHeadImgURL()).setRankValue(otherExp).build();
 
@@ -129,11 +129,12 @@ public class RankingUtil {
 	public PMessage rankFollow() throws ClientProtocolException, IOException {
 		List<PGuy> guyList = new ArrayList<PGuy>();
 		// 关注用户列表
-		List<PRecommendUser> firendList = UserRelation.getFollowList(uuid);
+		NewsHttpClient httpClient = new NewsHttpClient();
+		List<PRecommendUser> firendList = httpClient.getAllFollowList(uuid);
 		for (PRecommendUser user : firendList) {
 			if (UserRelation.levelList.contains(user.getLeveltype())) {// 排除VO用户
 				String otherUuid = user.getUuid();
-				int otherExp = getOtherUserExp(otherUuid, user);
+				int otherExp = getOtherUserExp(otherUuid);
 
 				PGuy guy = PGuy.newBuilder().setUuid(otherUuid).setNickname(user.getNickname())
 						.setHeadImgURL(user.getHeadImgURL()).setRankValue(otherExp).build();
@@ -149,11 +150,12 @@ public class RankingUtil {
 	/*
 	 * 排序处理
 	 */
-	private PMessage rankFollowOrFirend(List<PGuy> guyList) {
+	private PMessage rankFollowOrFirend(List<PGuy> guyList) throws IOException {
 		// 用户自己
-		int exp = Integer.parseInt(userInfoMap.get("exp"));
-		PGuy myGuy = PGuy.newBuilder().setUuid(uuid).setNickname(userInfoMap.get("nickname"))
-				.setHeadImgURL(userInfoMap.get("headimg")).setRankValue(exp).build();
+		int exp = getOtherUserExp(uuid);
+		PUserBase userBase = UserBaseCache.get(uuid);
+		PGuy myGuy = PGuy.newBuilder().setUuid(uuid).setNickname(userBase.getNickname())
+				.setHeadImgURL(userBase.getHeadImgURL()).setRankValue(exp).build();
 		guyList.add(myGuy);
 		// 根据经验值排序
 		Collections.sort(guyList, new PGuyComparator());
@@ -172,31 +174,13 @@ public class RankingUtil {
 	/*
 	 * 获得用户的经验值（不存在就初始化用户）
 	 */
-	private int getOtherUserExp(String uuid, PUser user) {
+	private int getOtherUserExp(String uuid) {
 		String exp = jedis.hget(Constant.GAME_USER_INFO + uuid, "exp");
 		if (Strings.isNullOrEmpty(exp)) {
-			TaskUtil taskUtil = new TaskUtil(uuid, user);
+			TaskUtil taskUtil = new TaskUtil(uuid);
 			taskUtil.init();
 			exp = jedis.hget(Constant.GAME_USER_INFO + uuid, "exp");
 		}
-		return Integer.parseInt(exp);
-	}
-
-	/*
-	 * 获得用户的经验值（不存在就初始化用户）
-	 */
-	private int getOtherUserExp(String uuid, PRecommendUser ruser) {
-		String exp = jedis.hget(Constant.GAME_USER_INFO + uuid, "exp");
-		if (Strings.isNullOrEmpty(exp)) {
-			PUser user = PUser.newBuilder().setUuid(uuid).setNickname(ruser.getNickname())
-					.setHeadImgURL(ruser.getHeadImgURL())
-					.setLevelInfo(PLevelInfo.newBuilder().setLevelType(ruser.getLeveltype())).build();
-
-			TaskUtil taskUtil = new TaskUtil(uuid, user);
-			taskUtil.init();
-			exp = jedis.hget(Constant.GAME_USER_INFO + uuid, "exp");
-		}
-
 		return Integer.parseInt(exp);
 	}
 }

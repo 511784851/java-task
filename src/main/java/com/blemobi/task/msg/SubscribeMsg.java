@@ -8,13 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.library.client.CommonHttpClient;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.blemobi.sep.probuf.TaskProtos.PSubscribe;
-import com.blemobi.sep.probuf.TaskProtos.PSubscribeArray;
 import com.blemobi.task.basic.TaskHelper;
 import com.blemobi.task.util.Constant;
 import com.google.common.base.Strings;
@@ -138,12 +136,10 @@ public class SubscribeMsg extends Thread {
 		for (String server : serverMap.keySet()) {
 			List<PSubscribe> list = serverMap.get(server);
 			try {
-				PSubscribeArray subscribeArray = PSubscribeArray.newBuilder().addAllSubscribe(list).build();
-
 				String basePath = "chat".equals(server) ? "/" : "/v1/";
-				basePath += server + "/inside/task/msg/subscribe?from=task";
-				BaseHttpClient httpClient = new CommonHttpClient(server, basePath, null, null);
-				PMessage message = httpClient.postBodyMethod(subscribeArray.toByteArray(), "application/x-protobuf");
+				basePath += server + "/inside/task/msg/subscribe?from=";
+				CommonHttpClient httpClient = new CommonHttpClient(server);
+				PMessage message = httpClient.subscribe(basePath, list);
 				PResult result = PResult.parseFrom(message.getData());
 				if (result.getErrorCode() == 0) {
 					log.debug("[" + server + "]消息订阅成功: " + list.size());

@@ -12,16 +12,17 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
 
-import com.blemobi.library.client.BaseHttpClient;
+import com.blemobi.library.cache.UserBaseCache;
 import com.blemobi.library.client.ChatHttpClient;
+import com.blemobi.library.client.NewsHttpClient;
 import com.blemobi.library.client.NotificationHttpClient;
+import com.blemobi.library.client.SocialHttpClient;
 import com.blemobi.sep.probuf.AccountProtos.PUser;
 import com.blemobi.sep.probuf.NotificationApiProtos.PGameMsgMeta;
 import com.blemobi.sep.probuf.NotificationApiProtos.PPushMsg;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.blemobi.task.basic.LevelHelper;
-import com.blemobi.task.util.UserRelation;
 
 import lombok.extern.log4j.Log4j;
 
@@ -64,8 +65,10 @@ public class NotifyMsg extends Thread {
 						.setTime(System.currentTimeMillis()).setData(gameMsgMeta.toByteString());
 				pushMsgBuilder.addToUuids(uuid);// 消息的接受者-自己
 
-				List<PUser> firendList = UserRelation.getFirendList(uuid);// 好友
-				List<String> fansList = UserRelation.getFansList(uuid);// 粉丝
+				SocialHttpClient socialHttpClient = new SocialHttpClient();
+				List<PUser> firendList = socialHttpClient.getAllFriendList(uuid);// 好友
+				NewsHttpClient newsHttpClient = new NewsHttpClient();
+				List<String> fansList = newsHttpClient.getAllFansList(uuid);// 粉丝
 				log.debug("用户[" + uuid + "]经验等级升级了 -> " + level + " 好友数量：" + firendList.size() + " 粉丝数量："
 						+ fansList.size());
 
@@ -89,7 +92,7 @@ public class NotifyMsg extends Thread {
 
 	// 推送消息
 	private void push(String uuid, int level) throws IOException {
-		String language = UserRelation.getLanguage(uuid);
+		String language = UserBaseCache.get(uuid).getLanguage();
 		String levelName = LevelHelper.getLevelInfoByLevel(level).getTitle(language);
 		String conent = getContent(levelName, language);
 
@@ -112,23 +115,21 @@ public class NotifyMsg extends Thread {
 		params.add(new BasicNameValuePair("alertContent", conent));
 		params.add(new BasicNameValuePair("info", infoString));
 
-		BaseHttpClient httpClient = new ChatHttpClient("/chat/push/msg/multi", params, null);
-		PMessage message = httpClient.postMethod();
-		if ("PResult".equals(message.getType())) {
-			PResult result = PResult.parseFrom(message.getData());
-			log.debug("推送结果:" + result.getErrorCode());
+		ChatHttpClient httpClient = new ChatHttpClient();
+		PMessage message = httpClient.multi(params);
+		PResult result = PResult.parseFrom(message.getData());
+		if (result.getErrorCode() != 0) {
+			log.error("推送消息失败  -> " + result.getErrorCode());
 		}
 	}
 
 	// 通知消息
 	private void send(PPushMsg pushMsg) throws IOException {
-		BaseHttpClient httpClient = new NotificationHttpClient("/v1/notification/inside/msg?from=task", null, null);
-		PMessage message = httpClient.postBodyMethod(pushMsg.toByteArray());
+		NotificationHttpClient httpClient = new NotificationHttpClient();
+		PMessage message = httpClient.msg(pushMsg);
 		PResult result = PResult.parseFrom(message.getData());
-		if (result.getErrorCode() == 0) {
-			log.debug("添加通知成功 ");
-		} else {
-			log.error("添加通知失败  -> " + result.getErrorCode());
+		if (result.getErrorCode() != 0) {
+			log.error("发送通知消息失败  -> " + result.getErrorCode());
 		}
 	}
 

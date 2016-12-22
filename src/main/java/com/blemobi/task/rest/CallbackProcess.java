@@ -1,8 +1,6 @@
 package com.blemobi.task.rest;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
@@ -14,8 +12,6 @@ import javax.ws.rs.Produces;
 import com.blemobi.library.exception.BaseException;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos.PUserBase;
-import com.blemobi.sep.probuf.AccountProtos.PUserBaseList;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.TaskProtos.PCallbackArray;
 import com.blemobi.sep.probuf.TaskProtos.PExpLevel;
@@ -24,10 +20,8 @@ import com.blemobi.task.basic.LevelHelper;
 import com.blemobi.task.basic.LevelInfo;
 import com.blemobi.task.basic.TaskHelper;
 import com.blemobi.task.basic.TaskTag;
-import com.blemobi.task.msg.SubscribeMsg;
 import com.blemobi.task.util.CallbackManager;
 import com.blemobi.task.util.Constant;
-import com.blemobi.task.util.UserRelation;
 import com.google.common.base.Strings;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
@@ -110,43 +104,5 @@ public class CallbackProcess {
 		}
 
 		return ReslutUtil.createReslutMessage(expLevelList.build());
-	}
-
-	@POST
-	@Path("userBase")
-	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage userBase(PMessage message) throws InvalidProtocolBufferException {
-		Jedis jedis = RedisManager.getRedis();
-		PUserBaseList userBaseListArray = PUserBaseList.parseFrom(message.getData());
-		for (PUserBase user : userBaseListArray.getListList()) {
-			String uuid = user.getUUID();
-			String userInfoKey = Constant.GAME_USER_INFO + uuid;
-			boolean bool = jedis.exists(userInfoKey);
-			if (bool) {// 已初始化
-				jedis.hset(userInfoKey, "nickname", user.getNickname());
-				jedis.hset(userInfoKey, "headimg", user.getHeadImgURL());
-				jedis.hset(userInfoKey, "language", user.getLanguage());
-				jedis.hset(userInfoKey, "levelType", user.getLevel() + "");
-				if (!UserRelation.levelList.contains(user.getLevel())) {
-					// 删除用户基础信息
-					jedis.del(Constant.GAME_USER_INFO + uuid);
-					// 删除用户主线任务信息
-					jedis.del(Constant.GAME_TASK_MAIN + uuid);
-					// 删除用户日常任务信息
-					Set<String> set = jedis.keys(Constant.GAME_TASK_DAILY + uuid + "*");
-					for (String key : set) {
-						jedis.del(key);
-					}
-					// 删除消息订阅以及取消消息订阅
-					Map<String, String> userMsgids = jedis.hgetAll(Constant.GAME_MSGID + uuid);
-					jedis.del(Constant.GAME_MSGID + uuid);
-					for (String msgid : userMsgids.keySet()) {
-						SubscribeMsg.add(uuid, Integer.parseInt(msgid), 0);// 消息订阅（取消）
-					}
-				}
-			}
-		}
-		RedisManager.returnResource(jedis);
-		return ReslutUtil.createSucceedMessage();
 	}
 }

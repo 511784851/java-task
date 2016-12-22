@@ -16,16 +16,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.library.client.OssHttpClient;
 import com.blemobi.sep.probuf.OssProtos.PDownload;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
-import com.blemobi.sep.probuf.ResultProtos.PResult;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;
 
-/**
+/*
  * 读取CSV中的数据
  */
 @Log4j
@@ -354,18 +352,10 @@ public class BasicData {
 	 * 获取任务配置文件url
 	 */
 	public static String getTaskConfig() throws IOException {
-		String url = "/oss/downloadurl?from=task&bucket=1&objectkey=config/task.xls";
-		BaseHttpClient httpClient = new OssHttpClient(url, null, null);
-		PMessage message = httpClient.getMethod();
-		String type = message.getType();
-		if ("PDownload".equals(type)) {
-			PDownload download = PDownload.parseFrom(message.getData());
-			return download.getUrl();
-		} else {
-			PResult result = PResult.parseFrom(message.getData());
-			log.debug("获取任务配置文件url失败:" + result.getErrorCode());
-		}
-		return null;
+		OssHttpClient httpClient = new OssHttpClient();
+		PMessage message = httpClient.getDownloadurl("config/task.xls");
+		PDownload download = PDownload.parseFrom(message.getData());
+		return download.getUrl();
 	}
 
 	public InputStream getFileNameFromUrl(String urlStr) throws IOException {

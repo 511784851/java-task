@@ -10,11 +10,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import com.blemobi.library.cache.UserBaseCache;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.CommonUtil;
 import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos.PUser;
-import com.blemobi.sep.probuf.ResultProtos.PMessage;
+import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.task.util.Constant;
 import com.blemobi.task.util.TaskUtil;
 import com.blemobi.task.util.UserRelation;
@@ -22,7 +22,7 @@ import com.google.common.base.Strings;
 
 import redis.clients.jedis.Jedis;
 
-/**
+/*
  * 过滤器：
  * 
  * @author andy.zhao@blemobi.com
@@ -44,23 +44,22 @@ public class TokenFilter implements Filter {
 			ReslutUtil.createResponse(response, 1001006, "uuid or token is null");
 		}
 
+		PUserBase userBase = UserBaseCache.get(uuid);
+		if (userBase == null) {
+			ReslutUtil.createResponse(response, 1001006, "用户不存在");
+		}
+
+		int levelType = userBase.getLevel();
+		if (!UserRelation.levelList.contains(levelType)) {
+			ReslutUtil.createResponse(response, 2201000, "没有权限使用任务系统");
+		}
+
 		String userInfoKey = Constant.GAME_USER_INFO + uuid;
 		Jedis jedis = RedisManager.getRedis();
 		boolean bool = jedis.exists(userInfoKey);
 		RedisManager.returnResource(jedis);
 		if (!bool) {// 未初始化
-			PMessage message = UserRelation.getUserInfo(uuid);
-			if (!"PUser".equals(message.getType())) {
-				ReslutUtil.createResponse(response, 1001006, "用户不存在");
-			}
-
-			PUser user = PUser.parseFrom(message.getData());
-			int levelType = user.getLevelInfo().getLevelType();
-			if (!UserRelation.levelList.contains(levelType)) {
-				ReslutUtil.createResponse(response, 2201000, "没有权限使用任务系统");
-			}
-
-			TaskUtil taskUtil = new TaskUtil(uuid, user);
+			TaskUtil taskUtil = new TaskUtil(uuid);
 			taskUtil.init();
 		}
 

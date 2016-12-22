@@ -30,13 +30,13 @@ public class TaskProcessTest {
 	public void testList() throws Exception {
 		String uuid = "1472020016134289985";
 		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
-		String basePath = "/task/user/list";
+		StringBuffer basePath = new StringBuffer("/task/user/list");
 
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("language", "zh_cn"));
 
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, null, null);
 		PMessage message = clientUtil.getMethod();
 	}
 
@@ -44,13 +44,13 @@ public class TaskProcessTest {
 	public void testLevel() throws Exception {
 		String uuid = "123456789";
 		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
-		String basePath = "/task/user/level";
+		StringBuffer basePath = new StringBuffer("/task/user/level");
 
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("language", "zh_cn"));
 
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, null, null);
 		PMessage message = clientUtil.getMethod();
 	}
 
@@ -64,9 +64,9 @@ public class TaskProcessTest {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("taskId", "1002"));
 
-		String basePath = "/task/user/receive";
+		StringBuffer basePath = new StringBuffer("/task/user/receive");
 
-		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, null, null);
 		PMessage message = clientUtil.postMethod();
 	}
 
@@ -80,9 +80,9 @@ public class TaskProcessTest {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("taskId", "2"));
 
-		String basePath = "/task/user/reward";
+		StringBuffer basePath = new StringBuffer("/task/user/reward");
 
-		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, null, null);
 		PMessage message = clientUtil.postMethod();
 	}
 
@@ -90,14 +90,14 @@ public class TaskProcessTest {
 	public void testRanking() throws Exception {
 		String uuid = "1472020016134289985";
 		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
-		String basePath = "/task/user/rank";
+		StringBuffer basePath = new StringBuffer("/task/user/rank");
 
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("language", "zh_cn"));
 		params.add(new BasicNameValuePair("scope", "follower"));
 
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, null, null);
 		PMessage message = clientUtil.getMethod();
 	}
 
@@ -105,14 +105,14 @@ public class TaskProcessTest {
 	public void testPK() throws Exception {
 		String uuid = "1472020016134289985";
 		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
-		String basePath = "/task/user/pk";
+		StringBuffer basePath = new StringBuffer("/task/user/pk");
 
 		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("language", "zh_cn"));
 		params.add(new BasicNameValuePair("pk_uuid", "1472020016134289985"));
 
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, cookies);
+		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, null, null);
 		PMessage message = clientUtil.getMethod();
 	}
 

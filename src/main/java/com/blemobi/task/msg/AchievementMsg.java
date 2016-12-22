@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Queue;
 
 import com.blemobi.library.client.AchievementHttpClient;
-import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.sep.probuf.AchievementProtos.PAchievementAction;
 import com.blemobi.sep.probuf.AchievementProtos.PAchievementActions;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
@@ -76,21 +75,11 @@ public class AchievementMsg extends Thread {
 	 */
 	private void send(List<PAchievementAction> list) throws IOException {
 		PAchievementActions achievementActions = PAchievementActions.newBuilder().addAllArray(list).build();
-
-		PMessage messagebody = PMessage.newBuilder().setType("PAchievementActions")
-				.setData(achievementActions.toByteString()).build();
-
-		BaseHttpClient httpClient = new AchievementHttpClient("/v1/achievement/inside/action?from=task", null, null);
-		PMessage message = httpClient.postBodyMethod(messagebody.toByteArray(), "application/x-protobuf");
-		if ("PResult".equals(message.getType())) {
-			PResult result = PResult.parseFrom(message.getData());
-			if (result.getErrorCode() == 0) {
-				log.debug("成就消息成功");
-			} else {
-				log.error("成就消息失败  -> " + result.getErrorCode());
-			}
-		} else {
-			log.error("成就消息失败");
+		AchievementHttpClient httpClient = new AchievementHttpClient();
+		PMessage message = httpClient.action(achievementActions);
+		PResult result = PResult.parseFrom(message.getData());
+		if (result.getErrorCode() != 0) {
+			log.error("成就消息发送失败  -> " + result.getErrorCode());
 		}
 	}
 }

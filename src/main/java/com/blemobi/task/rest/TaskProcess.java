@@ -161,7 +161,7 @@ public class TaskProcess {
 		return ReslutUtil.createReslutMessage(taskUserPk);
 	}
 
-	/*
+	/**
 	 * 获取用户基础信息
 	 */
 	private PTaskUserBasic getUserBasic(Map<String, String> userInfo, String language) throws IOException {

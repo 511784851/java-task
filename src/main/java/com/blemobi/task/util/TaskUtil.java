@@ -1,15 +1,17 @@
 package com.blemobi.task.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.blemobi.library.cache.UserBaseCache;
 import com.blemobi.library.consul.BaseService;
 import com.blemobi.library.redis.LockManager;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos.PUser;
+import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.TaskProtos.PTaskInfo;
 import com.blemobi.sep.probuf.TaskProtos.PTaskLevel;
@@ -38,7 +40,7 @@ public class TaskUtil {
 	private final long defaultEXP = 0;
 
 	private String uuid;
-	private PUser user;
+	// private PUser user;
 
 	private int taskId;
 	private String language;
@@ -48,22 +50,14 @@ public class TaskUtil {
 	private long dailyTime;
 
 	/*
-	 * 私有构造方法
+	 * 构造方法（用户初始化）
 	 */
-	private TaskUtil(String uuid) {
+	public TaskUtil(String uuid) {
 		this.uuid = uuid;
 		this.userInfoKey = Constant.GAME_USER_INFO + uuid;
 		this.userMainTaskKey = Constant.GAME_TASK_MAIN + uuid;
 		this.dailyTime = TaskHelper.getDailyDate();
 		this.userDailyTaskKey = Constant.GAME_TASK_DAILY + uuid + ":" + dailyTime;
-	}
-
-	/*
-	 * 构造方法（用户初始化）
-	 */
-	public TaskUtil(String uuid, PUser user) {
-		this(uuid);
-		this.user = user;
 	}
 
 	/*
@@ -92,10 +86,6 @@ public class TaskUtil {
 		jedis.hsetnx(userInfoKey, "exp", defaultEXP + "");// 经验值
 		jedis.hsetnx(userInfoKey, "level", level + "");// 经验等级
 		jedis.hsetnx(userInfoKey, "num", "0");// 已完成任务数
-		jedis.hset(userInfoKey, "nickname", user.getNickname());
-		jedis.hset(userInfoKey, "headimg", user.getHeadImgURL());
-		jedis.hset(userInfoKey, "language", user.getLocale());
-		jedis.hset(userInfoKey, "levelType", user.getLevelInfo().getLevelType() + "");
 		// 获取可默认接取的主线任务列表
 		List<TaskInfo> mainTaskList = TaskHelper.getNoDependMainTaskByLevel(level);
 		for (TaskInfo taskInfo : mainTaskList) {
@@ -141,7 +131,7 @@ public class TaskUtil {
 	/*
 	 * 获取任务列表
 	 */
-	public PMessage list() {
+	public PMessage list() throws IOException {
 		Jedis jedis = RedisManager.getRedis();
 		PTaskUserBasic userBasic = getUserBasic(jedis);// 基础信息
 		PTaskList.Builder taskListBuilder = PTaskList.newBuilder().setUserBasic(userBasic);
@@ -298,7 +288,7 @@ public class TaskUtil {
 	/*
 	 * 获取等级列表
 	 */
-	public PMessage level() {
+	public PMessage level() throws IOException {
 		// 用户基础信息
 		Jedis jedis = RedisManager.getRedis();
 		PTaskUserBasic userBasic = getUserBasic(jedis);
@@ -319,12 +309,13 @@ public class TaskUtil {
 	/*
 	 * 获取用户基础信息
 	 */
-	private PTaskUserBasic getUserBasic(Jedis jedis) {
+	private PTaskUserBasic getUserBasic(Jedis jedis) throws IOException {
 		Map<String, String> userInfo = jedis.hgetAll(userInfoKey);
 		int level = Integer.parseInt(userInfo.get("level"));
 		long exp = Long.parseLong(userInfo.get("exp"));
-		String nickname = userInfo.get("nickname");
-		String headimg = userInfo.get("headimg");
+		PUserBase userBase = UserBaseCache.get(uuid);
+		String nickname = userBase.getNickname();
+		String headimg = userBase.getHeadImgURL();
 		LevelInfo levelInfo = LevelHelper.getLevelInfoByLevel(level);
 		LevelInfo nextLevelInfo = LevelHelper.getNextLevelInfoByLevel(level);
 
