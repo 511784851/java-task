@@ -57,6 +57,20 @@ public class TokenFilter implements Filter {
 			return;
 		}
 
+		initUser(uuid);
+
+		// 继续执行
+		chain.doFilter(request, response);
+	}
+
+	public void destroy() {
+
+	}
+
+	/*
+	 * 验证用户任务数据是否初始化
+	 */
+	private void initUser(String uuid) {
 		String userInfoKey = Constant.GAME_USER_INFO + uuid;
 		Jedis jedis = RedisManager.getRedis();
 		boolean bool = jedis.exists(userInfoKey);
@@ -65,12 +79,5 @@ public class TokenFilter implements Filter {
 			TaskUtil taskUtil = new TaskUtil(uuid);
 			taskUtil.init();
 		}
-
-		// 继续执行
-		chain.doFilter(request, response);
-	}
-
-	public void destroy() {
-
 	}
 }
