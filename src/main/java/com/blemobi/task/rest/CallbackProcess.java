@@ -90,6 +90,12 @@ public class CallbackProcess {
 		return ReslutUtil.createSucceedMessage();
 	}
 
+	/**
+	 * 获取全部等级信息（for server）
+	 * 
+	 * @return PMessage 返回PMessage对象数据
+	 * @throws Exception
+	 */
 	@GET
 	@Path("level")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)

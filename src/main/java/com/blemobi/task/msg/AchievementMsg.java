@@ -49,24 +49,27 @@ public class AchievementMsg extends Thread {
 					Thread.sleep(500);
 					continue;
 				}
-				// 单次最多处理100条消息
 				List<PAchievementAction> list = new ArrayList<PAchievementAction>();
 				list.add(achievementAction);
-				log.debug("用户[" + achievementAction.getUuid() + "]达成了成就 -> " + achievementAction.toString());
-				for (int i = 0; i < 99; i++) {
-					achievementAction = queue.poll();
-					if (achievementAction == null) {
-						break;
-					}
-					list.add(achievementAction);
-					log.debug("用户[" + achievementAction.getUuid() + "]达成了成就 -> " + achievementAction.toString());
-				}
-				// 发送成就消息
+				getMoreActionList(list);
 				send(list);
 			} catch (Exception e) {
 				log.error("成就队列处理异常");
 				e.printStackTrace();
 			}
+		}
+	}
+
+	/*
+	 * 单次最多处理100条消息
+	 */
+	private void getMoreActionList(List<PAchievementAction> list) {
+		for (int i = 0; i < 99; i++) {
+			PAchievementAction achievementAction = queue.poll();
+			if (achievementAction == null) {
+				break;
+			}
+			list.add(achievementAction);
 		}
 	}
 

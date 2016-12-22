@@ -42,26 +42,29 @@ public class TokenFilter implements Filter {
 
 		if (Strings.isNullOrEmpty(uuid) || Strings.isNullOrEmpty(token)) {
 			ReslutUtil.createResponse(response, 1001006, "uuid or token is null");
+			return;
 		}
 
 		PUserBase userBase = UserBaseCache.get(uuid);
 		if (userBase == null) {
 			ReslutUtil.createResponse(response, 1001006, "用户不存在");
+			return;
 		}
 
 		int levelType = userBase.getLevel();
 		if (!UserRelation.levelList.contains(levelType)) {
 			ReslutUtil.createResponse(response, 2201000, "没有权限使用任务系统");
+			return;
 		}
 
-		String userInfoKey = Constant.GAME_USER_INFO + uuid;
-		Jedis jedis = RedisManager.getRedis();
-		boolean bool = jedis.exists(userInfoKey);
-		RedisManager.returnResource(jedis);
-		if (!bool) {// 未初始化
-			TaskUtil taskUtil = new TaskUtil(uuid);
-			taskUtil.init();
-		}
+//		String userInfoKey = Constant.GAME_USER_INFO + uuid;
+//		Jedis jedis = RedisManager.getRedis();
+//		boolean bool = jedis.exists(userInfoKey);
+//		RedisManager.returnResource(jedis);
+//		if (!bool) {// 未初始化
+//			TaskUtil taskUtil = new TaskUtil(uuid);
+//			taskUtil.init();
+//		}
 
 		// 继续执行
 		chain.doFilter(request, response);

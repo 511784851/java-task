@@ -63,31 +63,51 @@ public class NotifyMsg extends Thread {
 
 				PPushMsg.Builder pushMsgBuilder = PPushMsg.newBuilder().setFromUuid(uuid).setType("achievement_task")
 						.setTime(System.currentTimeMillis()).setData(gameMsgMeta.toByteString());
-				pushMsgBuilder.addToUuids(uuid);// 消息的接受者-自己
 
-				SocialHttpClient socialHttpClient = new SocialHttpClient();
-				List<PUser> firendList = socialHttpClient.getAllFriendList(uuid);// 好友
-				NewsHttpClient newsHttpClient = new NewsHttpClient();
-				List<String> fansList = newsHttpClient.getAllFansList(uuid);// 粉丝
-				log.debug("用户[" + uuid + "]经验等级升级了 -> " + level + " 好友数量：" + firendList.size() + " 粉丝数量："
-						+ fansList.size());
+				notifyUsers(pushMsgBuilder, uuid);// 通知消息的接受者-自己、好友、粉丝
 
-				for (PUser user : firendList) {
-					pushMsgBuilder.addToUuids(user.getUuid());// 消息的接受者-好友
-					fansList.remove(user.getUuid());// 排除同时是好友也是粉丝重复的通知
-				}
-
-				for (String _uuid : fansList) {
-					pushMsgBuilder.addToUuids(_uuid);// 消息的接受者-粉丝
-				}
-
-				send(pushMsgBuilder.build());// 通知自己、好友、粉丝
+				send(pushMsgBuilder.build());// 通知消息
 				push(uuid, level);// 推送给自己
 			} catch (Exception e) {
 				log.error("通知和推送异常");
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/*
+	 * 通知消息接受者
+	 */
+	private void notifyUsers(PPushMsg.Builder pushMsgBuilder, String uuid) throws IOException {
+		pushMsgBuilder.addToUuids(uuid);// 通知消息的接受者-自己
+
+		List<PUser> firendList = getAllFriendList(uuid);
+		List<String> fansList = getAllFansList(uuid);
+
+		for (PUser user : firendList) {
+			pushMsgBuilder.addToUuids(user.getUuid());// 消息的接受者-好友
+			fansList.remove(user.getUuid());// 排除同时是好友也是粉丝重复的通知
+		}
+
+		for (String _uuid : fansList) {
+			pushMsgBuilder.addToUuids(_uuid);// 消息的接受者-粉丝
+		}
+	}
+
+	/*
+	 * 获取全部好友
+	 */
+	private List<PUser> getAllFriendList(String uuid) throws IOException {
+		SocialHttpClient socialHttpClient = new SocialHttpClient();
+		return socialHttpClient.getAllFriendList(uuid);
+	}
+
+	/*
+	 * 获取全部粉丝
+	 */
+	private List<String> getAllFansList(String uuid) throws IOException {
+		NewsHttpClient newsHttpClient = new NewsHttpClient();
+		return newsHttpClient.getAllFansList(uuid);
 	}
 
 	// 推送消息
@@ -137,16 +157,14 @@ public class NotifyMsg extends Thread {
 	 * 获取用户语音对应的推送文字内容
 	 */
 	private String getContent(String name, String language) throws IOException {
-		String content = "";
 		if ("zh-tw".equals(language)) {// 中文繁体
-			content = "您的经验等级升级为" + name;
+			return "您的经验等级升级为" + name;
 		} else if ("en-us".equals(language)) {// 英文
-			content = "Your EXP has been upgraded to " + name;
+			return "Your EXP has been upgraded to " + name;
 		} else if ("ko-kr".equals(language)) {// 韩文
-			content = "현재 경험등급이" + name;
+			return "현재 경험등급이" + name;
 		} else {// 中文简体（默认）
-			content = "您的经验等级升级为" + name;
+			return "您的经验等级升级为" + name;
 		}
-		return content;
 	}
 }

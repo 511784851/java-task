@@ -13,9 +13,11 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.http.client.ClientProtocolException;
 
+import com.blemobi.library.cache.UserBaseCache;
 import com.blemobi.library.exception.BaseException;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
+import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.TaskProtos.PTaskUserBasic;
 import com.blemobi.sep.probuf.TaskProtos.PTaskUserPk;
@@ -151,8 +153,9 @@ public class TaskProcess {
 		Map<String, String> pkuserInfo = jedis.hgetAll(Constant.GAME_USER_INFO + pk_uuid); // 对方
 		RedisManager.returnResource(jedis);
 
-		PTaskUserBasic userBasic = getUserBasic(userInfo, language);
-		PTaskUserBasic pkUserBasic = getUserBasic(pkuserInfo, language);
+		PTaskUserBasic userBasic = getUserBasic(userInfo, uuid);
+		PTaskUserBasic pkUserBasic = getUserBasic(pkuserInfo, pk_uuid);
+		RedisManager.returnResource(jedis);
 
 		PTaskUserPk taskUserPk = PTaskUserPk.newBuilder().setUserBasic(userBasic).setPkUserBasic(pkUserBasic)
 				.setUserTaskTotol(Integer.parseInt(userInfo.get("num")))
@@ -164,16 +167,19 @@ public class TaskProcess {
 	/**
 	 * 获取用户基础信息
 	 */
-	private PTaskUserBasic getUserBasic(Map<String, String> userInfo, String language) throws IOException {
+	private PTaskUserBasic getUserBasic(Map<String, String> userInfo, String uuid) throws IOException {
 		int level = Integer.parseInt(userInfo.get("level"));
 		long exp = Long.parseLong(userInfo.get("exp"));
 
 		LevelInfo levelInfo = LevelHelper.getLevelInfoByLevel(level);
 		LevelInfo nextLevelInfo = LevelHelper.getNextLevelInfoByLevel(level);
 
-		return PTaskUserBasic.newBuilder().setLevel(level).setExp(exp).setLevelName(levelInfo.getTitle(language))
-				.setNextLevel(nextLevelInfo.getLevel()).setNextLevelExp(nextLevelInfo.getExp_min())
-				.setNextLevelName(nextLevelInfo.getTitle(language)).setNickname(userInfo.get("nickname"))
-				.setHeadimg(userInfo.get("headimg")).build();
+		PUserBase userBaes = UserBaseCache.get(uuid);
+
+		return PTaskUserBasic.newBuilder().setLevel(level).setExp(exp)
+				.setLevelName(levelInfo.getTitle(userBaes.getLanguage())).setNextLevel(nextLevelInfo.getLevel())
+				.setNextLevelExp(nextLevelInfo.getExp_min())
+				.setNextLevelName(nextLevelInfo.getTitle(userBaes.getLanguage())).setNickname(userBaes.getNickname())
+				.setHeadimg(userBaes.getHeadImgURL()).build();
 	}
 }
