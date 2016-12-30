@@ -17,7 +17,6 @@ import com.blemobi.library.client.NewsHttpClient;
 import com.blemobi.library.client.SocialHttpClient;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos.PUser;
 import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.sep.probuf.DataPublishingProtos.PGuy;
 import com.blemobi.sep.probuf.DataPublishingProtos.PRank;
@@ -107,10 +106,10 @@ public class RankingUtil {
 		List<PGuy> guyList = new ArrayList<PGuy>();
 		// 好友信息
 		SocialHttpClient httpClient = new SocialHttpClient();
-		List<PUser> firendList = httpClient.getAllFriendList(uuid);
-		for (PUser user : firendList) {
-			if (UserRelation.levelList.contains(user.getLevelInfo().getLevelType())) {// 排除VO用户
-				String otherUuid = user.getUuid();
+		List<PUserBase> firendList = httpClient.getAllFriendList(uuid);
+		for (PUserBase user : firendList) {
+			if (UserRelation.levelList.contains(user.getLevel())) {// 排除VO用户
+				String otherUuid = user.getUUID();
 				int otherExp = getOtherUserExp(otherUuid);
 				PGuy guy = PGuy.newBuilder().setUuid(otherUuid).setNickname(user.getNickname())
 						.setHeadImgURL(user.getHeadImgURL()).setRankValue(otherExp).build();

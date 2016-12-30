@@ -17,7 +17,7 @@ import com.blemobi.library.client.ChatHttpClient;
 import com.blemobi.library.client.NewsHttpClient;
 import com.blemobi.library.client.NotificationHttpClient;
 import com.blemobi.library.client.SocialHttpClient;
-import com.blemobi.sep.probuf.AccountProtos.PUser;
+import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.sep.probuf.NotificationApiProtos.PGameMsgMeta;
 import com.blemobi.sep.probuf.NotificationApiProtos.PPushMsg;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
@@ -81,12 +81,12 @@ public class NotifyMsg extends Thread {
 	private void notifyUsers(PPushMsg.Builder pushMsgBuilder, String uuid) throws IOException {
 		pushMsgBuilder.addToUuids(uuid);// 通知消息的接受者-自己
 
-		List<PUser> firendList = getAllFriendList(uuid);
+		List<PUserBase> firendList = getAllFriendList(uuid);
 		List<String> fansList = getAllFansList(uuid);
 
-		for (PUser user : firendList) {
-			pushMsgBuilder.addToUuids(user.getUuid());// 消息的接受者-好友
-			fansList.remove(user.getUuid());// 排除同时是好友也是粉丝重复的通知
+		for (PUserBase user : firendList) {
+			pushMsgBuilder.addToUuids(user.getUUID());// 消息的接受者-好友
+			fansList.remove(user.getUUID());// 排除同时是好友也是粉丝重复的通知
 		}
 
 		for (String _uuid : fansList) {
@@ -97,7 +97,7 @@ public class NotifyMsg extends Thread {
 	/*
 	 * 获取全部好友
 	 */
-	private List<PUser> getAllFriendList(String uuid) throws IOException {
+	private List<PUserBase> getAllFriendList(String uuid) throws IOException {
 		SocialHttpClient socialHttpClient = new SocialHttpClient();
 		return socialHttpClient.getAllFriendList(uuid);
 	}
