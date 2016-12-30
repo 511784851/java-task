@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
+import com.blemobi.library.cache.CacheInvalid;
+import com.blemobi.library.cache.LiveThread;
 import com.blemobi.library.consul.BaseService;
 import com.blemobi.library.consul.ConsulManager;
 import com.blemobi.library.health.HealthManager;
@@ -31,6 +33,10 @@ public class TaskManager {
 		log.info("Starting Task Server ...");
 		// 启动Jetty HTTP服务器
 		startJetty();
+		// 启动线程管理用户缓存
+		long live_time = 3 * 24 * 60 * 60 * 1000;// 失效时间（单位：毫秒）
+		LiveThread LiveThread = new LiveThread(live_time, new CacheInvalid());
+		LiveThread.start();
 		// 初始化Consul日志管理
 		LoggerManager.startService();
 		log.info("Start Task Server Finish!");
