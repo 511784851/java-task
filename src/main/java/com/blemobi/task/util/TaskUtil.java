@@ -25,14 +25,17 @@ import com.blemobi.task.basic.TaskInfo;
 import com.blemobi.task.basic.TaskTag;
 import com.blemobi.task.msg.AchievementMsg;
 import com.blemobi.task.msg.NotifyMsg;
-import com.blemobi.task.msg.SubscribeMsg;
+import com.blemobi.task.msg.SubscribeMsgPool;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;
 import redis.clients.jedis.Jedis;
 
-/*
+/**
  * 任务相关处理
+ * 
+ * @author zhaoyong
+ *
  */
 @Log4j
 public class TaskUtil {
@@ -40,7 +43,6 @@ public class TaskUtil {
 	private final long defaultEXP = 0;
 
 	private String uuid;
-	// private PUser user;
 
 	private int taskId;
 	private String language;
@@ -49,7 +51,7 @@ public class TaskUtil {
 	private String userDailyTaskKey;
 	private long dailyTime;
 
-	/*
+	/**
 	 * 构造方法（用户初始化）
 	 */
 	public TaskUtil(String uuid) {
@@ -60,7 +62,7 @@ public class TaskUtil {
 		this.userDailyTaskKey = Constant.GAME_TASK_DAILY + uuid + ":" + dailyTime;
 	}
 
-	/*
+	/**
 	 * 构造方法（任务列表、等级列表）
 	 */
 	public TaskUtil(String uuid, String language) {
@@ -68,7 +70,7 @@ public class TaskUtil {
 		this.language = language;
 	}
 
-	/*
+	/**
 	 * 构造方法（接取任务，领取任务奖励）
 	 */
 	public TaskUtil(String uuid, int taskId) {
@@ -76,7 +78,7 @@ public class TaskUtil {
 		this.taskId = taskId;
 	}
 
-	/*
+	/**
 	 * 初始化用户基础信息、主线任务
 	 */
 	public boolean init() {
@@ -91,7 +93,7 @@ public class TaskUtil {
 		for (TaskInfo taskInfo : mainTaskList) {
 			long rtn = jedis.hsetnx(userMainTaskKey, taskInfo.getTaskid() + "", "0");
 			if (rtn == 1) {
-				SubscribeMsg.add(uuid, taskInfo.getType(), -1);// 消息订阅（永久）
+				SubscribeMsgPool.add(uuid, taskInfo.getType(), -1);// 消息订阅（永久）
 			}
 		}
 		RedisManager.returnResource(jedis);
@@ -100,7 +102,7 @@ public class TaskUtil {
 		return true;
 	}
 
-	/*
+	/**
 	 * 接取每日任务
 	 */
 	public boolean receive() {
@@ -121,14 +123,14 @@ public class TaskUtil {
 			return false;
 		}
 		jedis.hset(userDailyTaskKey, taskId + "", "0");
-		SubscribeMsg.add(uuid, TaskHelper.getDailyTask(taskId).getType(), dailyTime);// 消息订阅
+		SubscribeMsgPool.add(uuid, TaskHelper.getDailyTask(taskId).getType(), dailyTime);// 消息订阅
 
 		RedisManager.returnResource(jedis);
 		LockManager.releaseLock(lock);
 		return true;
 	}
 
-	/*
+	/**
 	 * 获取任务列表
 	 */
 	public PMessage list() throws IOException {
@@ -213,7 +215,7 @@ public class TaskUtil {
 		return ReslutUtil.createReslutMessage(taskListBuilder.build());
 	}
 
-	/*
+	/**
 	 * 领奖励
 	 */
 	public PMessage reward() {
@@ -285,7 +287,7 @@ public class TaskUtil {
 		return ReslutUtil.createSucceedMessage();
 	}
 
-	/*
+	/**
 	 * 获取等级列表
 	 */
 	public PMessage level() throws IOException {
@@ -306,7 +308,7 @@ public class TaskUtil {
 		return ReslutUtil.createReslutMessage(taskLevelList.build());
 	}
 
-	/*
+	/**
 	 * 获取用户基础信息
 	 */
 	private PTaskUserBasic getUserBasic(Jedis jedis) throws IOException {
@@ -324,7 +326,7 @@ public class TaskUtil {
 				.setNextLevelName(nextLevelInfo.getTitle(language)).setNickname(nickname).setHeadimg(headimg).build();
 	}
 
-	/*
+	/**
 	 * 产生一个随机难度日常任务并初始化
 	 */
 	private int stepDailyTask(TaskInfo taskInfo, int level, int count, int max_h, Jedis jedis) {
@@ -344,7 +346,7 @@ public class TaskUtil {
 		return count;
 	}
 
-	/*
+	/**
 	 * 根据taskId获取用户任务的key
 	 */
 	private String getUserTaskKey() {
@@ -356,7 +358,7 @@ public class TaskUtil {
 		return null;
 	}
 
-	/*
+	/**
 	 * 获取任务信息
 	 */
 	private PTaskInfo getTaskInfo(String key, String targetStr, int did) {
@@ -391,7 +393,7 @@ public class TaskUtil {
 				.setComplete(complete).setNum(num).setDesc(des).build();
 	}
 
-	/*
+	/**
 	 * 验证是否达到接取日常任务的条件
 	 */
 	private boolean getIsDaily(Jedis jedis) {

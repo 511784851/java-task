@@ -2,13 +2,9 @@ package com.blemobi.task.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -27,69 +23,37 @@ import com.google.common.base.Strings;
 import lombok.extern.log4j.Log4j;
 import redis.clients.jedis.Jedis;
 
-/*
+/**
  * 经验值排名
+ * 
+ * @author zhaoyong
+ *
  */
 @Log4j
 public class RankingUtil {
-	private final int rankmax = 200;
-	private static long staticCacheTime = 0;
-	private static List<PGuy> staticGuyList;
-	private static Map<String, Integer> staticGuyRankMap;
-
 	private String uuid;
 	private Jedis jedis;
 
-	/*
-	 * 构造方法
+	/**
+	 * 构造方法（总排名）
+	 */
+	public RankingUtil() {
+	}
+
+	/**
+	 * 构造方法（好友排名，关注排名）
 	 */
 	public RankingUtil(String uuid) {
 		this.uuid = uuid;
 		this.jedis = RedisManager.getRedis();
 	}
 
-	/*
+	/**
 	 * 总排名
 	 */
 	public PMessage rankingAll() throws ClientProtocolException, IOException {
-		if (System.currentTimeMillis() - staticCacheTime > 1 * 60 * 1000) {// 重新排行
-			// 取出所有用户信息
-			Set<String> set = jedis.keys(Constant.GAME_USER_INFO + "*");
-			PGuy[] guyArray = new PGuy[set.size()];
-			int i = 0;
-			for (String key : set) {
-				String memberUuid = key.substring(Constant.GAME_USER_INFO.length());
-				int exp = getOtherUserExp(memberUuid);
-				PUserBase userBase = UserBaseCache.get(memberUuid);
-				PGuy guy = PGuy.newBuilder().setUuid(memberUuid).setNickname(userBase.getNickname())
-						.setHeadImgURL(userBase.getHeadImgURL()).setRankValue(exp).build();
-				guyArray[i++] = guy;
-			}
-			RedisManager.returnResource(jedis);
-			// 根据经验值排序
-			Arrays.sort(guyArray, new PGuyComparator());
-			// 只保留前rankmax名
-			PGuy[] rankGuyArray;
-			if (guyArray.length > rankmax) {
-				rankGuyArray = new PGuy[rankmax];
-				System.arraycopy(guyArray, 0, rankGuyArray, 0, rankmax);
-			} else {
-				rankGuyArray = guyArray;
-			}
-			// 获得前rankmax名用户的排名
-			Map<String, Integer> guyRankMap = new HashMap<String, Integer>();
-			int rank = 0;
-			for (PGuy guy : rankGuyArray) {
-				guyRankMap.put(guy.getUuid(), ++rank);
-			}
-
-			staticGuyList = Arrays.asList(rankGuyArray);
-			staticGuyRankMap = guyRankMap;
-			staticCacheTime = System.currentTimeMillis();
-			log.debug("总排行数据计算完成！" + staticGuyList.size());
-		} else {
-			RedisManager.returnResource(jedis);
-		}
+		List<PGuy> staticGuyList = RankingThread.staticGuyList;
+		Map<String, Integer> staticGuyRankMap = RankingThread.staticGuyRankMap;
 
 		int exp = getOtherUserExp(uuid);
 		Integer rankObject = staticGuyRankMap.get(uuid);
@@ -99,7 +63,7 @@ public class RankingUtil {
 		return ReslutUtil.createReslutMessage(prank);
 	}
 
-	/*
+	/**
 	 * 好友排名
 	 */
 	public PMessage rankFirend() throws ClientProtocolException, IOException {
@@ -122,7 +86,7 @@ public class RankingUtil {
 		return rankFollowOrFirend(guyList);
 	}
 
-	/*
+	/**
 	 * 关注排名
 	 */
 	public PMessage rankFollow() throws ClientProtocolException, IOException {
@@ -146,7 +110,7 @@ public class RankingUtil {
 		return rankFollowOrFirend(guyList);
 	}
 
-	/*
+	/**
 	 * 排序处理
 	 */
 	private PMessage rankFollowOrFirend(List<PGuy> guyList) throws IOException {
@@ -157,7 +121,7 @@ public class RankingUtil {
 				.setHeadImgURL(userBase.getHeadImgURL()).setRankValue(exp).build();
 		guyList.add(myGuy);
 		// 根据经验值排序
-		Collections.sort(guyList, new PGuyComparator());
+		Collections.sort(guyList, new ExpComparator());
 		// 获取自己排名
 		int rank = 1;
 		for (PGuy guy : guyList) {
@@ -170,7 +134,7 @@ public class RankingUtil {
 		return ReslutUtil.createReslutMessage(prank);
 	}
 
-	/*
+	/**
 	 * 获得用户的经验值（不存在就初始化用户）
 	 */
 	private int getOtherUserExp(String uuid) {
@@ -183,12 +147,3 @@ public class RankingUtil {
 		return Integer.parseInt(exp);
 	}
 }
-
-/*
- * 排序实现类
- */
-class PGuyComparator implements Comparator<PGuy> {
-	public int compare(PGuy o1, PGuy o2) {
-		return o2.getRankValue() - o1.getRankValue();
-	}
-};

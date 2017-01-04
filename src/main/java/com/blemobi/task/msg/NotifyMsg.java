@@ -26,8 +26,11 @@ import com.blemobi.task.basic.LevelHelper;
 
 import lombok.extern.log4j.Log4j;
 
-/*
+/**
  * 等级提升通知和推送消息
+ * 
+ * @author zhaoyong
+ *
  */
 @Log4j
 public class NotifyMsg extends Thread {
@@ -37,8 +40,11 @@ public class NotifyMsg extends Thread {
 
 	}
 
-	/*
+	/**
 	 * 添加消息到队列
+	 * 
+	 * @param uuid
+	 * @param level
 	 */
 	public static void add(String uuid, int level) {
 		PGameMsgMeta gameMsgMeta = PGameMsgMeta.newBuilder().setTp(1).setUuid(uuid).setLevel(level).build();
@@ -75,8 +81,12 @@ public class NotifyMsg extends Thread {
 		}
 	}
 
-	/*
+	/**
 	 * 通知消息接受者
+	 * 
+	 * @param pushMsgBuilder
+	 * @param uuid
+	 * @throws IOException
 	 */
 	private void notifyUsers(PPushMsg.Builder pushMsgBuilder, String uuid) throws IOException {
 		pushMsgBuilder.addToUuids(uuid);// 通知消息的接受者-自己
@@ -94,23 +104,37 @@ public class NotifyMsg extends Thread {
 		}
 	}
 
-	/*
+	/**
 	 * 获取全部好友
+	 * 
+	 * @param uuid
+	 * @return
+	 * @throws IOException
 	 */
 	private List<PUserBase> getAllFriendList(String uuid) throws IOException {
 		SocialHttpClient socialHttpClient = new SocialHttpClient();
 		return socialHttpClient.getAllFriendList(uuid);
 	}
 
-	/*
+	/**
 	 * 获取全部粉丝
+	 * 
+	 * @param uuid
+	 * @return
+	 * @throws IOException
 	 */
 	private List<String> getAllFansList(String uuid) throws IOException {
 		NewsHttpClient newsHttpClient = new NewsHttpClient();
 		return newsHttpClient.getAllFansList(uuid);
 	}
 
-	// 推送消息
+	/**
+	 * 推送消息
+	 * 
+	 * @param uuid
+	 * @param level
+	 * @throws IOException
+	 */
 	private void push(String uuid, int level) throws IOException {
 		String language = UserBaseCache.get(uuid).getLanguage();
 		String levelName = LevelHelper.getLevelInfoByLevel(level).getTitle(language);
@@ -143,7 +167,12 @@ public class NotifyMsg extends Thread {
 		}
 	}
 
-	// 通知消息
+	/**
+	 * 通知消息
+	 * 
+	 * @param pushMsg
+	 * @throws IOException
+	 */
 	private void send(PPushMsg pushMsg) throws IOException {
 		NotificationHttpClient httpClient = new NotificationHttpClient();
 		PMessage message = httpClient.msg(pushMsg);
@@ -153,8 +182,13 @@ public class NotifyMsg extends Thread {
 		}
 	}
 
-	/*
+	/**
 	 * 获取用户语音对应的推送文字内容
+	 * 
+	 * @param name
+	 * @param language
+	 * @return
+	 * @throws IOException
 	 */
 	private String getContent(String name, String language) throws IOException {
 		if ("zh-tw".equals(language)) {// 中文繁体

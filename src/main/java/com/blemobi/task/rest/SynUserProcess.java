@@ -16,7 +16,7 @@ import com.blemobi.sep.probuf.AccountProtos.PUserBaseList;
 import com.blemobi.sep.probuf.ResultProtos.PBinaryMsg;
 import com.blemobi.sep.probuf.ResultProtos.PBinaryMsgList;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
-import com.blemobi.task.msg.SubscribeMsg;
+import com.blemobi.task.msg.SubscribeMsgPool;
 import com.blemobi.task.util.Constant;
 import com.blemobi.task.util.UserRelation;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -26,14 +26,12 @@ import redis.clients.jedis.Jedis;
 
 @Path("/v1/task/inside")
 public class SynUserProcess {
-
-	/*
+	/**
 	 * 用户信息变更同步
 	 * 
-	 * @param binaryMsgList 用户数据
-	 * 
-	 * @return PMessage 返回PMessage对象数据
-	 * 
+	 * @param binaryMsgList
+	 *            用户数据
+	 * @return
 	 * @throws InvalidProtocolBufferException
 	 */
 	@POST
@@ -59,8 +57,11 @@ public class SynUserProcess {
 		return ReslutUtil.createSucceedMessage();
 	}
 
-	/*
+	/**
 	 * 清楚VO用户任务数据
+	 * 
+	 * @param jedis
+	 * @param uuid
 	 */
 	private void delVOData(Jedis jedis, String uuid) {
 		String userInfoKey = Constant.GAME_USER_INFO + uuid;
@@ -77,7 +78,7 @@ public class SynUserProcess {
 		Map<String, String> userMsgids = jedis.hgetAll(Constant.GAME_MSGID + uuid);
 		jedis.del(Constant.GAME_MSGID + uuid);
 		for (String msgid : userMsgids.keySet()) {
-			SubscribeMsg.add(uuid, Integer.parseInt(msgid), 0);// 消息订阅（取消）
+			SubscribeMsgPool.add(uuid, Integer.parseInt(msgid), 0);// 消息订阅（取消）
 		}
 	}
 }

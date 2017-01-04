@@ -12,15 +12,15 @@ import lombok.extern.log4j.Log4j;
 
 /**
  * 统一异常处理器
+ * 
+ * @author zhaoyong
+ *
  */
 @Log4j
 @Provider
 public class ExceptionImpl implements ExceptionMapper<Exception> {
 	/**
 	 * 异常处理
-	 * 
-	 * @param exception
-	 * @return 异常处理后的Response对象
 	 */
 	public Response toResponse(Exception exception) {
 		log.error("Task server catch an exception, MSG=[" + exception.getMessage() + "]");

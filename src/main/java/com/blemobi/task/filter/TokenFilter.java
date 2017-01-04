@@ -22,17 +22,24 @@ import com.google.common.base.Strings;
 
 import redis.clients.jedis.Jedis;
 
-/*
+/**
  * 过滤器：
  * 
- * @author andy.zhao@blemobi.com
+ * @author zhaoyong
+ *
  */
 public class TokenFilter implements Filter {
 
+	/**
+	 * 初始化
+	 */
 	public void init(FilterConfig filterConfig) throws ServletException {
 
 	}
 
+	/**
+	 * 过滤器：
+	 */
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
@@ -63,11 +70,14 @@ public class TokenFilter implements Filter {
 		chain.doFilter(request, response);
 	}
 
+	/**
+	 * 销毁
+	 */
 	public void destroy() {
 
 	}
 
-	/*
+	/**
 	 * 验证用户任务数据是否初始化
 	 */
 	private void initUser(String uuid) {

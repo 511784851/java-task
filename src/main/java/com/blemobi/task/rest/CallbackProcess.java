@@ -9,7 +9,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import com.blemobi.library.exception.BaseException;
 import com.blemobi.library.redis.RedisManager;
 import com.blemobi.library.util.ReslutUtil;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
@@ -33,11 +32,9 @@ public class CallbackProcess {
 	/**
 	 * 消息回调（for server）
 	 * 
-	 * @param callbackArray
-	 *            消息内容
-	 * @return PMessage 返回PMessage对象数据
+	 * @param message
+	 * @return
 	 * @throws InvalidProtocolBufferException
-	 * @throws BaseException
 	 */
 	@POST
 	@Path("msgid")
@@ -51,10 +48,9 @@ public class CallbackProcess {
 	/**
 	 * 任务回调（for client）
 	 * 
-	 * @param taskId
-	 *            任务ID
-	 * @return PMessage 返回PMessage对象数据
-	 * @throws BaseException
+	 * @param uuid
+	 * @param type
+	 * @return
 	 */
 	@POST
 	@Path("app")
@@ -93,7 +89,7 @@ public class CallbackProcess {
 	/**
 	 * 获取全部等级信息（for server）
 	 * 
-	 * @return PMessage 返回PMessage对象数据
+	 * @return
 	 * @throws Exception
 	 */
 	@GET

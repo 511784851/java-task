@@ -14,8 +14,11 @@ import com.blemobi.sep.probuf.ResultProtos.PResult;
 
 import lombok.extern.log4j.Log4j;
 
-/*
+/**
  * 成就消息
+ * 
+ * @author zhaoyong
+ *
  */
 @Log4j
 public class AchievementMsg extends Thread {
@@ -25,8 +28,12 @@ public class AchievementMsg extends Thread {
 
 	}
 
-	/*
+	/**
 	 * 添加消息到队列
+	 * 
+	 * @param uuid
+	 * @param msgid
+	 * @param value
 	 */
 	public static void add(String uuid, int msgid, int value) {
 		PAchievementAction achievementAction = PAchievementAction.newBuilder().setUuid(uuid).setMsgid(msgid)
@@ -38,20 +45,18 @@ public class AchievementMsg extends Thread {
 		new AchievementMsg().start();
 	}
 
-	/*
+	/**
 	 * 线程处理队列消息
 	 */
 	public void run() {
 		while (true) {
 			try {
-				PAchievementAction achievementAction = queue.poll();
-				if (achievementAction == null) {
+				int len = queue.size();
+				if (len == 0) {
 					Thread.sleep(500);
 					continue;
 				}
-				List<PAchievementAction> list = new ArrayList<PAchievementAction>();
-				list.add(achievementAction);
-				getMoreActionList(list);
+				List<PAchievementAction> list = getMoreActionList();
 				send(list);
 			} catch (Exception e) {
 				log.error("成就队列处理异常");
@@ -60,21 +65,27 @@ public class AchievementMsg extends Thread {
 		}
 	}
 
-	/*
+	/**
 	 * 单次最多处理100条消息
+	 * 
+	 * @param list
 	 */
-	private void getMoreActionList(List<PAchievementAction> list) {
-		for (int i = 0; i < 99; i++) {
+	private List<PAchievementAction> getMoreActionList() {
+		List<PAchievementAction> list = new ArrayList<PAchievementAction>();
+		for (int i = 0; i < 100; i++) {
 			PAchievementAction achievementAction = queue.poll();
-			if (achievementAction == null) {
+			if (achievementAction == null)
 				break;
-			}
 			list.add(achievementAction);
 		}
+		return list;
 	}
 
-	/*
+	/**
 	 * 发送成就消息
+	 * 
+	 * @param list
+	 * @throws IOException
 	 */
 	private void send(List<PAchievementAction> list) throws IOException {
 		PAchievementActions achievementActions = PAchievementActions.newBuilder().addAllArray(list).build();

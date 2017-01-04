@@ -15,34 +15,59 @@ import com.blemobi.library.jetty.JettyServer;
 import com.blemobi.library.jetty.ServerFilter;
 import com.blemobi.library.log.LoggerManager;
 import com.blemobi.task.basic.BasicData;
+import com.blemobi.task.util.RankingThread;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j;
 
+/**
+ * 服务启动入口
+ * 
+ * @author zhaoyong
+ *
+ */
 @Log4j
 public class TaskManager {
+	/**
+	 * 服务名称
+	 */
 	private static final String selfName = "task";
+	/**
+	 * 发布的Rest接口路径
+	 */
 	private static final String packages = "com.blemobi." + selfName + ".rest";
-	private static long consulIntervalTime = 1000 * 30;// 连接Consul服务器的间隔时间
+	/**
+	 * 连接Consul服务器的间隔时间
+	 */
+	private static final long consulIntervalTime = 1000 * 30;
+	/**
+	 * 用户缓存失效时间（单位：毫秒）
+	 */
+	private static final long live_time = 3 * 24 * 60 * 60 * 1000;
+	/**
+	 * 最大排名
+	 */
+	private static final int RANK_MAX = 200;
 
 	public static void main(String[] args) throws Exception {
 		// 初始化Consul
 		ConsulManager.startService(selfName, args, consulIntervalTime); // 启动连接Consul服务
-		// 发布Consul的健康发现
-		startHealth();
-		log.info("Starting Task Server ...");
 		// 启动Jetty HTTP服务器
 		startJetty();
-		// 启动线程管理用户缓存
-		long live_time = 3 * 24 * 60 * 60 * 1000;// 失效时间（单位：毫秒）
+		// 发布Consul的健康发现
+		startHealth();
+		// 启动线程，计算排行
+		RankingThread rankingThread = new RankingThread(RANK_MAX);
+		rankingThread.start();
+		// 启动线程，管理用户缓存
 		LiveThread LiveThread = new LiveThread(live_time, new CacheInvalid());
 		LiveThread.start();
-		// 初始化Consul日志管理
+		// 启动Consul日志管理
 		LoggerManager.startService();
 		log.info("Start Task Server Finish!");
 	}
 
-	/*
+	/**
 	 * 发布Consul的健康发现
 	 */
 	private static void startHealth() {
@@ -51,7 +76,7 @@ public class TaskManager {
 		HealthManager.startService(check_port, selfName);
 	}
 
-	/*
+	/**
 	 * 读取配置文件中的数据
 	 */
 	private static void loadData()
@@ -65,7 +90,7 @@ public class TaskManager {
 		basicData.init();
 	}
 
-	/*
+	/**
 	 * 启动Jetty HTTP服务器
 	 */
 	private static void startJetty() throws Exception {
