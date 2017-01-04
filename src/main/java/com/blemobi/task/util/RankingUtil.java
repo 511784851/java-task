@@ -35,13 +35,7 @@ public class RankingUtil {
 	private Jedis jedis;
 
 	/**
-	 * 构造方法（总排名）
-	 */
-	public RankingUtil() {
-	}
-
-	/**
-	 * 构造方法（好友排名，关注排名）
+	 * 构造方法
 	 */
 	public RankingUtil(String uuid) {
 		this.uuid = uuid;
@@ -58,7 +52,7 @@ public class RankingUtil {
 		int exp = getOtherUserExp(uuid);
 		Integer rankObject = staticGuyRankMap.get(uuid);
 		int rank = rankObject != null ? rankObject : -1;
-
+		RedisManager.returnResource(jedis);
 		PRank prank = PRank.newBuilder().setRankValue(exp).setRank(rank).addAllGuys(staticGuyList).build();
 		return ReslutUtil.createReslutMessage(prank);
 	}
