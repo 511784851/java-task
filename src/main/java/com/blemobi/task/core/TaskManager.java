@@ -43,7 +43,7 @@ public class TaskManager {
 	/**
 	 * 用户缓存失效时间（单位：毫秒）
 	 */
-	private static final long live_time = 3 * 24 * 60 * 60 * 1000;
+	private static final long live_time = 1 * 24 * 60 * 60 * 1000;
 	/**
 	 * 最大排名
 	 */
