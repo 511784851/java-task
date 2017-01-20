@@ -52,10 +52,10 @@ public class TaskManager {
 	public static void main(String[] args) throws Exception {
 		// 初始化Consul
 		ConsulManager.startService(selfName, args, consulIntervalTime); // 启动连接Consul服务
-		// 启动Jetty HTTP服务器
-		startJetty();
 		// 发布Consul的健康发现
 		startHealth();
+		// 启动Jetty HTTP服务器
+		startJetty();
 		// 启动线程，计算排行
 		RankingThread rankingThread = new RankingThread(RANK_MAX);
 		rankingThread.start();
@@ -83,6 +83,7 @@ public class TaskManager {
 			throws IOException, InterruptedException, EncryptedDocumentException, InvalidFormatException {
 		String task_config_url = "";
 		do {
+			Thread.sleep(5000);
 			task_config_url = BasicData.getTaskConfig();
 		} while (Strings.isNullOrEmpty(task_config_url));
 		log.info("任务配置文件url: " + task_config_url);
@@ -101,8 +102,8 @@ public class TaskManager {
 		List<ServerFilter> serverFilterList = filterProperty.getFilterList();
 
 		JettyServer jettyServer = new JettyServer(selfName, packages, port, serverFilterList);
-		jettyServer.start();
 		// 读取任务配置数据
 		loadData();
+		jettyServer.start();
 	}
 }
