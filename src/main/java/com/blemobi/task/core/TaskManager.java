@@ -101,8 +101,8 @@ public class TaskManager {
 		List<ServerFilter> serverFilterList = filterProperty.getFilterList();
 
 		JettyServer jettyServer = new JettyServer(selfName, packages, port, serverFilterList);
+		jettyServer.start();
 		// 读取任务配置数据
 		loadData();
-		jettyServer.start();
 	}
 }
