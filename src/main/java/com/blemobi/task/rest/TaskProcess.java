@@ -154,7 +154,6 @@ public class TaskProcess {
 
 		PTaskUserBasic userBasic = getUserBasic(userInfo, uuid);
 		PTaskUserBasic pkUserBasic = getUserBasic(pkuserInfo, pk_uuid);
-		RedisManager.returnResource(jedis);
 
 		PTaskUserPk taskUserPk = PTaskUserPk.newBuilder().setUserBasic(userBasic).setPkUserBasic(pkUserBasic)
 				.setUserTaskTotol(Integer.parseInt(userInfo.get("num")))

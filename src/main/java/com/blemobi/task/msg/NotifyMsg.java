@@ -19,9 +19,9 @@ import com.blemobi.library.client.NotificationHttpClient;
 import com.blemobi.library.client.SocialHttpClient;
 import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.sep.probuf.NotificationApiProtos.PGameMsgMeta;
-import com.blemobi.sep.probuf.NotificationApiProtos.PPushMsg;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
+import com.blemobi.sep.probuf.ResultProtos.PStringList;
 import com.blemobi.task.basic.LevelHelper;
 
 import lombok.extern.log4j.Log4j;
@@ -67,18 +67,41 @@ public class NotifyMsg extends Thread {
 				int level = gameMsgMeta.getLevel();
 				log.debug("用户[" + uuid + "]经验等级升级了 -> " + level);
 
-				PPushMsg.Builder pushMsgBuilder = PPushMsg.newBuilder().setFromUuid(uuid).setType("achievement_task")
-						.setTime(System.currentTimeMillis()).setData(gameMsgMeta.toByteString());
-
-				notifyUsers(pushMsgBuilder, uuid);// 通知消息的接受者-自己、好友、粉丝
-
-				send(pushMsgBuilder.build());// 通知消息
-				push(uuid, level);// 推送给自己
+				// 推送给自己
+				push(uuid, level);
+				// 通知消息
+				sendMyMsg(uuid, level + "");
+				sendOtherMsg(uuid, level + "");
 			} catch (Exception e) {
 				log.error("通知和推送异常");
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * 通知消息的接受者-好友、粉丝
+	 * 
+	 * @param uuid
+	 * @param level
+	 * @throws IOException
+	 */
+	private void sendOtherMsg(String uuid, String level) throws IOException {
+		List<String> list = notifyUsers(uuid);
+		PStringList stringList = PStringList.newBuilder().addAllList(list).build();
+		send(stringList, uuid, "301", level);
+	}
+
+	/**
+	 * 通知消息的接受者-自己
+	 * 
+	 * @param uuid
+	 * @param level
+	 * @throws IOException
+	 */
+	private void sendMyMsg(String uuid, String level) throws IOException {
+		PStringList stringList = PStringList.newBuilder().addList(uuid).build();
+		send(stringList, "", "101", level);
 	}
 
 	/**
@@ -88,20 +111,17 @@ public class NotifyMsg extends Thread {
 	 * @param uuid
 	 * @throws IOException
 	 */
-	private void notifyUsers(PPushMsg.Builder pushMsgBuilder, String uuid) throws IOException {
-		pushMsgBuilder.addToUuids(uuid);// 通知消息的接受者-自己
-
-		List<PUserBase> firendList = getAllFriendList(uuid);
+	private List<String> notifyUsers(String uuid) throws IOException {
 		List<String> fansList = getAllFansList(uuid);
+		List<PUserBase> firendList = getAllFriendList(uuid);
 
 		for (PUserBase user : firendList) {
-			pushMsgBuilder.addToUuids(user.getUUID());// 消息的接受者-好友
-			fansList.remove(user.getUUID());// 排除同时是好友也是粉丝重复的通知
+			String firendUUID = user.getUUID();
+			if (!fansList.contains(firendUUID)) {
+				fansList.add(firendUUID);
+			}
 		}
-
-		for (String _uuid : fansList) {
-			pushMsgBuilder.addToUuids(_uuid);// 消息的接受者-粉丝
-		}
+		return fansList;
 	}
 
 	/**
@@ -173,9 +193,9 @@ public class NotifyMsg extends Thread {
 	 * @param pushMsg
 	 * @throws IOException
 	 */
-	private void send(PPushMsg pushMsg) throws IOException {
+	private void send(PStringList stringList, String uuid, String type, String task) throws IOException {
 		NotificationHttpClient httpClient = new NotificationHttpClient();
-		PMessage message = httpClient.msg(pushMsg);
+		PMessage message = httpClient.msg(stringList, uuid, type, task);
 		PResult result = PResult.parseFrom(message.getData());
 		if (result.getErrorCode() != 0) {
 			log.error("发送通知消息失败  -> " + result.getErrorCode());
