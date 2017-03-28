@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Queue;
 
 import com.blemobi.library.client.AchievementHttpClient;
-import com.blemobi.sep.probuf.AchievementProtos.PAchievementAction;
-import com.blemobi.sep.probuf.AchievementProtos.PAchievementActions;
+import com.blemobi.sep.probuf.AchievementApiProtos.PAchievementAction;
+import com.blemobi.sep.probuf.AchievementApiProtos.PAchievementActions;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
 import com.blemobi.sep.probuf.ResultProtos.PResult;
 
