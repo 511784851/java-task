@@ -9,8 +9,9 @@
 
 	<repositories>
 		<repository>
-			<id>central</id>
-			<url>http://120.24.236.93:8081/artifactory/libs-release</url>
+          <id>central</id>
+          <name>libs-release</name>
+          <url>http://120.24.236.93:8081/artifactory/libs-release</url>
 		</repository>
 	</repositories>
 
