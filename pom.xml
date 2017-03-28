@@ -7,13 +7,6 @@
 	<packaging>jar</packaging>
 
 
-	<servers>
-	  <server>
-	    <id>central</id>
-	    <username>javamobi</username>
-	    <password>\{DESede\}AP9f9y7YoxNQyUfmkA4Q7Hn911y</password>
-	  </server>
-	</servers>
 	<repositories>
 		<repository>
 			<id>central</id>
