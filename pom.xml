@@ -11,7 +11,7 @@
 		<repository>
           <id>central</id>
           <name>libs-release</name>
-          <url>http://120.24.236.93:8081/artifactory/libs-release</url>
+          <url>http://10.44.91.241:8081/artifactory/libs-release</url>
 		</repository>
 	</repositories>
 
