@@ -29,19 +29,12 @@ public class FilterProperty {
 	 */
 	public FilterProperty() {
 		tokenPathArray = new ArrayList<String>();
-		tokenPathArray.add("/task/user/list");
-		tokenPathArray.add("/task/user/level");
-		tokenPathArray.add("/task/user/receive");
-		tokenPathArray.add("/task/user/reward");
-		tokenPathArray.add("/task/user/rank");
-		tokenPathArray.add("/task/user/pk");
-		tokenPathArray.add("/task/callback/app");
+		tokenPathArray.add("/v1/task/gold/list");
+		tokenPathArray.add("/v1/task/gold/receive");
+		tokenPathArray.add("/v1/task/gold/details");
+		tokenPathArray.add("/v1/task/gold/operation");
 
 		fromPathArray = new ArrayList<String>();
-		fromPathArray.add("/task/callback/msgid");
-		fromPathArray.add("/task/callback/level");
-		fromPathArray.add("/task/callback/userBase");
-		fromPathArray.add("/v1/task/inside/msgpush/consumer");
 	}
 
 	/**

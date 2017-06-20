@@ -1,131 +1,155 @@
 package com.blemobi.task.basic;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * 任务信息
+ * 
+ * @author zhaoyong
+ *
  */
 public class TaskInfo {
-	// 任务ID
-	private int taskid;
-	// 任务要求等级
-	private int level;
-	// 任务完成获得经验
-	private long exp;
-	// 任务类型ID（消息订阅ID）
-	private int type;
-	// 任务数量（主线有效）
-	private int num;
-	// 任务接取依赖条件（"|"或"&"）
-	private char logic;
-	// 任务接取依赖别的任务
-	private List<Integer> depend = new ArrayList<Integer>();
-	// 任务描述
-	private String desc;
-	// 简单次数（日常有效）
-	private int easy_num;
-	// 一般次数（日常有效）
-	private int common_num;
-	// 困难次数（日常有效）
-	private int hard_num;
-	// 史诗次数（日常有效）
-	private int epic_num;
+	// ID（小于2000新手任务，大于等于2000每日任务）
+	private short ID;
+	// 关联消息ID
+	private List<Short> msgIDs;
+	// 金币
+	private short gold;
+	// 要求次数
+	private byte targ;
+	// 可完成次数
+	private byte loop;
+	// 中文简体
+	private String desc_sc;
+	// 中文繁体
+	private String desc_tc;
+	// 英文
+	private String desc_en;
+	// 韩文
+	private String desc_kr;
 
-	public int getTaskid() {
-		return taskid;
+	public short getID() {
+		return ID;
 	}
 
-	public void setTaskid(int taskid) {
-		this.taskid = taskid;
+	public void setID(short iD) {
+		ID = iD;
 	}
 
-	public int getLevel() {
-		return level;
+	public List<Short> getMsgIDs() {
+		return msgIDs;
 	}
 
-	public void setLevel(int level) {
-		this.level = level;
+	public void setMsgIDs(List<Short> msgIDs) {
+		this.msgIDs = msgIDs;
 	}
 
-	public long getExp() {
-		return exp;
+	public short getGold() {
+		return gold;
 	}
 
-	public void setExp(long exp) {
-		this.exp = exp;
+	public void setGold(short gold) {
+		this.gold = gold;
 	}
 
-	public int getType() {
-		return type;
+	public byte getTarg() {
+		return targ;
 	}
 
-	public void setType(int type) {
-		this.type = type;
+	public void setTarg(byte targ) {
+		this.targ = targ;
 	}
 
-	public int getNum() {
-		return num;
+	public byte getLoop() {
+		return loop;
 	}
 
-	public void setNum(int num) {
-		this.num = num;
+	public void setLoop(byte loop) {
+		this.loop = loop;
 	}
 
-	public char getLogic() {
-		return logic;
+	public String getDesc_sc() {
+		return desc_sc;
 	}
 
-	public void setLogic(char logic) {
-		this.logic = logic;
+	public void setDesc_sc(String desc_sc) {
+		this.desc_sc = desc_sc;
 	}
 
-	public List<Integer> getDepend() {
-		return depend;
+	/**
+	 * 获得语言对应任务描述（默认简体中文）
+	 * 
+	 * @param language
+	 *            语言
+	 * @return
+	 */
+	public String getDesc(String language) {
+		return "zh-tw".equals(language) ? desc_tc
+				: "en-us".equals(language) ? desc_en : "ko-kr".equals(language) ? desc_kr : desc_sc;
 	}
 
-	public void addDepend(int depend) {
-		this.depend.add(depend);
+	public String getDesc_tc() {
+		return desc_tc;
 	}
 
-	public String getDesc() {
-		return desc;
+	public void setDesc_tc(String desc_tc) {
+		this.desc_tc = desc_tc;
 	}
 
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public String getDesc_en() {
+		return desc_en;
 	}
 
-	public int getEasy_num() {
-		return easy_num;
+	public void setDesc_en(String desc_en) {
+		this.desc_en = desc_en;
 	}
 
-	public void setEasy_num(int easy_num) {
-		this.easy_num = easy_num;
+	public String getDesc_kr() {
+		return desc_kr;
 	}
 
-	public int getCommon_num() {
-		return common_num;
+	public void setDesc_kr(String desc_kr) {
+		this.desc_kr = desc_kr;
 	}
 
-	public void setCommon_num(int common_num) {
-		this.common_num = common_num;
+	/**
+	 * 是否是新手任务
+	 * 
+	 * @return
+	 */
+	public boolean isNocivTask() {
+		return ID < 2000 ? true : false;
 	}
 
-	public int getHard_num() {
-		return hard_num;
+	/**
+	 * 是否是日常任务
+	 * 
+	 * @return
+	 */
+	public boolean isDailyTask() {
+		return !isNocivTask();
 	}
 
-	public void setHard_num(int hard_num) {
-		this.hard_num = hard_num;
+	/**
+	 * 获得该任务对应的Redis键
+	 * 
+	 * @param uuid
+	 *            用户uuid
+	 * @param dailyTime
+	 *            当日时间
+	 * @return
+	 */
+	public String getRedisKey(String uuid, long dailyTime) {
+		StringBuilder sb = new StringBuilder("task:daily:");
+		sb.append(uuid);
+		return isNocivTask() ? sb.toString() : sb.append(":").append(dailyTime).toString();
 	}
 
-	public int getEpic_num() {
-		return epic_num;
-	}
-
-	public void setEpic_num(int epic_num) {
-		this.epic_num = epic_num;
+	@Override
+	public String toString() {
+		return new StringBuilder().append("ID=").append(ID).append(", msgIDs=").append(msgIDs).append(", gold=")
+				.append(gold).append(", targ=").append(targ).append(", loop=").append(loop).append(", desc=")
+				.append(desc_sc).toString();
 	}
 
 }

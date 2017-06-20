@@ -1,13 +1,16 @@
 package com.blemobi.gamification.rest;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.blemobi.library.client.LocalHttpClient;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
-import com.blemobi.sep.probuf.TaskProtos.PCallback;
-import com.blemobi.sep.probuf.TaskProtos.PCallbackArray;
+import com.blemobi.sep.probuf.TaskApiProtos.PTaskMsg;
+import com.blemobi.sep.probuf.TaskApiProtos.PTaskMsgs;
+import com.blemobi.task.core.TaskManager;
 
 public class CallbackProcessTest {
 	private int port;
@@ -16,20 +19,21 @@ public class CallbackProcessTest {
 	public void setup() throws Exception {
 		port = 9018;
 		String[] arg = new String[] { "-env", "local" };
-		// GamificationManager.main(arg);
+		TaskManager.main(arg);
 	}
 
 	@Test
 	public void testSerNotify() throws Exception {
-		StringBuffer basePath = new StringBuffer("/task/callback/msgid");
+		StringBuilder basePath = new StringBuilder("/v1/task/callback/msgid");
 
-		PCallback callback = PCallback.newBuilder().setUuid("123456789").setMsgid(1001)
-				.setTime(System.currentTimeMillis()).build();
+		PTaskMsg taskMsg = PTaskMsg.newBuilder().setUuid("1472020016134289985").setMsgID(202).setCount(1).build();
 
-		PCallbackArray callbackArray = PCallbackArray.newBuilder().addCallback(callback).build();
+		PTaskMsgs callbackArray = PTaskMsgs.newBuilder().addTaskMsg(taskMsg).build();
 
-		LocalHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, null, callbackArray.toByteArray(), "application/x-protobuf");
-		PMessage message = clientUtil.postBodyMethod();
+		LocalHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, null, null, callbackArray.toByteArray(),
+				"application/x-protobuf");
+		PMessage message = clientUtil.postBodyMethod(basePath.toString());
+		assertEquals("PInt64List", message.getType());
 	}
 
 	@After

@@ -1,9 +1,9 @@
 package com.blemobi.gamification.rest;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.Cookie;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -11,109 +11,56 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.blemobi.library.client.BaseHttpClient;
 import com.blemobi.library.client.LocalHttpClient;
-import com.blemobi.library.util.CommonUtil;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
+import com.blemobi.task.core.TaskManager;
 
 public class TaskProcessTest {
 	private int port;
+	private String cookie;
 
 	@Before
 	public void setup() throws Exception {
 		port = 9018;
+		cookie = "uuid=1472020016134289985;token=EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==;";
 		String[] arg = new String[] { "-env", "local" };
-		// GamificationManager.main(arg);
+		TaskManager.main(arg);
 	}
 
 	// @Test
 	public void testList() throws Exception {
-		String uuid = "1472020016134289985";
-		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
-		StringBuffer basePath = new StringBuffer("/task/user/list");
+		StringBuilder basePath = new StringBuilder("/v1/task/gold/list");
 
-		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("language", "zh_cn"));
 
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, null, null);
-		PMessage message = clientUtil.getMethod();
-	}
-
-	@Test
-	public void testLevel() throws Exception {
-		String uuid = "123456789";
-		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
-		StringBuffer basePath = new StringBuffer("/task/user/level");
-
-		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("language", "zh_cn"));
-
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, null, null, null);
-		PMessage message = clientUtil.getMethod();
+		LocalHttpClient clientUtil = new LocalHttpClient("192.168.7.212", port, null, cookie, null, null);
+		PMessage message = clientUtil.getMethod(basePath.toString());
+		assertEquals("PTask", message.getType());
 	}
 
 	// @Test
 	public void testReceive() throws Exception {
-		String uuid = "123456789";
-		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
-
-		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("taskId", "1002"));
+		params.add(new BasicNameValuePair("ID", "1011"));
 
-		StringBuffer basePath = new StringBuffer("/task/user/receive");
+		StringBuilder basePath = new StringBuilder("/v1/task/gold/receive");
 
-		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, null, null);
-		PMessage message = clientUtil.postMethod();
+		LocalHttpClient clientUtil = new LocalHttpClient("192.168.7.212", port, params, cookie, null, null);
+		PMessage message = clientUtil.postMethod(basePath.toString());
+		assertEquals("PResult", message.getType());
 	}
 
-	// @Test
-	public void testReward() throws Exception {
-		String uuid = "123456789";
-		String token = "EiBmN2UzMzM5ZWFiOGZmZTJkZTg5MTE2NGQ2YjJiOGRiMBjYtte8BQ==";
-
-		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-
+	@Test
+	public void testDetails() throws Exception {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("taskId", "2"));
+		params.add(new BasicNameValuePair("type", "1"));
 
-		StringBuffer basePath = new StringBuffer("/task/user/reward");
+		StringBuilder basePath = new StringBuilder("/v1/task/gold/details?idx=1497510678810&size=2");
 
-		BaseHttpClient clientUtil = new LocalHttpClient("127.0.0.1", port, basePath, params, null, null);
-		PMessage message = clientUtil.postMethod();
-	}
-
-	// @Test
-	public void testRanking() throws Exception {
-		String uuid = "1472020016134289985";
-		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
-		StringBuffer basePath = new StringBuffer("/task/user/rank");
-
-		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("language", "zh_cn"));
-		params.add(new BasicNameValuePair("scope", "follower"));
-
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, null, null);
-		PMessage message = clientUtil.getMethod();
-	}
-
-	// @Test
-	public void testPK() throws Exception {
-		String uuid = "1472020016134289985";
-		String token = "GNXq6sAFIOe8lsWIwcuDZSoBbTIgZTVkZGE1OTBjNWU0NWE4MWRmOGU2NzViNGYxZmM0NzM";
-		StringBuffer basePath = new StringBuffer("/task/user/pk");
-
-		Cookie[] cookies = CommonUtil.createLoginCookieParams(uuid, token);
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("language", "zh_cn"));
-		params.add(new BasicNameValuePair("pk_uuid", "1472020016134289985"));
-
-		BaseHttpClient clientUtil = new LocalHttpClient("192.168.1.245", port, basePath, params, null, null);
-		PMessage message = clientUtil.getMethod();
+		LocalHttpClient clientUtil = new LocalHttpClient("192.168.7.212", port, params, cookie, null, null);
+		PMessage message = clientUtil.getMethod(basePath.toString());
+		assertEquals("PResult", message.getType());
 	}
 
 	@After

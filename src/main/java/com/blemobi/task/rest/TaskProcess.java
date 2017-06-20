@@ -1,7 +1,6 @@
 package com.blemobi.task.rest;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
@@ -11,173 +10,64 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.apache.http.client.ClientProtocolException;
-
-import com.blemobi.library.cache.UserBaseCache;
-import com.blemobi.library.exception.BaseException;
-import com.blemobi.library.redis.RedisManager;
-import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos.PUserBase;
 import com.blemobi.sep.probuf.ResultProtos.PMessage;
-import com.blemobi.sep.probuf.TaskProtos.PTaskUserBasic;
-import com.blemobi.sep.probuf.TaskProtos.PTaskUserPk;
-import com.blemobi.task.basic.LevelHelper;
-import com.blemobi.task.basic.LevelInfo;
-import com.blemobi.task.util.Constant;
-import com.blemobi.task.util.RankingUtil;
-import com.blemobi.task.util.TaskUtil;
+import com.blemobi.task.service.TaskService;
+import com.blemobi.task.service.UserTask;
 import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
 
-import redis.clients.jedis.Jedis;
-
-@Path("/task/user")
+@Path("/v1/task/gold")
 public class TaskProcess {
 
 	/**
-	 * 任务列表
+	 * 金币和任务列表
 	 * 
+	 * @param uuid
 	 * @param language
-	 *            语言
-	 * @return PMessage 返回PMessage对象数据
-	 * @throws BaseException
+	 * @return
+	 * @throws IOException
 	 */
 	@GET
 	@Path("list")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage list(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws Exception {
-		TaskUtil taskUtil = new TaskUtil(uuid, language);
-		return taskUtil.list();
-	}
+	public PMessage list(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws IOException {
+		UserTask userTask = new UserTask(uuid);
+		userTask.init();
 
-	/**
-	 * 等级列表
-	 * 
-	 * @param language
-	 *            语言
-	 * @return PMessage 返回PMessage对象数据
-	 * @throws BaseException
-	 */
-	@GET
-	@Path("level")
-	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage level(@CookieParam("uuid") String uuid, @QueryParam("language") String language) throws Exception {
-		TaskUtil taskUtil = new TaskUtil(uuid, language);
-		return taskUtil.level();
-	}
-
-	/**
-	 * 接任务
-	 * 
-	 * @param taskId
-	 *            任务ID
-	 * @return PMessage 返回PMessage对象数据
-	 * @throws BaseException
-	 */
-	@POST
-	@Path("receive")
-	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage receive(@CookieParam("uuid") String uuid, @FormParam("taskIds") String taskIds)
-			throws BaseException {
-		String[] taskidArray = taskIds.split(",");
-		for (String taskid : taskidArray) {
-			TaskUtil taskUtil = new TaskUtil(uuid, Integer.parseInt(taskid));
-			if (!taskUtil.receive()) {
-				return ReslutUtil.createErrorMessage(2901001, "任务不可接取");
-			}
-		}
-		return ReslutUtil.createSucceedMessage();
+		TaskService taskService = new TaskService(uuid);
+		return taskService.list();
 	}
 
 	/**
 	 * 领奖励
 	 * 
-	 * @param taskId
-	 *            任务ID
-	 * @return PMessage 返回PMessage对象数据
-	 * @throws BaseException
+	 * @param uuid
+	 * @param ID
+	 * @return
 	 */
 	@POST
-	@Path("reward")
+	@Path("receive")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage reward(@CookieParam("uuid") String uuid, @FormParam("taskId") int taskId) throws BaseException {
-		TaskUtil taskUtil = new TaskUtil(uuid, taskId);
-		return taskUtil.reward();
+	public PMessage receive(@CookieParam("uuid") String uuid, @FormParam("ID") short ID) {
+		TaskService taskService = new TaskService(uuid);
+		return taskService.receive(ID);
 	}
 
 	/**
-	 * 排行
+	 * 金币明细
 	 * 
-	 * @param taskId
-	 *            任务ID
-	 * @return PMessage 返回PMessage对象数据
-	 * @throws BaseException
-	 * @throws IOException
-	 * @throws ClientProtocolException
+	 * @param uuid
+	 * @param language
+	 * @param size
+	 * @param start
+	 * @return
+	 * @throws Exception
 	 */
 	@GET
-	@Path("rank")
+	@Path("details")
 	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage rank(@CookieParam("uuid") String uuid, @QueryParam("scope") String scope,
-			@QueryParam("language") String language) throws BaseException, ClientProtocolException, IOException {
-		RankingUtil rankingUtil = new RankingUtil(uuid);
-		if ("public".equals(scope)) {
-			return rankingUtil.rankingAll();
-		} else if ("friend".equals(scope)) {
-			return rankingUtil.rankFirend();
-		} else if ("follower".equals(scope)) {
-			return rankingUtil.rankFollow();
-		}
-
-		return null;
-	}
-
-	/**
-	 * pk
-	 * 
-	 * @param taskId
-	 *            任务ID
-	 * @return PMessage 返回PMessage对象数据
-	 * @throws BaseException
-	 * @throws IOException
-	 * @throws ClientProtocolException
-	 */
-	@GET
-	@Path("pk")
-	@Produces(MediaTypeExt.APPLICATION_PROTOBUF)
-	public PMessage pk(@CookieParam("uuid") String uuid, @QueryParam("pk_uuid") String pk_uuid,
-			@QueryParam("language") String language) throws BaseException, ClientProtocolException, IOException {
-
-		Jedis jedis = RedisManager.getRedis();
-		Map<String, String> userInfo = jedis.hgetAll(Constant.GAME_USER_INFO + uuid); // 自己
-		Map<String, String> pkuserInfo = jedis.hgetAll(Constant.GAME_USER_INFO + pk_uuid); // 对方
-		RedisManager.returnResource(jedis);
-
-		PTaskUserBasic userBasic = getUserBasic(userInfo, uuid);
-		PTaskUserBasic pkUserBasic = getUserBasic(pkuserInfo, pk_uuid);
-
-		PTaskUserPk taskUserPk = PTaskUserPk.newBuilder().setUserBasic(userBasic).setPkUserBasic(pkUserBasic)
-				.setUserTaskTotol(Integer.parseInt(userInfo.get("num")))
-				.setPkUserTaskTotol(Integer.parseInt(pkuserInfo.get("num"))).build();
-
-		return ReslutUtil.createReslutMessage(taskUserPk);
-	}
-
-	/**
-	 * 获取用户基础信息
-	 */
-	private PTaskUserBasic getUserBasic(Map<String, String> userInfo, String uuid) throws IOException {
-		int level = Integer.parseInt(userInfo.get("level"));
-		long exp = Long.parseLong(userInfo.get("exp"));
-
-		LevelInfo levelInfo = LevelHelper.getLevelInfoByLevel(level);
-		LevelInfo nextLevelInfo = LevelHelper.getNextLevelInfoByLevel(level);
-
-		PUserBase userBaes = UserBaseCache.get(uuid);
-
-		return PTaskUserBasic.newBuilder().setLevel(level).setExp(exp)
-				.setLevelName(levelInfo.getTitle(userBaes.getLanguage())).setNextLevel(nextLevelInfo.getLevel())
-				.setNextLevelExp(nextLevelInfo.getExp_min())
-				.setNextLevelName(nextLevelInfo.getTitle(userBaes.getLanguage())).setNickname(userBaes.getNickname())
-				.setHeadimg(userBaes.getHeadImgURL()).build();
+	public PMessage details(@CookieParam("uuid") String uuid, @QueryParam("language") String language,
+			@QueryParam("idx") long idx, @QueryParam("size") int size) {
+		TaskService taskService = new TaskService(uuid);
+		return taskService.details(idx, size, 0, 0, (byte) 0);
 	}
 }

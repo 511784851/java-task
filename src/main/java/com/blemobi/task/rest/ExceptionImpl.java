@@ -22,9 +22,9 @@ public class ExceptionImpl implements ExceptionMapper<Exception> {
 	/**
 	 * 异常处理
 	 */
-	public Response toResponse(Exception exception) {
-		log.error("Task server catch an exception, MSG=[" + exception.getMessage() + "]");
-		exception.printStackTrace();
+	public Response toResponse(Exception e) {
+		log.error("Task server catch an exception, MSG=[" + e.getMessage() + "]");
+		e.printStackTrace();
 		PMessage msg = ReslutUtil.createErrorMessage(1001012, "系统繁忙");
 		return Response.ok(msg, MediaTypeExt.APPLICATION_PROTOBUF).status(200).build();
 	}
