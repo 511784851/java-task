@@ -6,8 +6,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.blemobi.library.grpc.AccountGrpcClient;
+import com.blemobi.library.grpc.CommentsGrpcClient;
 import com.blemobi.library.grpc.CommunityGrpcClient;
 import com.blemobi.library.grpc.LoginGrpcClient;
+import com.blemobi.library.grpc.NetDiskGrpcClient;
+import com.blemobi.library.grpc.NewsGrpcClient;
 import com.blemobi.library.redis.dao.RedisDao;
 import com.blemobi.sep.probuf.ResultProtos.PInt32List;
 import com.blemobi.sep.probuf.TaskApiProtos.PTaskMsg;
@@ -113,6 +116,15 @@ public class UserTask {
 			return client.checkMsgIds(taskMsgs);
 		} else if ("community".equals(server)) {
 			CommunityGrpcClient client = new CommunityGrpcClient();
+			return client.checkMsgIds(taskMsgs);
+		} else if ("netdisk".equals(server)) {
+			NetDiskGrpcClient client = new NetDiskGrpcClient();
+			return client.checkMsgIds(taskMsgs);
+		} else if ("news".equals(server)) {
+			NewsGrpcClient client = new NewsGrpcClient();
+			return client.checkMsgIds(taskMsgs);
+		} else if ("comment".equals(server)) {
+			CommentsGrpcClient client = new CommentsGrpcClient();
 			return client.checkMsgIds(taskMsgs);
 		} else
 			throw new RuntimeException("没有找到对应的服务名称：" + server);
