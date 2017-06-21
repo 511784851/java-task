@@ -1,7 +1,5 @@
 package com.blemobi.task.core;
 
-import java.util.List;
-
 import com.blemobi.library.cache.CacheListener;
 import com.blemobi.library.consul_v1.Constants;
 import com.blemobi.library.consul_v1.Constants.CONFIG_KV_KEY;
@@ -14,9 +12,15 @@ import com.blemobi.library.grpc_v1.auth.ConsulAuthProvider;
 import com.blemobi.library.grpc_v1.interceptor.AuthServerInterceptor;
 import com.blemobi.library.jetty.JettyServer;
 import com.blemobi.library.jetty.ServerFilter;
-
+import com.blemobi.task.bat.OnOffJob;
+import com.blemobi.task.bat.QuartzManager;
+import com.blemobi.task.bat.ResetStockJob;
+import com.blemobi.tools.DateUtils;
 import io.grpc.ServerInterceptor;
 import lombok.extern.log4j.Log4j;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 服务启动入口
@@ -55,7 +59,10 @@ public class TaskManager {
 			log.info("health check port:" + healthPort);
 			ConsulServiceMgr.registerServiceWithHealthChk(jettyPort, selfName, healthPort, selfName, null);
 		}
-
+		QuartzManager.addJob("resetStockJob", "resetStockTrigger", ResetStockJob.class, new Date(DateUtils
+				.getDayStart()), 'H', 24);
+		QuartzManager.addJob("OnOffJob", "OnOffTrigger", OnOffJob.class, new Date(DateUtils
+				.getDayStart()), 'M', 1);
 		startJetty(jettyPort);
 		startGRPC();
 		log.info("Start Task Server Finish!");
