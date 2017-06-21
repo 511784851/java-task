@@ -285,8 +285,8 @@ public class MallMgrController {
             headerList.add("category");
             headerList.add("price");
             headerList.add("tot_saled");
-            headerList.add("tot_stock");
-            headerList.add("today_stock");
+            headerList.add("tot_remain");
+            headerList.add("today_remain");
             headerList.add("begin");
             headerList.add("serial_no");
             headerList.add("sale_status");
