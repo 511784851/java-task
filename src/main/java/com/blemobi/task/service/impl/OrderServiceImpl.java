@@ -4,12 +4,8 @@ import com.blemobi.library.cache.UserBaseCache;
 import com.blemobi.library.client.OssHttpClient;
 import com.blemobi.library.consul_v1.PropsUtils;
 import com.blemobi.library.grpc.CommunityGrpcClient;
-import com.blemobi.library.grpc.TaskGrpcClient;
 import com.blemobi.library.util.ReslutUtil;
-import com.blemobi.sep.probuf.AccountProtos;
-import com.blemobi.sep.probuf.MallProtos;
-import com.blemobi.sep.probuf.OssProtos;
-import com.blemobi.sep.probuf.ResultProtos;
+import com.blemobi.sep.probuf.*;
 import com.blemobi.task.dao.AddrInfDAO;
 import com.blemobi.task.dao.GoodsInfDAO;
 import com.blemobi.task.dao.OrderDAO;
@@ -17,6 +13,8 @@ import com.blemobi.task.exception.BizException;
 import com.blemobi.task.model.Order;
 import com.blemobi.task.model.Page;
 import com.blemobi.task.service.OrderService;
+import com.blemobi.task.service.TaskService;
+import com.blemobi.task.service.UserGoldUtil;
 import com.blemobi.task.util.IDUtils;
 import com.blemobi.task.util.MapUtils;
 import com.blemobi.tools.DateUtils;
@@ -367,8 +365,15 @@ public class OrderServiceImpl implements OrderService {
         ordMap.put("crt_tm", System.currentTimeMillis());
         orderDAO.insertOrder(ordMap);//添加订单
         //调用金币消耗接口
-        TaskGrpcClient client = new TaskGrpcClient();
-        client.exchangeGoods(gold, ordId, uuid);
+        /*TaskGrpcClient client = new TaskGrpcClient();
+        client.exchangeGoods(gold, ordId, uuid);*/
+        Integer goldBal = UserGoldUtil.getUserGold(uuid);
+        if(goldBal < gold){
+            throw new BizException(3101013, "金币不足");
+        }
+        TaskService taskService = new TaskService();
+        TaskApiProtos.PGoldExchg param = TaskApiProtos.PGoldExchg.newBuilder().setGold(gold).setOrderNo(ordId).setUuid(uuid).build();
+        taskService.exchg(param);
         return ReslutUtil.createSucceedMessage();
     }
 
@@ -381,10 +386,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResultProtos.PMessage getGold(String uuid) {
-        TaskGrpcClient client = new TaskGrpcClient();
+        /*TaskGrpcClient client = new TaskGrpcClient();
         Integer gold = client.getGold(uuid);
-        log.debug("用户UUID->" + uuid + ", 可用金币数量->" + gold);
-        ResultProtos.PInt32Single ret = ResultProtos.PInt32Single.newBuilder().setVal(gold).build();
+        log.debug("用户UUID->" + uuid + ", 可用金币数量->" + gold);*/
+        ResultProtos.PInt32Single ret = ResultProtos.PInt32Single.newBuilder().setVal(UserGoldUtil.getUserGold(uuid)).build();
         return ReslutUtil.createReslutMessage(ret);
     }
 
