@@ -15,6 +15,7 @@ import com.blemobi.task.model.Page;
 import com.blemobi.task.service.OrderService;
 import com.blemobi.task.service.TaskService;
 import com.blemobi.task.service.UserGoldUtil;
+import com.blemobi.task.util.Global;
 import com.blemobi.task.util.IDUtils;
 import com.blemobi.task.util.MapUtils;
 import com.blemobi.tools.DateUtils;
@@ -339,10 +340,10 @@ public class OrderServiceImpl implements OrderService {
             updSql.append("today_remain = today_remain - 1, ");
         }
         updSql.append("tot_saled = tot_saled + 1, today_saled = today_saled + 1 WHERE id = ? AND " +
-                "tot_stock = ? AND today_stock = ?");
+                "tot_remain = ? AND today_remain = ?");
         updParam.add(id);
-        updParam.add(totStock);
-        updParam.add(todayStock);
+        updParam.add(totRemain);
+        updParam.add(todayRemain);
         goodsInfDAO.updateStock(updSql.toString(), updParam);//更新库存
         String ordId = IDUtils.genOrdId(ordChann, payChann, bizType, uuid);
         Map<String, Object> ordMap = new HashMap<>();
@@ -363,15 +364,11 @@ public class OrderServiceImpl implements OrderService {
         }
         ordMap.put("bb_no", bbNO);
         ordMap.put("crt_tm", System.currentTimeMillis());
-        Integer goldBal = UserGoldUtil.getUserGold(uuid);
+        Integer goldBal = UserGoldUtil.getUserGold(Global.GOLD_KEY + uuid);
         if(goldBal < gold){
             throw new BizException(3101013, "金币不足");
         }
         orderDAO.insertOrder(ordMap);//添加订单
-        //调用金币消耗接口
-        /*TaskGrpcClient client = new TaskGrpcClient();
-        client.exchangeGoods(gold, ordId, uuid);*/
-
         TaskService taskService = new TaskService();
         TaskApiProtos.PGoldExchg param = TaskApiProtos.PGoldExchg.newBuilder().setGold(gold).setOrderNo(ordId).setUuid(uuid).build();
         taskService.exchg(param);
@@ -390,7 +387,8 @@ public class OrderServiceImpl implements OrderService {
         /*TaskGrpcClient client = new TaskGrpcClient();
         Integer gold = client.getGold(uuid);
         log.debug("用户UUID->" + uuid + ", 可用金币数量->" + gold);*/
-        ResultProtos.PInt32Single ret = ResultProtos.PInt32Single.newBuilder().setVal(UserGoldUtil.getUserGold(uuid)).build();
+        ResultProtos.PInt32Single ret = ResultProtos.PInt32Single.newBuilder().setVal(UserGoldUtil.getUserGold(Global
+                .GOLD_KEY + uuid)).build();
         return ReslutUtil.createReslutMessage(ret);
     }
 
