@@ -7,6 +7,7 @@ import com.blemobi.library.consul_v1.ConsulClientMgr;
 import com.blemobi.library.consul_v1.ConsulServiceMgr;
 import com.blemobi.library.consul_v1.PropsUtils;
 import com.blemobi.library.grpc_v1.GRPCServer;
+import com.blemobi.library.grpc_v1.annotation.GRPCService;
 import com.blemobi.library.grpc_v1.auth.AuthProvider;
 import com.blemobi.library.grpc_v1.auth.ConsulAuthProvider;
 import com.blemobi.library.grpc_v1.interceptor.AuthServerInterceptor;
@@ -15,13 +16,12 @@ import com.blemobi.library.jetty.ServerFilter;
 import com.blemobi.task.bat.OnOffJob;
 import com.blemobi.task.bat.QuartzManager;
 import com.blemobi.task.bat.ResetStockJob;
-import com.blemobi.task.grpcservice.TaskGRPCImpl;
 import com.blemobi.tools.DateUtils;
 import io.grpc.ServerInterceptor;
 import lombok.extern.log4j.Log4j;
+import org.reflections.Reflections;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +34,7 @@ import java.util.Set;
 @Log4j
 public class TaskManager {
 	private static String ADDRESS = "127.0.0.1";// 测试、生产环境
+	private static final String _BASE_GRPC_PKG = "com.blemobi.task.grpcservice";
 	/**
 	 * 服务名称
 	 */
@@ -69,7 +70,6 @@ public class TaskManager {
 		startJetty(jettyPort);
 		startGRPC();
 		log.info("Start Task Server Finish!");
-
 		// 启动线程管理用户缓存
 		new CacheListener(invalid_time, sleep_time, uuid -> log.debug("用户缓存信息过期了！ uuid=" + uuid)).run();
 	}
@@ -96,8 +96,8 @@ public class TaskManager {
 	private static void startGRPC() throws Exception {
 		AuthProvider authProvider = new ConsulAuthProvider();
 		ServerInterceptor authInterceptor = new AuthServerInterceptor(authProvider);
-		Set<Class<?>> anno = new HashSet<Class<?>>();
-		anno.add(TaskGRPCImpl.class);
-		GRPCServer.start(selfName, anno, authInterceptor);
+		Reflections reflections = new Reflections(_BASE_GRPC_PKG);
+		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(GRPCService.class);
+		GRPCServer.start(selfName, annotated, authInterceptor);
 	}
 }

@@ -5,6 +5,7 @@ import com.blemobi.library.util.ExcelUtils;
 import com.blemobi.sep.probuf.MallProtos;
 import com.blemobi.sep.probuf.ResultProtos;
 import com.blemobi.task.config.InstanceFactory;
+import com.blemobi.task.exception.BizException;
 import com.blemobi.task.exception.RestException;
 import com.blemobi.task.model.Goods;
 import com.blemobi.task.model.Order;
@@ -39,6 +40,15 @@ public class MallMgrController {
     private GoodsInfService goodsInfService = InstanceFactory.getInstance(GoodsInfService.class);
     private OrderService orderService = InstanceFactory.getInstance(OrderService.class);
 
+    private void wrap(Exception ex){
+        log.error("", ex);
+        if(ex instanceof BizException){
+            BizException be = (BizException) ex;
+            throw new RestException(be.getErrCd(), be.getMsg());
+        }else{
+            throw new RestException(1001012, "系统繁忙");
+        }
+    }
     /**
      * 新增商品
      *
@@ -93,9 +103,9 @@ public class MallMgrController {
             }
             return json.toJSONString();
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
     /**
@@ -152,9 +162,9 @@ public class MallMgrController {
             }
             return json.toJSONString();
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
     /**
@@ -183,9 +193,9 @@ public class MallMgrController {
             }
             return json.toJSONString();
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
     @POST
@@ -216,9 +226,9 @@ public class MallMgrController {
             }
             return json.toJSONString();
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
     /**
@@ -250,9 +260,9 @@ public class MallMgrController {
             log.debug(json);
             return json;
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
     @GET
@@ -296,9 +306,9 @@ public class MallMgrController {
             String fileNm = new String("商品列表".getBytes("utf-8"), "ISO-8859-1");
             return responseBuilder.header("content-disposition", "inline;filename=" + fileNm + ".xls").build();
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
     /**
@@ -330,9 +340,9 @@ public class MallMgrController {
             log.debug(json);
             return json;
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
 
@@ -355,9 +365,9 @@ public class MallMgrController {
             log.debug(json);
             return json;
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 
     /**
@@ -389,8 +399,8 @@ public class MallMgrController {
             }
             return json.toJSONString();
         } catch (Exception ex) {
-            log.error("", ex);
-            throw new RestException(1001012, "系统繁忙");
+            wrap(ex);
         }
+        return null;
     }
 }
