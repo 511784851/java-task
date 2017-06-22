@@ -14,6 +14,7 @@ import com.blemobi.sep.probuf.ResultProtos.PStringList;
 import com.blemobi.sep.probuf.TaskProtos.PGoldDetails;
 import com.blemobi.task.service.TaskService;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.googlecode.protobuf.format.JsonFormat;
 import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
 
 /**
@@ -39,12 +40,13 @@ public class UserProcess {
 	@GET
 	@Path("details")
 	@Produces(MediaTypeExt.APPLICATION_JSON)
-	public PGoldDetails details(@QueryParam("uuid") String uuid, @QueryParam("idx") long idx,
-			@QueryParam("size") int size, @QueryParam("st") long st, @QueryParam("et") long et,
-			@QueryParam("type") byte type) throws InvalidProtocolBufferException {
+	public String details(@QueryParam("uuid") String uuid, @QueryParam("idx") long idx, @QueryParam("size") int size,
+			@QueryParam("st") long st, @QueryParam("et") long et, @QueryParam("type") byte type)
+			throws InvalidProtocolBufferException {
 		TaskService taskService = new TaskService(uuid);
 		PMessage message = taskService.details(idx, size, st, et, type);
-		return PGoldDetails.parseFrom(message.getData());
+		PGoldDetails goldDetails = PGoldDetails.parseFrom(message.getData());
+		return JsonFormat.printToString(goldDetails);
 	}
 
 	/**
@@ -60,10 +62,11 @@ public class UserProcess {
 	@POST
 	@Path("operation")
 	@Produces(MediaTypeExt.APPLICATION_JSON)
-	public PResult operation(@FormParam("uuid") String uuid, @FormParam("gold") short gold,
-			@FormParam("type") byte type, @FormParam("content") String content) {
+	public String operation(@FormParam("uuid") String uuid, @FormParam("gold") short gold, @FormParam("type") byte type,
+			@FormParam("content") String content) {
 		TaskService taskService = new TaskService(uuid);
-		return taskService.operation(uuid, gold, type, content);
+		PResult result = taskService.operation(uuid, gold, type, content);
+		return JsonFormat.printToString(result);
 	}
 
 	/**
@@ -75,7 +78,7 @@ public class UserProcess {
 	@GET
 	@Path("gold")
 	@Produces(MediaTypeExt.APPLICATION_JSON)
-	public PInt32List gold(@QueryParam("uuids") String uuids) {
+	public String gold(@QueryParam("uuids") String uuids) {
 		String[] array = uuids.split(",");
 
 		PStringList.Builder builder = PStringList.newBuilder();
@@ -83,6 +86,7 @@ public class UserProcess {
 			builder.addList(uuid);
 		}
 		TaskService taskService = new TaskService();
-		return taskService.findGold(builder.build());
+		PInt32List list = taskService.findGold(builder.build());
+		return JsonFormat.printToString(list);
 	}
 }
