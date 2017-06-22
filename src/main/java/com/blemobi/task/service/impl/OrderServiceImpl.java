@@ -363,14 +363,15 @@ public class OrderServiceImpl implements OrderService {
         }
         ordMap.put("bb_no", bbNO);
         ordMap.put("crt_tm", System.currentTimeMillis());
-        orderDAO.insertOrder(ordMap);//添加订单
-        //调用金币消耗接口
-        /*TaskGrpcClient client = new TaskGrpcClient();
-        client.exchangeGoods(gold, ordId, uuid);*/
         Integer goldBal = UserGoldUtil.getUserGold(uuid);
         if(goldBal < gold){
             throw new BizException(3101013, "金币不足");
         }
+        orderDAO.insertOrder(ordMap);//添加订单
+        //调用金币消耗接口
+        /*TaskGrpcClient client = new TaskGrpcClient();
+        client.exchangeGoods(gold, ordId, uuid);*/
+
         TaskService taskService = new TaskService();
         TaskApiProtos.PGoldExchg param = TaskApiProtos.PGoldExchg.newBuilder().setGold(gold).setOrderNo(ordId).setUuid(uuid).build();
         taskService.exchg(param);

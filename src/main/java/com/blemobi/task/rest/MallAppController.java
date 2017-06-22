@@ -2,7 +2,6 @@ package com.blemobi.task.rest;
 
 import com.blemobi.sep.probuf.ResultProtos;
 import com.blemobi.task.config.InstanceFactory;
-import com.blemobi.task.exception.BizException;
 import com.blemobi.task.service.GoodsInfService;
 import com.blemobi.task.service.OrderService;
 import com.pakulov.jersey.protobuf.internal.MediaTypeExt;
@@ -33,12 +32,7 @@ public class MallAppController {
     @Produces(MediaTypeExt.APPLICATION_PROTOBUF)
     public ResultProtos.PMessage goodsTypeStatistics(@CookieParam("uuid") String uuid, @CookieParam("token") String token) {
         log.debug("查看分类下商品数量");
-        try {
-            return goodsInfService.categoryStatics();
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return goodsInfService.categoryStatics();
     }
 
     /**
@@ -56,12 +50,7 @@ public class MallAppController {
     public ResultProtos.PMessage goodsList(@CookieParam("uuid") String uuid, @CookieParam("token") String token, @QueryParam("category") int
             category, @QueryParam("serialNo") int serialNo) {
         log.debug("goodsList");
-        try {
-            return goodsInfService.goodsList(category, serialNo);
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return goodsInfService.goodsList(category, serialNo);
     }
 
 
@@ -80,12 +69,7 @@ public class MallAppController {
     public ResultProtos.PMessage ordList(@CookieParam("uuid") String uuid, @CookieParam
             ("token") String token, @QueryParam("category") int category, @QueryParam("time") long time) {
         log.debug("ordList");
-        try {
-            return orderService.ordList(uuid, category, time);
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return orderService.ordList(uuid, category, time);
     }
 
     /**
@@ -102,12 +86,7 @@ public class MallAppController {
     public ResultProtos.PMessage detail(@CookieParam("uuid") String uuid, @CookieParam("token") String token,
                                         @QueryParam("id") int id) {
         log.debug("detail");
-        try {
-            return goodsInfService.goodsDetail(id);
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return goodsInfService.goodsDetail(id);
     }
 
     /**
@@ -135,13 +114,8 @@ public class MallAppController {
                                              @FormParam("remark") String remark, @FormParam("excChannel") int ordChann,
                                              @FormParam("payChannel") int payChann, @FormParam("bizType") int bizType) {
         log.debug("exchageReal");
-        try {
-            return orderService.exchageGoods(uuid, id, contact, address, null, null, phone, remark, ordChann, payChann,
-                    bizType);
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return orderService.exchageGoods(uuid, id, contact, address, null, null, phone, remark, ordChann, payChann,
+                bizType);
     }
 
     /**
@@ -168,13 +142,8 @@ public class MallAppController {
                                                 @FormParam("remark") String remark, @FormParam("excChannel") int ordChann,
                                                 @FormParam("payChannel") int payChann, @FormParam("bizType") int bizType) {
         log.debug("exchageVirtual");
-        try {
-            return orderService.exchageGoods(uuid, id, null, null, email, qqNO, phone, remark, ordChann, payChann,
-                    bizType);
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return orderService.exchageGoods(uuid, id, null, null, email, qqNO, phone, remark, ordChann, payChann,
+                bizType);
     }
 
     /**
@@ -189,12 +158,7 @@ public class MallAppController {
     @Produces(MediaTypeExt.APPLICATION_PROTOBUF)
     public ResultProtos.PMessage getAddr(@CookieParam("uuid") String uuid, @CookieParam("token") String token) {
         log.debug("getAddr");
-        try {
-            return orderService.getAddr(uuid);
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return orderService.getAddr(uuid);
     }
 
     @GET
@@ -202,12 +166,7 @@ public class MallAppController {
     @Produces(MediaTypeExt.APPLICATION_PROTOBUF)
     public ResultProtos.PMessage getGold(@CookieParam("uuid") String uuid, @CookieParam("token") String token) {
         log.debug("getGold");
-        try {
-            return orderService.getGold(uuid);
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return orderService.getGold(uuid);
     }
 
     /**
@@ -222,11 +181,6 @@ public class MallAppController {
     @Produces(MediaTypeExt.APPLICATION_PROTOBUF)
     public ResultProtos.PMessage getContacts(@CookieParam("uuid") String uuid, @CookieParam("token") String token) {
         log.debug("getContacts");
-        try {
-            return orderService.getContacts();
-        } catch (Exception ex) {
-            log.error("", ex);
-            throw new BizException(1001012, "");
-        }
+        return orderService.getContacts();
     }
 }
