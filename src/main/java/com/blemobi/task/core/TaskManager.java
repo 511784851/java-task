@@ -15,12 +15,15 @@ import com.blemobi.library.jetty.ServerFilter;
 import com.blemobi.task.bat.OnOffJob;
 import com.blemobi.task.bat.QuartzManager;
 import com.blemobi.task.bat.ResetStockJob;
+import com.blemobi.task.grpcservice.TaskGRPCImpl;
 import com.blemobi.tools.DateUtils;
 import io.grpc.ServerInterceptor;
 import lombok.extern.log4j.Log4j;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 服务启动入口
@@ -93,6 +96,8 @@ public class TaskManager {
 	private static void startGRPC() throws Exception {
 		AuthProvider authProvider = new ConsulAuthProvider();
 		ServerInterceptor authInterceptor = new AuthServerInterceptor(authProvider);
-		GRPCServer.start(selfName, authInterceptor);
+		Set<Class<?>> anno = new HashSet<Class<?>>();
+		anno.add(TaskGRPCImpl.class);
+		GRPCServer.start(selfName, anno, authInterceptor);
 	}
 }

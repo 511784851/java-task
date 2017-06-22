@@ -230,24 +230,42 @@ public class GoodsInfServiceImpl implements GoodsInfService {
         List<Goods> retList = new ArrayList<>();
         if (ret != null && ret.size() > 0) {
             for (Map<String, Object> map : ret) {
-                Goods goods = new Goods();
-                goods.setCrtTm(MapUtils.getLong(map, "crt_tm"));
-                goods.setGoodsNo(MapUtils.getString(map, "goods_no"));
-                goods.setGoodsType(MapUtils.getInt(map, "category"));
-                goods.setId(MapUtils.getInt(map, "id"));
-                goods.setName(MapUtils.getString(map, "nm"));
-                goods.setOnSaleTm(MapUtils.getLong(map, "begin"));
-                goods.setOffSaleTm(MapUtils.getLong(map, "end"));
-                goods.setPrice(MapUtils.getInt(map, "price"));
-                goods.setSalesCnt(MapUtils.getInt(map, "tot_saled"));
-                goods.setSaleStatus(MapUtils.getInt(map, "sale_status"));
-                goods.setStock(MapUtils.getInt(map, "tot_stock"));
-                goods.setStockPerDay(MapUtils.getInt(map, "today_stock"));
-                goods.setExchangeNm(MapUtils.getString(map, "exchange_nm"));
-                goods.setSort(MapUtils.getInt(map, "serial_no"));
-                goods.setTodayRemain(MapUtils.getInt(map, "today_remain"));
-                goods.setTotRemain(MapUtils.getInt(map, "tot_remain"));
-                retList.add(goods);
+            	Goods g = new Goods();
+            	g.setId(MapUtils.getInt(map, "id"));
+            	g.setName(MapUtils.getString(map, "nm"));
+            	g.setCategory(MapUtils.getInt(map, "category"));
+            	g.setPrice(MapUtils.getInt(map, "price"));
+            	String objKey = MapUtils.getString(map, "obj_key");
+            	g.setObjKey(objKey);
+            	OssProtos.PDownload urls = getURL(objKey);
+                String url = "", thumb = "";
+                if (urls != null) {
+                    url = urls.getUrl();
+                    thumb = urls.getThumb();
+                }
+            	g.setUrl(url);
+            	g.setThumb(thumb);
+            	g.setStock(MapUtils.getInt(map, "tot_stock"));
+            	g.setDescribe(MapUtils.getString(map, "describe"));
+            	g.setOtherDescribe(MapUtils.getString(map, "other_describe"));
+            	g.setLimitCnt(MapUtils.getInt(map, "today_stock"));
+            	g.setLevel(MapUtils.getInt(map, "exchange_level"));
+            	g.setTag(MapUtils.getInt(map, "tag"));
+            	g.setLimitType(MapUtils.getInt(map, "limit_typ"));
+            	g.setTimes(MapUtils.getInt(map, "times"));
+            	g.setSaleStatus(MapUtils.getInt(map, "sale_status"));
+            	g.setOnoffType(MapUtils.getInt(map, "on_off_typ"));
+            	g.setOnSaleTm(MapUtils.getLong(map, "begin"));
+            	g.setOffSaleTm(MapUtils.getLong(map, "end"));
+            	g.setSort(MapUtils.getInt(map, "serial_no"));
+            	g.setCrtTm(MapUtils.getLong(map, "crt_tm"));
+            	g.setGoodsNo(MapUtils.getString(map, "goods_no"));
+            	g.setSalesCnt(MapUtils.getInt(map, "tot_saled"));
+            	g.setStockPerDay(MapUtils.getInt(map, "today_stock"));
+            	g.setExchangeNm(MapUtils.getString(map, "exchange_nm"));
+            	g.setTotRemain(MapUtils.getInt(map, "tot_remain"));
+            	g.setTodayRemain(MapUtils.getInt(map, "today_remain"));
+                retList.add(g);
             }
         }
         data.setCurrentPage(page);
